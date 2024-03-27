@@ -1,5 +1,5 @@
 ---
-title: "The effect of monetary policy in Australia"
+title: "The impact of monetary policy on the real economy and the stock market: The case of Australia"
 author: "Pun Suparattanapinan"
 
 execute:
@@ -10,9 +10,8 @@ bibliography: references.bib
 
 > **Abstract.** This is a suggested formatting for your abstract. This **quarto** document is a template for your report. It includes some basic ways of working with such documents. You are invited to learn more about developing online reports with this technology.
 >
-> **Keywords.** Structural VAR, monetary policy
+> **Keywords.** Structural VAR, SVAR, monetary policy, stock market, impact
 
 # Introduction
-
 
 ## References {.unnumbered}
