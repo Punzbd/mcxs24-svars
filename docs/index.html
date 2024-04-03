@@ -21,7 +21,27 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -68,6 +88,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -98,7 +147,14 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
+  <li><a href="#preliminary-results" id="toc-preliminary-results" class="nav-link" data-scroll-target="#preliminary-results">Preliminary Results</a>
+  <ul class="collapse">
+  <li><a href="#the-autocorrelation-and-partial-autocorrelation" id="toc-the-autocorrelation-and-partial-autocorrelation" class="nav-link" data-scroll-target="#the-autocorrelation-and-partial-autocorrelation">The autocorrelation and partial autocorrelation</a></li>
+  <li><a href="#the-unit-root-test" id="toc-the-unit-root-test" class="nav-link" data-scroll-target="#the-unit-root-test">The unit root test</a></li>
+  </ul></li>
+  <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology">Methodology</a>
   <ul class="collapse">
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
@@ -134,19 +190,324 @@ ul.task-list li input[type="checkbox"] {
 
 
 <blockquote class="blockquote">
-<p><strong>Abstract.</strong> This is a suggested formatting for your abstract. This <strong>quarto</strong> document is a template for your report. It includes some basic ways of working with such documents. You are invited to learn more about developing online reports with this technology.</p>
-<p><strong>Keywords.</strong> Structural VAR, SVAR, monetary policy, stock market, impact</p>
+<p><strong>Keywords.</strong> Structural VAR, SVAR, monetary policy, stock market, economic impact, impulse response function, Bayesian, cash rate, impulse response function</p>
 </blockquote>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
+<p>This study aims to explore the dynamic impact of monetary policy on the real economy in Australia, specifically focusing on economic growth, inflation, and employment. How does the real economy respond? What is the magnitude and the duration of change? The stock market price is included and can be considered a leading indicator of the real economy.</p>
+<p>According to Economic theory, the transmission mechanism of monetary policy to the real economy takes time, as it does not have a fully immediate effect, but it involves some delays. <span class="citation" data-cites="BrischettoVoss1999">Brischetto and Voss (<a href="#ref-BrischettoVoss1999" role="doc-biblioref">1999</a>)</span> find that the contractionary of monetary policy in Australia leads to a decrease in output level between 5 and 15 quarters after the contraction. The price level also gradually falls with some delay with maximum effect, and there is an indication that the effect tends to be permanent. <span class="citation" data-cites="Mojon2001">Mojon and Peersman (<a href="#ref-Mojon2001" role="doc-biblioref">2001</a>)</span> also investigate the effect of monetary policy across 10 euro area countries and find that a contractionary monetary policy shock leads to a temporary fall in GDP that peaks typically around four quarters after the shock and a gradual decrease in the price level.</p>
+<p>On the other hand, <span class="citation" data-cites="Bjornland2009">Bjørnland and Leitemo (<a href="#ref-Bjornland2009" role="doc-biblioref">2009</a>)</span> suggest that, due to the availability of information in financial market, the monetary policy and stock market have simultaneous effects. They also find that real stock prices immediately fall by seven to nine percent due to a monetary policy shock that raises the federal funds rate by 100 basis points. Similarly, <span class="citation" data-cites="Ioannidis2008">Ioannidis and Kontonikas (<a href="#ref-Ioannidis2008" role="doc-biblioref">2008</a>)</span> find that the majority of OECD countries under study, periods of tight money are associated with contemporaneous declines in stock market value and also decreases expected stock returns. Additionally, according to <span class="citation" data-cites="Bjornland2009">Bjørnland and Leitemo (<a href="#ref-Bjornland2009" role="doc-biblioref">2009</a>)</span>, the changes in asset price, particularly stock price, ultimately impact the economic growth by increasing household spending based on their wealth and encouraging investment through the Tobin Q effect. The asset prices also play a role in firm’s ability to fund operations through credit channel. Hence, policymakers are motivated to track the asset price as short-run indicators.</p>
+<p>Understanding insights of these dynamic impacts within the macroeconomy, including the magnitude and duration of impacts, enables the policymakers to precisely predict the outcomes on real economy that might occur after changing the new cash target rate.</p>
+</section>
+<section id="data" class="level1">
+<h1>Data</h1>
+<p>The variables in this study include the cash rate target <strong><em>(cashrate)</em></strong>, which indicates the monetary policy. GDP (in real terms), inflation <strong><em>(inflation)</em></strong>, and the unemployment rate <strong><em>(unemprate)</em></strong> are included to measure the real economy. For the stock market, the author uses the All Ordinaries index (AORD) as a representative. The AORD is the market-weighted index and includes about 500 companies from the Australian Stock Exchange. Finally, total government expenditure is included to control for fiscal policy, which might also affect the economy besides monetary policy. The data is collected from the Reserve Bank of Australia (RBA), Australian Bureau of Statistics (ABS), and Yahoo Finance. The dataset spans from 1990 Q1 to 2023 Q4, comprising 136 observations. <a href="#figure-1-time-series-plots-raw-data">Figure 1: time series plots (raw data)</a> represents the raw data time series of these 6 variables.</p>
+<p><br></p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/plotting the raw data-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<center>
+<section id="figure-1-time-series-plots-raw-data" class="level5">
+<h5 class="anchored" data-anchor-id="figure-1-time-series-plots-raw-data">Figure 1: time series plots (raw data)</h5>
+</section></center>
+<p><br></p>
+<p>The author transforms the data in manner that aligns with the purpose of study. The AORD and total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 3 variables that are in real terms, namely GDP, AORD, and total government expenditure, to represent growth by taking the difference of logarithms, denoted by <strong><em>drealgdp</em></strong>, <strong><em>dstockprice</em></strong>, and <strong><em>dgovexp</em></strong> respectively. <a href="#figure-2-time-series-plots-transformed-data">Figure 2: time series plots (transformed data)</a> represents the transformed data, which will be analyzed further.</p>
+<p><br></p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/Plotting the data-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<center>
+</center></section>
+<section id="figure-2-time-series-plots-transformed-data" class="level5">
+<h5 class="anchored" data-anchor-id="figure-2-time-series-plots-transformed-data">Figure 2: time series plots (transformed data)</h5>
+
+<p><br></p>
+<p>The statistics summary of variables from 1990 Q1 to 2023 Q4 is shown in Table 1.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table 1: Summary statistics</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">N</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">St.Dev.</th>
+<th style="text-align: right;">Min</th>
+<th style="text-align: right;">Max</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">cashrate</td>
+<td style="text-align: right;">136</td>
+<td style="text-align: right;">4.589</td>
+<td style="text-align: right;">2.864</td>
+<td style="text-align: right;">0.100</td>
+<td style="text-align: right;">16.750</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">drealgdp</td>
+<td style="text-align: right;">136</td>
+<td style="text-align: right;">0.716</td>
+<td style="text-align: right;">1.016</td>
+<td style="text-align: right;">-7.178</td>
+<td style="text-align: right;">4.062</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">inflation</td>
+<td style="text-align: right;">136</td>
+<td style="text-align: right;">0.664</td>
+<td style="text-align: right;">0.619</td>
+<td style="text-align: right;">-1.905</td>
+<td style="text-align: right;">3.774</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">unemprate</td>
+<td style="text-align: right;">136</td>
+<td style="text-align: right;">6.354</td>
+<td style="text-align: right;">1.880</td>
+<td style="text-align: right;">3.484</td>
+<td style="text-align: right;">11.216</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">dstockprice</td>
+<td style="text-align: right;">136</td>
+<td style="text-align: right;">0.471</td>
+<td style="text-align: right;">7.431</td>
+<td style="text-align: right;">-29.259</td>
+<td style="text-align: right;">18.273</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">dgovexp</td>
+<td style="text-align: right;">136</td>
+<td style="text-align: right;">0.880</td>
+<td style="text-align: right;">1.472</td>
+<td style="text-align: right;">-3.478</td>
+<td style="text-align: right;">5.183</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="preliminary-results" class="level1">
+<h1>Preliminary Results</h1>
+<section id="the-autocorrelation-and-partial-autocorrelation" class="level3">
+<h3 class="anchored" data-anchor-id="the-autocorrelation-and-partial-autocorrelation">The autocorrelation and partial autocorrelation</h3>
+<p>In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. <a href="#figure-3-acf-plots">Figure 3: ACF plots</a> show the autocorrelation remains in <em>cashrate</em> and <em>unemprate</em> even after 5 years. The acf of <em>inflation</em> also indicates the significant autocorrelation in first quarter lag, whereas all other variables do not exhibit significant lags. However, in <em>drealgdp</em>, a spike exceeds the 95% confidence interval in fifth quarter lag; nevertheless, this might occur due to a type I error.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/ACF plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<center>
+<section id="figure-3-acf-plots" class="level5">
+<h5 class="anchored" data-anchor-id="figure-3-acf-plots">Figure 3: ACF plots</h5>
+</section></center>
+<p><br></p>
+<p>For the pacf in <a href="#figure-4-pacf-plots">Figure 4: PACF plots</a>, it is observed that there are significant spike for some lags for all variables except <em>dstockprice</em>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/PACF plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<center>
+</center></section>
+<section id="figure-4-pacf-plots" class="level5">
+<h5 class="anchored" data-anchor-id="figure-4-pacf-plots">Figure 4: PACF plots</h5>
+
+<p><br></p>
+</section>
+</section>
+<section id="the-unit-root-test" class="level3">
+<h3 class="anchored" data-anchor-id="the-unit-root-test">The unit root test</h3>
+<p>In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in table 2. All of variables except <em>unemprate</em>, can be rejected on the null hypothesis which indicate that these variables are stationary.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table 2: ADF test</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Dickey-Fuller</th>
+<th style="text-align: right;">Lag order</th>
+<th style="text-align: right;">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">cashrate</td>
+<td style="text-align: right;">-3.77</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.02</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">drealgdp</td>
+<td style="text-align: right;">-5.68</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">inflation</td>
+<td style="text-align: right;">-3.89</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.02</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">unemprate</td>
+<td style="text-align: right;">-2.61</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.32</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">dstockprice</td>
+<td style="text-align: right;">-5.51</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">dgovexp</td>
+<td style="text-align: right;">-4.83</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Then, take the first difference to all variables and rerun the ADF test. The results are shown in table 3. It is reasonable to conclude that <em>unemprate</em> is integrated of order 1, while the others are integrated of order 0, or in other words, they are stationary.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table 3: ADF test on first difference</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Dickey-Fuller</th>
+<th style="text-align: right;">Lag order</th>
+<th style="text-align: right;">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">dcashrate</td>
+<td style="text-align: right;">-4.26</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ddrealgdp</td>
+<td style="text-align: right;">-8.27</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">dinflation</td>
+<td style="text-align: right;">-6.23</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">dunemprate</td>
+<td style="text-align: right;">-4.96</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ddstockprice</td>
+<td style="text-align: right;">-7.46</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ddgovexp</td>
+<td style="text-align: right;">-8.92</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="methodology" class="level1">
+<h1>Methodology</h1>
+<p>In this section, the model that this study use to capture the structural relationship between real economy variables and the stock price is introduced. The author use Structural Vector Autoregression (SVAR) model which comprises of 6 variables on the same integrated order, <em>cashrate</em>, <em>drealgdp</em>, <em>inflation</em>, <em>dunemprate</em>, <em>dstockprice</em>, and <em>dgovexp</em>. Subsequently, the model will be used to analyze the impulse responses.</p>
+<p>The <strong>SVAR model</strong> can be shown as follows.</p>
+<span class="math display">\[\begin{align}
+B_0y_t &amp;= b_0 + \sum_{i=1}^{p}B_{i}y_{t-i}+u_t  \\
+u_t|y_{t-1}&amp;\sim iid(0_N,I_N)
+\end{align}\]</span>
+<p>where :</p>
+<p><span class="math inline">\(y_{t}\)</span> is <span class="math inline">\(N\times1\)</span> vector of endogenous variables at time t.</p>
+<p><span class="math inline">\(B_0\)</span> is <span class="math inline">\(N\times N\)</span> structural matrix which captures the contemporaneous relationships between variables.</p>
+<p><span class="math inline">\(u_t\)</span> is <span class="math inline">\(N\times1\)</span> vector of conditionally on <span class="math inline">\(y_{t-1}\)</span> orthogonal or independent structural shocks.</p>
+<p><br></p>
+<p>Specifically, <span class="math inline">\(y_{t}\)</span> contains 6 variables as follows. <span class="math display">\[
+y_t = \begin{pmatrix}
+\text{cashrate} \\
+\text{drealgdp} \\
+\text{inflation} \\
+\text{dunemprate} \\
+\text{dstockprice} \\
+\text{dgovexp}
+\end{pmatrix}
+\]</span></p>
+<p>The <strong>reduced form</strong> can be shown as follows.</p>
+<span class="math display">\[\begin{align}
+y_t &amp;= \mu_0 + \sum_{i=1}^{p}A_{i}y_{t-i}+\epsilon_t \\
+\epsilon_t|y_{t-1} &amp;\sim iid \mathcal{N}(0_N,\Sigma)
+\end{align}\]</span>
+<p>where :</p>
+<p><span class="math inline">\(A_i\)</span> is <span class="math inline">\(N\times N\)</span> matrix of autoregressive slope parameters</p>
+<p><span class="math inline">\(\mu_0\)</span> is <span class="math inline">\(N\times1\)</span> vector of constant terms</p>
+<p><span class="math inline">\(\epsilon_t\)</span> is <span class="math inline">\(N\times1\)</span> vector of error terms - a multivariate white noise process</p>
+<p><span class="math inline">\(\Sigma\)</span> is <span class="math inline">\(N\times N\)</span> covariance matrix of the error term</p>
 <section id="references" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="references">References</h2>
+
+
 
 
 </section>
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Bjornland2009" class="csl-entry" role="listitem">
+Bjørnland, HC, and K Leitemo. 2009. <span>“Identifying the Interdependence Between US Monetary Policy and the Stock Market.”</span> <em>Journal of Monetary Economics</em> 56(2): 275–82. <a href="https://doi.org/10.1016/j.jmoneco.2008.12.001">https://doi.org/10.1016/j.jmoneco.2008.12.001</a>.
+</div>
+<div id="ref-BrischettoVoss1999" class="csl-entry" role="listitem">
+Brischetto, Andrea, and Graham Voss. 1999. <span>“A Structural Vector Autoregression Model of Monetary Policy in Australia.”</span> <em>Reserve Bank of Australia</em>.
+</div>
+<div id="ref-Ioannidis2008" class="csl-entry" role="listitem">
+Ioannidis, Christos, and Alexandros Kontonikas. 2008. <span>“The Impact of Monetary Policy on Stock Prices. Journal of Policy Modeling.”</span> <em>Journal of Policy Modeling</em> 30(1): 33–53. <a href="https://doi.org/10.1016/j.jpolmod.2007.06.015">https://doi.org/10.1016/j.jpolmod.2007.06.015</a>.
+</div>
+<div id="ref-Mojon2001" class="csl-entry" role="listitem">
+Mojon, Benoit, and Gert Peersman. 2001. <span>“A VAR Description of the Effects of Monetary Policy in the Individual Countries of the Euro Area.”</span> <a href="http://dx.doi.org/10.2139/ssrn.303801">http://dx.doi.org/10.2139/ssrn.303801</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

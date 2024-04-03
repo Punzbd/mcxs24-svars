@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "The impact of monetary policy on the real economy and the stock market: The case of Australia",
     "section": "",
-    "text": "Abstract. This is a suggested formatting for your abstract. This quarto document is a template for your report. It includes some basic ways of working with such documents. You are invited to learn more about developing online reports with this technology.\nKeywords. Structural VAR, SVAR, monetary policy, stock market, impact"
+    "text": "Keywords. Structural VAR, SVAR, monetary policy, stock market, economic impact, impulse response function, Bayesian, cash rate, impulse response function"
   },
   {
     "objectID": "index.html#references",
@@ -12,5 +12,12 @@
     "title": "The impact of monetary policy on the real economy and the stock market: The case of Australia",
     "section": "References",
     "text": "References"
+  },
+  {
+    "objectID": "index.html#the-autocorrelation-and-partial-autocorrelation",
+    "href": "index.html#the-autocorrelation-and-partial-autocorrelation",
+    "title": "The impact of monetary policy on the real economy and the stock market: The case of Australia",
+    "section": "The autocorrelation and partial autocorrelation",
+    "text": "The autocorrelation and partial autocorrelation\nIn this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. Figure 3: ACF plots show the autocorrelation remains in cashrate and unemprate even after 5 years. The acf of inflation also indicates the significant autocorrelation in first quarter lag, whereas all other variables do not exhibit significant lags. However, in drealgdp, a spike exceeds the 95% confidence interval in fifth quarter lag; nevertheless, this might occur due to a type I error.\n\n\n\n\n\n\n\n\n\n\n\nFigure 3: ACF plots\n\n\nFor the pacf in Figure 4: PACF plots, it is observed that there are significant spike for some lags for all variables except dstockprice."
   }
 ]
