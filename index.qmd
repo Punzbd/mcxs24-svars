@@ -10,7 +10,7 @@ bibliography: references.bib
 
 >
 >
-> **Keywords.** Structural VAR, SVAR, monetary policy, stock market, economic impact, impulse response function, Bayesian, cash rate, impulse response function
+> **Keywords.** Structural VAR, SVAR, monetary policy, stock market, economic impact, impulse response function, Bayesian, cash rate
 
 # Introduction
 
@@ -128,9 +128,9 @@ plot(time, gov_exp, type = "l", lwd = 2 ,col = "grey27", main = " Total governme
 #mtext("Plot of variables (before transforming)", outer = TRUE, cex = 1.1, font = 2, col = "darkslateblue")
 
 ```
-<center> 
+<div style="text-align: center;">  
 ##### Figure 1: time series plots (raw data) 
-</center>
+</div>
 
 <br>
 
@@ -157,9 +157,13 @@ plot(time, dgovexp, type = "l", lwd = 2 ,col = "grey27", main = "Real total gove
 
 #mtext("Plot of 6 variables (after transforming)", outer = TRUE, cex = 1.1, font = 2, col = "darkslateblue")
 ```
-<center> 
+
+<div style="text-align: center;"> 
 ##### Figure 2: time series plots (transformed data) 
-</center>
+</div>
+
+
+
 
 <br>
 
@@ -207,9 +211,9 @@ acf(dstockprice, main = "dstockprice")
 acf(dgovexp, main = "dgovexp")
 
 ```
-<center> 
+<div style="text-align: center;"> 
 ##### Figure 3: ACF plots
-</center>
+</div>
 <br>
 
 For the pacf in [Figure 4: PACF plots], it is observed that there are significant spike for some lags for all variables except _dstockprice_.
@@ -224,9 +228,9 @@ pacf(dstockprice, main = "dstockprice")
 pacf(dgovexp, main = "dgovexp")
 ```
 
-<center> 
+<div style="text-align: center;"> 
 ##### Figure 4: PACF plots
-</center>
+</div>
 <br>
 
 ### The unit root test
