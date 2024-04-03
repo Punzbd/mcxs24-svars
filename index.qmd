@@ -305,16 +305,16 @@ The **SVAR model** can be shown as follows.
 ```{=tex}
 \begin{align}
 B_0y_t &= b_0 + \sum_{i=1}^{p}B_{i}y_{t-i}+u_t  \\
-u_t|y_{t-1}&\sim iid(0_N,I_N)
+u_t|Y_{t-1}&\sim iid(0_N,I_N)
 \end{align}
 ```
 where :
 
-$y_{t}$ is $N\times1$ vector of endogenous variables at time t.
+$y_{t}$ is $N\times1$ vector of endogenous variables at time t
 
-$B_0$ is $N\times N$ structural matrix which captures the contemporaneous relationships between variables.
+$B_0$ is $N\times N$ structural matrix which captures the contemporaneous relationships between variables
 
-$u_t$ is $N\times1$ vector of conditionally on $y_{t-1}$ orthogonal or independent structural shocks. 
+$u_t$ is $N\times1$ vector of conditionally on $Y_{t-1}$ orthogonal or independent structural shocks
 
 <br>
 
@@ -336,9 +336,11 @@ The **reduced form** can be shown as follows.
 ```{=tex}
 \begin{align}
 y_t &= \mu_0 + \sum_{i=1}^{p}A_{i}y_{t-i}+\epsilon_t \\
-\epsilon_t|y_{t-1} &\sim iid \mathcal{N}(0_N,\Sigma)
+\epsilon_t|Y_{t-1} &\sim iid \mathcal{N}(0_N,\Sigma)
 \end{align}
 ```
+
+
 
 where :
 

@@ -452,12 +452,12 @@ window.Quarto = {
 <p>The <strong>SVAR model</strong> can be shown as follows.</p>
 <span class="math display">\[\begin{align}
 B_0y_t &amp;= b_0 + \sum_{i=1}^{p}B_{i}y_{t-i}+u_t  \\
-u_t|y_{t-1}&amp;\sim iid(0_N,I_N)
+u_t|Y_{t-1}&amp;\sim iid(0_N,I_N)
 \end{align}\]</span>
 <p>where :</p>
-<p><span class="math inline">\(y_{t}\)</span> is <span class="math inline">\(N\times1\)</span> vector of endogenous variables at time t.</p>
-<p><span class="math inline">\(B_0\)</span> is <span class="math inline">\(N\times N\)</span> structural matrix which captures the contemporaneous relationships between variables.</p>
-<p><span class="math inline">\(u_t\)</span> is <span class="math inline">\(N\times1\)</span> vector of conditionally on <span class="math inline">\(y_{t-1}\)</span> orthogonal or independent structural shocks.</p>
+<p><span class="math inline">\(y_{t}\)</span> is <span class="math inline">\(N\times1\)</span> vector of endogenous variables at time t</p>
+<p><span class="math inline">\(B_0\)</span> is <span class="math inline">\(N\times N\)</span> structural matrix which captures the contemporaneous relationships between variables</p>
+<p><span class="math inline">\(u_t\)</span> is <span class="math inline">\(N\times1\)</span> vector of conditionally on <span class="math inline">\(Y_{t-1}\)</span> orthogonal or independent structural shocks</p>
 <p><br></p>
 <p>Specifically, <span class="math inline">\(y_{t}\)</span> contains 6 variables as follows. <span class="math display">\[
 y_t = \begin{pmatrix}
@@ -472,7 +472,7 @@ y_t = \begin{pmatrix}
 <p>The <strong>reduced form</strong> can be shown as follows.</p>
 <span class="math display">\[\begin{align}
 y_t &amp;= \mu_0 + \sum_{i=1}^{p}A_{i}y_{t-i}+\epsilon_t \\
-\epsilon_t|y_{t-1} &amp;\sim iid \mathcal{N}(0_N,\Sigma)
+\epsilon_t|Y_{t-1} &amp;\sim iid \mathcal{N}(0_N,\Sigma)
 \end{align}\]</span>
 <p>where :</p>
 <p><span class="math inline">\(A_i\)</span> is <span class="math inline">\(N\times N\)</span> matrix of autoregressive slope parameters</p>
