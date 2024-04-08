@@ -1,5 +1,5 @@
 ---
-title: "The impact of monetary policy on the real economy and the stock market: The case of Australia"
+title: "The Impact of Monetary Policy on the Real Economy and the Stock Market: The Case of Australia"
 author: "Pun Suparattanapinan"
 
 execute:
