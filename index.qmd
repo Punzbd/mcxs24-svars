@@ -300,6 +300,30 @@ for (i in seq_along(data)) {
 knitr::kable(adf_diff_matrix, caption = "Table 3: ADF test on first difference")
 ```
 
+### The unit root test without differencing
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+Y = data.frame(cashrate, realgdp, inflation, unemprate, stockprice, gov_exp)
+
+adf_diff_matrix <- as.data.frame(matrix(nrow=6,ncol=3,NA))
+rownames(adf_diff_matrix) <- colnames(Y)
+colnames(adf_diff_matrix) <- c("Dickey-Fuller","Lag order", "p-value")
+
+for (i in seq_along(Y)) {
+  result_diff <- tseries::adf.test(Y[[i]])
+  
+  # Store the results in the 'adf' matrix
+  adf_diff_matrix[i, 1] <- round(as.numeric(result_diff[1]), 2)  # ADF statistic
+  adf_diff_matrix[i, 2] <- result_diff[2]  # p-value
+  adf_diff_matrix[i, 3] <- round(as.numeric(result_diff[4]), 2)  # critical values
+}
+
+knitr::kable(adf_diff_matrix)
+```
 
 
 
