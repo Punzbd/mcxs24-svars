@@ -203,13 +203,17 @@ In this section, the autocorrelation and partial autocorrelation analyses are us
 ```{r ACF plot}
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 par(mar=c(4,4,4,2))
-acf(cashrate, main = "cashrate")
-acf(drealgdp, main = "drealgdp")
-acf(inflation, main = "inflation")
-acf(unemprate, main = "unemprate")
-acf(dstockprice, main = "dstockprice")
-acf(dgovexp, main = "dgovexp")
 
+# acf(cashrate, main = "cashrate")
+# acf(drealgdp, main = "drealgdp")
+# acf(inflation, main = "inflation")
+# acf(unemprate, main = "unemprate")
+# acf(dstockprice, main = "dstockprice")
+# acf(dgovexp, main = "dgovexp")
+
+for (i in 1:ncol(data)) {
+  acf(data[, i], main = colnames(data)[i])
+}
 ```
 <div style="text-align: center;"> 
 ##### Figure 3: ACF plots
@@ -220,12 +224,16 @@ For the pacf in [Figure 4: PACF plots], it is observed that there are significan
 ```{r PACF plot}
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 par(mar=c(4,4,4,2))
-pacf(cashrate, main = "cashrate")
-pacf(drealgdp, main = "drealgdp")
-pacf(inflation, main = "inflation")
-pacf(unemprate, main = "unemprate")
-pacf(dstockprice, main = "dstockprice")
-pacf(dgovexp, main = "dgovexp")
+# pacf(cashrate, main = "cashrate")
+# pacf(drealgdp, main = "drealgdp")
+# pacf(inflation, main = "inflation")
+# pacf(unemprate, main = "unemprate")
+# pacf(dstockprice, main = "dstockprice")
+# pacf(dgovexp, main = "dgovexp")
+
+for (i in 1:ncol(data)) {
+  pacf(data[, i], main = colnames(data)[i])
+}
 ```
 
 <div style="text-align: center;"> 
