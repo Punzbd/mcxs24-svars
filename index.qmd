@@ -313,7 +313,7 @@ The **SVAR model** can be shown as follows.
 ```{=tex}
 \begin{align}
 B_0y_t &= b_0 + \sum_{i=1}^{p}B_{i}y_{t-i}+u_t  \\
-u_t|Y_{t-1}&\sim iid(0_N,I_N)
+u_t|Y_{t-1}&\sim iid \mathcal{N} (0_N,I_N)
 \end{align}
 ```
 where :
