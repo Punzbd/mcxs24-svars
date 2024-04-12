@@ -1,5 +1,5 @@
 ---
-title: "The impact of monetary policy on the real economy and the stock market: The case of Australia"
+title: "The Impact of Monetary Policy on the Real Economy and the Stock Market: The Case of Australia"
 author: "Pun Suparattanapinan"
 
 execute:
@@ -58,10 +58,12 @@ real_gdp <- xts::xts(real_gdp$value,real_gdp$quarter)
     # we fix the period (1990Q1 - 2023Q4)   
 realgdp <- real_gdp[zoo::index(real_gdp) >= "1990 Q1" & zoo::index(real_gdp) < "2024 Q1"]
 realgdp <- realgdp/1000
+lnrealgdp <- log(realgdp)
     # calculate gdp growth
-realgdp_temp <- real_gdp[zoo::index(real_gdp) >= "1989 Q4" & zoo::index(real_gdp) < "2024 Q1"]
-drealgdp <- 100*diff(log(realgdp_temp))
-drealgdp <- drealgdp[2:137]
+#realgdp_temp <- real_gdp[zoo::index(real_gdp) >= "1989 Q4" & zoo::index(real_gdp) < "2024 Q1"]
+#drealgdp <- 100*diff(log(realgdp_temp))
+#drealgdp <- drealgdp[2:137]
+
 
   # Cash target rate (01/1990 - 03/2024) daily
 i_raw <- readrba::read_rba(series_id = "FIRMMCRTD")
@@ -87,28 +89,30 @@ link_AORD <- "https://query1.finance.yahoo.com/v7/finance/download/%5EAORD?perio
 AORD_raw <- read.csv(link_AORD)
 AORD <- AORD_raw[, c("Date", "Close")]
 AORD <- xts::xts(AORD$Close,as.Date(AORD$Date))
-    # Convert to quarter and fix the period (1990Q1 - 2023Q4) and convert to real term
+    # Convert to quarter and fix the period (1990Q1 - 2023Q4) and convert to ln term
 AORD <- xts::to.quarterly(AORD, OHLC = FALSE)
 stockprice <- AORD[zoo::index(AORD) >= "1990 Q1" & zoo::index(AORD) < "2024 Q1" ]
+lnstockprice <- log(stockprice)
     # calculate the growth of stock price
-stockprice_temp <- AORD[zoo::index(AORD) >= "1989 Q4" & zoo::index(AORD) < "2024 Q1" ]
-stockprice_r <- stockprice_temp / gdp_df
-dstockprice <- 100*diff(log(stockprice_r))
-dstockprice <- dstockprice[2:137]
+#stockprice_temp <- AORD[zoo::index(AORD) >= "1989 Q4" & zoo::index(AORD) < "2024 Q1" ]
+#stockprice_r <- stockprice_temp / gdp_df
+#dstockprice <- 100*diff(log(stockprice_r))
+#dstockprice <- dstockprice[2:137]
 
   # Government spending (Final consumption national + state and local + seasonal adj) (09/1959 - 12/2023) quarterly
 gov_raw <- readabs::read_abs(series_id = "A2304036K")
 gov <- gov_raw[, c("date", "value")]
 gov$quarter <- zoo::as.yearqtr(gov$date)
 gov <- xts::xts(gov$value,gov$quarter)
-    # we fix the period (1990Q1 - 2023Q4) and convert to real term
+    # we fix the period (1990Q1 - 2023Q4) and convert to real term, ln term
 gov_exp <- gov[zoo::index(gov) >= "1990 Q1" & zoo::index(gov) < "2024 Q1"]
+ln_gov_exp<- log(gov_exp)
 
     # calculate the growth of government spending
-gov_exp_temp <- gov[zoo::index(gov) >= "1989 Q4" & zoo::index(gov) < "2024 Q1"]
-gov_exp_r <- gov_exp_temp/(gdp_df*1000)
-dgovexp <- 100*diff(log(gov_exp_r))
-dgovexp <- dgovexp[2:137]
+#gov_exp_temp <- gov[zoo::index(gov) >= "1989 Q4" & zoo::index(gov) < "2024 Q1"]
+#gov_exp_r <- gov_exp_temp/(gdp_df*1000)
+#dgovexp <- 100*diff(log(gov_exp_r))
+#dgovexp <- dgovexp[2:137]
 ```
 
 
@@ -134,11 +138,11 @@ plot(time, gov_exp, type = "l", lwd = 2 ,col = "grey27", main = " Total governme
 
 <br>
 
-The author transforms the data in manner that aligns with the purpose of study. The AORD and total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 3 variables that are in real terms, namely GDP, AORD, and total government expenditure, to represent growth by taking the difference of logarithms, denoted by **_drealgdp_**, **_dstockprice_**, and **_dgovexp_** respectively. [Figure 2: time series plots (transformed data)] represents the transformed data, which will be analyzed further.
+The author transforms the data in manner that aligns with the purpose of study. The total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 4 variables which are real GDP, AORD, inflation, and real government expenditure in logarithms term, denoted by **_realgdp_**, **_stockprice_**, and **_govexp_** respectively. [Figure 2: time series plots (transformed data)] represents the transformed data, which will be analyzed further.
 
 <br>
 
-```{r Plotting the data}
+```{r Plotting the transformed data}
 
 time <- seq(as.Date("1990-01-01"), by = "quarter", length.out = 136)
 
@@ -148,12 +152,12 @@ par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 options(repr.plot.width=20, repr.plot.height=50)
 par(mar=c(3,3,2,2))
 
-plot(time, drealgdp, type = "l", lwd = 2 ,col = "grey27", main = "Real gdp growth (%)")
+plot(time, lnrealgdp, type = "l", lwd = 2 ,col = "grey27", main = "ln Real gdp")
 plot(time, cashrate, type = "l", lwd = 2 ,col = "grey27", main = "Cash rate target (%)")
 plot(time, inflation, type = "l", lwd = 2 ,col = "grey27", main = "Inflation (%)")
 plot(time, unemprate, type = "l", lwd = 2 ,col = "grey27", main = "Unemployment rate (%)")
-plot(time, dstockprice, type = "l", lwd = 2 , col = "grey27", main = "Real stock market index price growth (%)")
-plot(time, dgovexp, type = "l", lwd = 2 ,col = "grey27", main = "Real total government expenditure growth (%)")
+plot(time, lnstockprice, type = "l", lwd = 2 , col = "grey27", main = "ln stock market index price")
+plot(time, ln_gov_exp, type = "l", lwd = 2 ,col = "grey27", main = "ln total government expenditure growth")
 
 #mtext("Plot of 6 variables (after transforming)", outer = TRUE, cex = 1.1, font = 2, col = "darkslateblue")
 ```
@@ -171,7 +175,7 @@ The statistics summary of variables from 1990 Q1 to 2023 Q4 is shown in Table 1.
 
 
 ```{r statistical summary}
-data = data.frame(cashrate, drealgdp, inflation, unemprate, dstockprice, dgovexp)
+data = data.frame(cashrate, lnrealgdp, inflation, unemprate, lnstockprice, ln_gov_exp)
 
 summary_stats <- function(x) {
   c(
@@ -187,7 +191,7 @@ result <- sapply(data, summary_stats)
 
 result_df <- as.data.frame(t(result))
 colnames(result_df) <- c("N", "Mean", "St.Dev.", "Min", "Max")
-rownames(result_df) <- names(data)
+rownames(result_df) <- c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp")
 
 #options(width = 200)
 
@@ -196,36 +200,44 @@ knitr::kable(result_df, caption = "Table 1: Summary statistics")
 
 # Preliminary Results
 ### The autocorrelation and partial autocorrelation
-In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. [Figure 3: ACF plots] show the autocorrelation remains in _cashrate_ and _unemprate_ even after 5 years. The acf of _inflation_ also indicates the significant autocorrelation in first quarter lag, whereas all other variables do not exhibit significant lags. However, in _drealgdp_, a spike exceeds the 95% confidence interval in fifth quarter lag; nevertheless, this might occur due to a type I error.
+In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. [Figure 3: ACF plots] show the autocorrelation remains in all variables, even after 5 years, except _inflation_. The acf of _inflation_ also indicates the significant autocorrelation in first quarter lag, nevertheless, this might occur due to a type I error.
 
 
 
 ```{r ACF plot}
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 par(mar=c(4,4,4,2))
-acf(cashrate, main = "cashrate")
-acf(drealgdp, main = "drealgdp")
-acf(inflation, main = "inflation")
-acf(unemprate, main = "unemprate")
-acf(dstockprice, main = "dstockprice")
-acf(dgovexp, main = "dgovexp")
 
+# acf(cashrate, main = "cashrate")
+# acf(drealgdp, main = "drealgdp")
+# acf(inflation, main = "inflation")
+# acf(unemprate, main = "unemprate")
+# acf(dstockprice, main = "dstockprice")
+# acf(dgovexp, main = "dgovexp")
+
+for (i in 1:ncol(data)) {
+  acf(data[, i], main = c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp")[i])
+}
 ```
 <div style="text-align: center;"> 
 ##### Figure 3: ACF plots
 </div>
 <br>
 
-For the pacf in [Figure 4: PACF plots], it is observed that there are significant spike for some lags for all variables except _dstockprice_.
+For the pacf in [Figure 4: PACF plots], it is observed that there have not been any significant spikes  for all variables.
 ```{r PACF plot}
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 par(mar=c(4,4,4,2))
-pacf(cashrate, main = "cashrate")
-pacf(drealgdp, main = "drealgdp")
-pacf(inflation, main = "inflation")
-pacf(unemprate, main = "unemprate")
-pacf(dstockprice, main = "dstockprice")
-pacf(dgovexp, main = "dgovexp")
+# pacf(cashrate, main = "cashrate")
+# pacf(drealgdp, main = "drealgdp")
+# pacf(inflation, main = "inflation")
+# pacf(unemprate, main = "unemprate")
+# pacf(dstockprice, main = "dstockprice")
+# pacf(dgovexp, main = "dgovexp")
+
+for (i in 1:ncol(data)) {
+  pacf(data[, i], main = c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp")[i])
+}
 ```
 
 <div style="text-align: center;"> 
@@ -234,14 +246,15 @@ pacf(dgovexp, main = "dgovexp")
 <br>
 
 ### The unit root test
-In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in table 2. All of variables except _unemprate_, can be rejected on the null hypothesis which indicate that these variables are stationary. 
+In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in table 2. Only _cashrate_ and _inflation_ can be rejected on the null hypothesis which indicate that these variables are stationary. 
+
 
 ```{r ADF test}
 #| echo: false
 #| message: false
 #| warning: false
 adf_matrix <- as.data.frame(matrix(nrow=6,ncol=3,NA))
-rownames(adf_matrix) <- colnames(data)
+rownames(adf_matrix) <- c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp")
 colnames(adf_matrix) <- c("Dickey-Fuller","Lag order", "p-value")
 
 for (i in seq_along(data)) {
@@ -255,7 +268,7 @@ for (i in seq_along(data)) {
 
 knitr::kable(adf_matrix, caption = "Table 2: ADF test")
 ```
-Then, take the first difference to all variables and rerun the ADF test. The results are shown in table 3. It is reasonable to conclude that _unemprate_ is integrated of order 1, while the others are integrated of order 0, or in other words, they are stationary. 
+Then, take the first difference to all variables and rerun the ADF test. The results are shown in table 3. It is reasonable to conclude that all variables except _cashrate_ and _inflation_ is integrated of order 1, while the rest are integrated of order 0, or in other words, they are stationary. 
 
 
 ```{r create the first difference data}
@@ -266,7 +279,7 @@ Then, take the first difference to all variables and rerun the ADF test. The res
 
 data_diff1 <- as.data.frame(lapply(colnames(data), function(x) na.omit(diff(get(x)))))
 
-colnames(data_diff1) <- paste0("d", (colnames(data)))
+colnames(data_diff1) <- paste0("d", c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp"))
 
 ```
 
@@ -294,10 +307,34 @@ knitr::kable(adf_diff_matrix, caption = "Table 3: ADF test on first difference")
 
 
 
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+### The unit root test without differencing
+#Y = data.frame(cashrate, realgdp, inflation, unemprate, stockprice, gov_exp)
+
+#adf_diff_matrix <- as.data.frame(matrix(nrow=6,ncol=3,NA))
+#rownames(adf_diff_matrix) <- colnames(Y)
+#colnames(adf_diff_matrix) <- c("Dickey-Fuller","Lag order", "p-value")
+
+#for (i in seq_along(Y)) {
+ #result_diff <- tseries::adf.test(Y[[i]])
+  
+  # Store the results in the 'adf' matrix
+ # adf_diff_matrix[i, 1] <- round(as.numeric(result_diff[1]), 2)  # ADF statistic
+ # adf_diff_matrix[i, 2] <- result_diff[2]  # p-value
+ # adf_diff_matrix[i, 3] <- round(as.numeric(result_diff[4]), 2)  # critical values
+#}
+
+#knitr::kable(adf_diff_matrix)
+```
+
+
 
 # Methodology
 In this section, the model that this study use to capture the structural relationship between real economy variables and the stock price is introduced. 
-The author use Structural Vector Autoregression (SVAR) model which comprises of 6 variables on the same integrated order, _cashrate_, _drealgdp_, _inflation_, _dunemprate_, _dstockprice_, and _dgovexp_. Subsequently, the model will be used to analyze the impulse responses.
+The author use Structural Vector Autoregression (SVAR) model which comprises of 6 variables, _cashrate_, _realgdp_, _inflation_, _unemprate_, _stockprice_, and _govexp_. Subsequently, the model will be used to analyze the impulse responses.
 
 
 
@@ -305,7 +342,7 @@ The **SVAR model** can be shown as follows.
 ```{=tex}
 \begin{align}
 B_0y_t &= b_0 + \sum_{i=1}^{p}B_{i}y_{t-i}+u_t  \\
-u_t|Y_{t-1}&\sim iid(0_N,I_N)
+u_t|Y_{t-1}&\sim iid \mathcal{N} (0_N,I_N)
 \end{align}
 ```
 where :
@@ -322,11 +359,11 @@ Specifically, $y_{t}$ contains 6 variables as follows.
 $$
 y_t = \begin{pmatrix}
 \text{cashrate} \\
-\text{drealgdp} \\
+\text{realgdp} \\
 \text{inflation} \\
-\text{dunemprate} \\
-\text{dstockprice} \\
-\text{dgovexp}
+\text{unemprate} \\
+\text{stockprice} \\
+\text{govexp}
 \end{pmatrix}
 $$
 
