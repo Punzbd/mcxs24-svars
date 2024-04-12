@@ -2,22 +2,8 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "The impact of monetary policy on the real economy and the stock market: The case of Australia",
+    "title": "The Impact of Monetary Policy on the Real Economy and the Stock Market: The Case of Australia",
     "section": "",
     "text": "Abstract. The purpose of this study is to investigate the relationship and impact of monetary policy on the real economy in Australia. The author uses quarterly data spanning from 1990 Q1 to 2023 Q4. The Structural Vector Autoregression (SVAR) model is used to capture the structural relationship, including analyzing the impulse responses of the variable of interest to structural shock.\nKeywords. Structural VAR, SVAR, monetary policy, stock market, economic impact, impulse response function, Bayesian, cash rate"
-  },
-  {
-    "objectID": "index.html#references",
-    "href": "index.html#references",
-    "title": "The impact of monetary policy on the real economy and the stock market: The case of Australia",
-    "section": "References",
-    "text": "References"
-  },
-  {
-    "objectID": "index.html#the-autocorrelation-and-partial-autocorrelation",
-    "href": "index.html#the-autocorrelation-and-partial-autocorrelation",
-    "title": "The impact of monetary policy on the real economy and the stock market: The case of Australia",
-    "section": "The autocorrelation and partial autocorrelation",
-    "text": "The autocorrelation and partial autocorrelation\nIn this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. Figure 3: ACF plots show the autocorrelation remains in cashrate and unemprate even after 5 years. The acf of inflation also indicates the significant autocorrelation in first quarter lag, whereas all other variables do not exhibit significant lags. However, in drealgdp, a spike exceeds the 95% confidence interval in fifth quarter lag; nevertheless, this might occur due to a type I error.\n\n\n\n\n\n\n\n\n\n\n\nFigure 3: ACF plots\n\n\nFor the pacf in Figure 4: PACF plots, it is observed that there are significant spike for some lags for all variables except dstockprice."
   }
 ]

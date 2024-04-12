@@ -8,7 +8,7 @@
 
 <meta name="author" content="Pun Suparattanapinan">
 
-<title>Macroeconometrics Research Report - The impact of monetary policy on the real economy and the stock market: The case of Australia</title>
+<title>Macroeconometrics Research Report - The Impact of Monetary Policy on the Real Economy and the Stock Market: The Case of Australia</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -166,7 +166,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">The impact of monetary policy on the real economy and the stock market: The case of Australia</h1>
+<h1 class="title">The Impact of Monetary Policy on the Real Economy and the Stock Market: The Case of Australia</h1>
 </div>
 
 
@@ -217,13 +217,13 @@ window.Quarto = {
 <h5 class="anchored" data-anchor-id="figure-1-time-series-plots-raw-data">Figure 1: time series plots (raw data)</h5>
 </section>
 <p><br></p>
-<p>The author transforms the data in manner that aligns with the purpose of study. The AORD and total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 3 variables that are in real terms, namely GDP, AORD, and total government expenditure, to represent growth by taking the difference of logarithms, denoted by <strong><em>drealgdp</em></strong>, <strong><em>dstockprice</em></strong>, and <strong><em>dgovexp</em></strong> respectively. <a href="#figure-2-time-series-plots-transformed-data">Figure 2: time series plots (transformed data)</a> represents the transformed data, which will be analyzed further.</p>
+<p>The author transforms the data in manner that aligns with the purpose of study. The total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 4 variables which are real GDP, AORD, inflation, and real government expenditure in logarithms term, denoted by <strong><em>realgdp</em></strong>, <strong><em>stockprice</em></strong>, and <strong><em>govexp</em></strong> respectively. <a href="#figure-2-time-series-plots-transformed-data">Figure 2: time series plots (transformed data)</a> represents the transformed data, which will be analyzed further.</p>
 <p><br></p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/Plotting the data-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/Plotting the transformed data-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -257,12 +257,12 @@ window.Quarto = {
 <td style="text-align: right;">16.750</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">drealgdp</td>
+<td style="text-align: left;">realgdp</td>
 <td style="text-align: right;">136</td>
-<td style="text-align: right;">0.716</td>
-<td style="text-align: right;">1.016</td>
-<td style="text-align: right;">-7.178</td>
-<td style="text-align: right;">4.062</td>
+<td style="text-align: right;">5.957</td>
+<td style="text-align: right;">0.300</td>
+<td style="text-align: right;">5.434</td>
+<td style="text-align: right;">6.413</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">inflation</td>
@@ -281,20 +281,20 @@ window.Quarto = {
 <td style="text-align: right;">11.216</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">dstockprice</td>
+<td style="text-align: left;">stockprice</td>
 <td style="text-align: right;">136</td>
-<td style="text-align: right;">0.471</td>
-<td style="text-align: right;">7.431</td>
-<td style="text-align: right;">-29.259</td>
-<td style="text-align: right;">18.273</td>
+<td style="text-align: right;">8.244</td>
+<td style="text-align: right;">0.484</td>
+<td style="text-align: right;">7.154</td>
+<td style="text-align: right;">8.966</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">dgovexp</td>
+<td style="text-align: left;">govexp</td>
 <td style="text-align: right;">136</td>
-<td style="text-align: right;">0.880</td>
-<td style="text-align: right;">1.472</td>
-<td style="text-align: right;">-3.478</td>
-<td style="text-align: right;">5.183</td>
+<td style="text-align: right;">10.800</td>
+<td style="text-align: right;">0.609</td>
+<td style="text-align: right;">9.811</td>
+<td style="text-align: right;">11.895</td>
 </tr>
 </tbody>
 </table>
@@ -305,7 +305,7 @@ window.Quarto = {
 <h1>Preliminary Results</h1>
 <section id="the-autocorrelation-and-partial-autocorrelation" class="level3">
 <h3 class="anchored" data-anchor-id="the-autocorrelation-and-partial-autocorrelation">The autocorrelation and partial autocorrelation</h3>
-<p>In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. <a href="#figure-3-acf-plots">Figure 3: ACF plots</a> show the autocorrelation remains in <em>cashrate</em> and <em>unemprate</em> even after 5 years. The acf of <em>inflation</em> also indicates the significant autocorrelation in first quarter lag, whereas all other variables do not exhibit significant lags. However, in <em>drealgdp</em>, a spike exceeds the 95% confidence interval in fifth quarter lag; nevertheless, this might occur due to a type I error.</p>
+<p>In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. <a href="#figure-3-acf-plots">Figure 3: ACF plots</a> show the autocorrelation remains in all variables, even after 5 years, except <em>inflation</em>. The acf of <em>inflation</em> also indicates the significant autocorrelation in first quarter lag, nevertheless, this might occur due to a type I error.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -319,7 +319,7 @@ window.Quarto = {
 <h5 class="anchored" data-anchor-id="figure-3-acf-plots">Figure 3: ACF plots</h5>
 </section>
 <p><br></p>
-<p>For the pacf in <a href="#figure-4-pacf-plots">Figure 4: PACF plots</a>, it is observed that there are significant spike for some lags for all variables except <em>dstockprice</em>.</p>
+<p>For the pacf in <a href="#figure-4-pacf-plots">Figure 4: PACF plots</a>, it is observed that there have not been any significant spikes for all variables.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -336,7 +336,7 @@ window.Quarto = {
 </section>
 <section id="the-unit-root-test" class="level3">
 <h3 class="anchored" data-anchor-id="the-unit-root-test">The unit root test</h3>
-<p>In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in table 2. All of variables except <em>unemprate</em>, can be rejected on the null hypothesis which indicate that these variables are stationary.</p>
+<p>In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in table 2. Only <em>cashrate</em> and <em>inflation</em> can be rejected on the null hypothesis which indicate that these variables are stationary.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
@@ -357,10 +357,10 @@ window.Quarto = {
 <td style="text-align: right;">0.02</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">drealgdp</td>
-<td style="text-align: right;">-5.68</td>
+<td style="text-align: left;">realgdp</td>
+<td style="text-align: right;">-1.30</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.87</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">inflation</td>
@@ -375,22 +375,22 @@ window.Quarto = {
 <td style="text-align: right;">0.32</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">dstockprice</td>
-<td style="text-align: right;">-5.51</td>
+<td style="text-align: left;">stockprice</td>
+<td style="text-align: right;">-2.57</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.34</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">dgovexp</td>
-<td style="text-align: right;">-4.83</td>
+<td style="text-align: left;">govexp</td>
+<td style="text-align: right;">-1.84</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.64</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>Then, take the first difference to all variables and rerun the ADF test. The results are shown in table 3. It is reasonable to conclude that <em>unemprate</em> is integrated of order 1, while the others are integrated of order 0, or in other words, they are stationary.</p>
+<p>Then, take the first difference to all variables and rerun the ADF test. The results are shown in table 3. It is reasonable to conclude that all variables except <em>cashrate</em> and <em>inflation</em> is integrated of order 1, while the rest are integrated of order 0, or in other words, they are stationary.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
@@ -411,8 +411,8 @@ window.Quarto = {
 <td style="text-align: right;">0.01</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">ddrealgdp</td>
-<td style="text-align: right;">-8.27</td>
+<td style="text-align: left;">drealgdp</td>
+<td style="text-align: right;">-5.76</td>
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">0.01</td>
 </tr>
@@ -429,16 +429,16 @@ window.Quarto = {
 <td style="text-align: right;">0.01</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">ddstockprice</td>
-<td style="text-align: right;">-7.46</td>
+<td style="text-align: left;">dstockprice</td>
+<td style="text-align: right;">-5.47</td>
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">0.01</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">ddgovexp</td>
-<td style="text-align: right;">-8.92</td>
+<td style="text-align: left;">dgovexp</td>
+<td style="text-align: right;">-3.75</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.02</td>
 </tr>
 </tbody>
 </table>
@@ -448,11 +448,11 @@ window.Quarto = {
 </section>
 <section id="methodology" class="level1">
 <h1>Methodology</h1>
-<p>In this section, the model that this study use to capture the structural relationship between real economy variables and the stock price is introduced. The author use Structural Vector Autoregression (SVAR) model which comprises of 6 variables on the same integrated order, <em>cashrate</em>, <em>drealgdp</em>, <em>inflation</em>, <em>dunemprate</em>, <em>dstockprice</em>, and <em>dgovexp</em>. Subsequently, the model will be used to analyze the impulse responses.</p>
+<p>In this section, the model that this study use to capture the structural relationship between real economy variables and the stock price is introduced. The author use Structural Vector Autoregression (SVAR) model which comprises of 6 variables, <em>cashrate</em>, <em>realgdp</em>, <em>inflation</em>, <em>unemprate</em>, <em>stockprice</em>, and <em>govexp</em>. Subsequently, the model will be used to analyze the impulse responses.</p>
 <p>The <strong>SVAR model</strong> can be shown as follows.</p>
 <span class="math display">\[\begin{align}
 B_0y_t &amp;= b_0 + \sum_{i=1}^{p}B_{i}y_{t-i}+u_t  \\
-u_t|Y_{t-1}&amp;\sim iid(0_N,I_N)
+u_t|Y_{t-1}&amp;\sim iid \mathcal{N} (0_N,I_N)
 \end{align}\]</span>
 <p>where :</p>
 <p><span class="math inline">\(y_{t}\)</span> is <span class="math inline">\(N\times1\)</span> vector of endogenous variables at time t</p>
@@ -462,11 +462,11 @@ u_t|Y_{t-1}&amp;\sim iid(0_N,I_N)
 <p>Specifically, <span class="math inline">\(y_{t}\)</span> contains 6 variables as follows. <span class="math display">\[
 y_t = \begin{pmatrix}
 \text{cashrate} \\
-\text{drealgdp} \\
+\text{realgdp} \\
 \text{inflation} \\
-\text{dunemprate} \\
-\text{dstockprice} \\
-\text{dgovexp}
+\text{unemprate} \\
+\text{stockprice} \\
+\text{govexp}
 \end{pmatrix}
 \]</span></p>
 <p>The <strong>reduced form</strong> can be shown as follows.</p>
