@@ -14,7 +14,7 @@ bibliography: references.bib
 
 # Introduction
 
-This study aims to explore the dynamic impact of monetary policy on the real economy in Australia, specifically focusing on economic growth, inflation, and employment. How does the real economy respond? What is the magnitude and the duration of change? The stock market price is included and can be considered a leading indicator of the real economy.
+This study aims to explore the dynamic impact of monetary policy on the real economy in Australia, specifically focusing on economic growth, prices, and employment. How does the real economy respond? What is the magnitude and the duration of change? The stock market price is included and can be considered a leading indicator of the real economy.
 
 According to Economic theory, the transmission mechanism of monetary policy to the real economy takes time, as it does not have a fully immediate effect, but it involves some delays. @BrischettoVoss1999 find that the contractionary of monetary policy in Australia leads to a decrease in output level between 5 and 15 quarters after the contraction. The price level also gradually falls with some delay with maximum effect, and there is an indication that the effect tends to be permanent. @Mojon2001 also investigate the effect of monetary policy across 10 euro area countries and find that a contractionary monetary policy shock leads to a temporary fall in GDP that peaks typically around four quarters after the shock and a gradual decrease in the price level.
 
