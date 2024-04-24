@@ -394,4 +394,195 @@ $\Sigma$ is $N\times N$ covariance matrix of the error term
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Estimation
+## The benchmark model
+### Estimation algorithm
+ 
+The reduced form above can be rewrite in the matrix form as follows:
+```{=tex}
+\begin{align}
+Y &= XA + E \\
+E|X &\sim \mathcal{MN}_{T \times N}(0,\Sigma,I_T)
+\end{align}
+```
+
+
+Bayes' rule is employed for deriving the posterior distribution
+
+From Bayes' rule:
+```{=tex}
+\begin{align}
+P(A,\Sigma|Y,X) &\propto L(A,\Sigma|Y,X)P(A,\Sigma) \\
+\underbrace{P(A,\Sigma|Y,X)}_{\text{Posterior distribution}} &\propto \underbrace{L(A,\Sigma|Y,X)}_{\text{Likelihood}} \underbrace{P(A|\Sigma)P(\Sigma)}_{\text{Prior distribution}}
+\end{align}
+```
+<br>
+
+
+#### The likelihood fuction
+The derivation of the likelihood function can be shown in matrix-variate normal distribution as follows:
+```{=tex}
+\begin{align}
+L(A,\Sigma|Y,X) = (2\pi)^{-\frac{NT}{2}} det(\Sigma)^{-\frac{T}{2}}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-XA)'(Y-XA) \right] \right\} \\
+\end{align}
+```
+
+Then, the $\hat{A}$ and $\hat{\Sigma}$ corresponding to the maximum likelihood are
+```{=tex}
+\begin{align}
+\hat{A} &= (X'X)^{-1}X'Y \\
+\hat{\Sigma} &= \frac{1}{T} (Y-X \hat{A})'(Y-X \hat{A})
+\end{align}
+```
+  
+The likelihood function can be represented as Normal inverse Wishart distribution 
+```{=tex}
+\begin{align}
+L(A,\Sigma|Y,X) &\propto det(\Sigma)^{-\frac{T}{2}} 
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(Y-\hat{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-X\hat{A})'(Y-X\hat{A}) \right] \right\} \\
+\end{align}
+```
+<br>
+
+#### The prior distribution 
+
+```{=tex}
+\begin{align}
+P(A,\Sigma|Y,X) &= P(A|\Sigma) P(\Sigma) \\
+A|\Sigma &\sim \mathcal{MN}_{K \times N} (\underline{A}, \Sigma , \underline{V}) \\
+\Sigma &\sim \mathcal{IW}_{N}(\underline{S},\underline{\nu})
+\end{align}
+```
+The prior which follows Normal inverse Wishart distribution:
+```{=tex}
+\begin{align}
+p(A,\Sigma) &\propto det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}} 
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
+\\
+\end{align}
+```
+
+
+The Minnesota prior used as prior of the model, the parameters are follows:
+```{=tex}
+\begin{align}
+\underline{A} &= [0_{N \times 1} \quad I_N \quad 0_{N \times (p-1)N}]' \\ 
+Var[vec(A)] &= \Sigma \otimes  \underline{V} \\
+\underline{V} &= \text{diag}([\kappa_2 \quad \kappa_1 (p^{-2} \otimes \imath_N)]) \\
+\end{align}
+```
+where: 
+
+$p$ = [1,2,...,p]
+
+$\imath_N$ = [1,...,1]
+
+$\kappa_1$ is overall shrinkage level for autoregressive slopes, the common value is $0.02^{2}$
+
+$\kappa_2$ is overall shrinkage level for the constant term, the common value is $100$
+
+```{=tex}
+\begin{align}
+p(A,\Sigma) &\propto det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}} 
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
+\\
+\end{align}
+```
+
+#### The posterior distribution 
+From the Bayes' rule mentioned above, the posterior distribution as follows:
+
+```{=tex}
+\begin{align}
+P(A,\Sigma|Y,X) \propto & L(A,\Sigma|Y,X)P(A,\Sigma) \\
+P(A,\Sigma|Y,X) \propto 
+& det(\Sigma)^{-\frac{T}{2}} 
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(Y-\hat{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-X\hat{A})'(Y-X\hat{A}) \right] \right\} \\
+&det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}} 
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\} \\
+P(A,\Sigma|Y,X) \propto 
+& det(\Sigma)^{-\frac{T+NK+\underline{\nu}+1}{2}}
+exp \left\{-\frac{1}{2} tr \left[
+\Sigma^{-1}\left[(A-\hat{A})'X'X(A-\hat{A}) + (A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \\
++(Y-X\hat{A})'(Y-X\hat{A})+\underline{S})\right] \right] \right\}
+
+\\
+
+\end{align}
+```
+
+Which can represented in form of Normal inverse Wishart distribution
+```{=tex}
+\begin{align}
+P(A,\Sigma|Y,X) &= P(A|Y,X,\Sigma) P(\Sigma|Y,X) \\
+P(A|Y,X,\Sigma) &\sim \mathcal{MN}_{K \times N} (\overline{A}, \Sigma , \overline{V}) \\
+P(\Sigma|Y,X) &\sim \mathcal{IW}_{N}(\overline{S},\overline{\nu})
+\end{align}
+```
+
+<br>
+
+```{=tex}
+\begin{align}
+
+\overline{V} &= (X'X+ \underline{V}^{-1})^{-1} \\ 
+\overline{A} &= \overline{V}(X'Y+\underline{V}^{-1} \underline{A})\\
+\overline{\nu} &= T+\underline{\nu}\\
+\overline{S} &= \underline{S}+Y'Y + \underline{A}'\underline{V}^{-1}\underline{A} - 
+\overline{A}'\overline{V}^{-1}\overline{A} \\
+
+\end{align}
+```
+
+### Data simulation
+
+The author generates 1,000 observations from bi-variate Gaussian random walk process to prove that the algorithm works. 
+
+```{r data simulation}
+set.seed(2024)
+RW1 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
+RW2 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
+
+RW <- cbind(RW1,RW2)
+RW <- RW[2:nrow(RW),]
+Y <- RW
+
+```
+
+```{r}
+plot.ts(Y,main = "1,000 simulations of bi-variate Gaussian random walk", xlab = "Obs.", col = "grey27", lwd = 2, frame.plot = FALSE)
+```
+
+
+
+
+```{r}
+#matrix(1,nrow(Y),1)
+```
+
+
+
 ## References {.unnumbered}
