@@ -25,7 +25,7 @@ Understanding insights of these dynamic impacts within the macroeconomy, includi
 
 # Data
 
-The variables in this study include the cash rate target **_(cashrate)_**, which indicates the monetary policy. GDP (in real terms), inflation **_(inflation)_**, and the unemployment rate **_(unemprate)_** are included to measure the real economy. For the stock market, the author uses the All Ordinaries index (AORD) as a representative. The AORD is the market-weighted index and includes about 500 companies from the Australian Stock Exchange. Finally, total government expenditure is included to control for fiscal policy, which might also affect the economy besides monetary policy. The data is collected from the Reserve Bank of Australia (RBA), Australian Bureau of Statistics (ABS), and Yahoo Finance. The dataset spans from 1990 Q1 to 2023 Q4, comprising 136 observations. [Figure 1: time series plots (raw data)] represents the raw data time series of these 6 variables.
+The variables in this study include the cash rate target **_(cashrate)_**, which indicates the monetary policy. GDP (in real terms), CPI, and the unemployment rate **_(unemprate)_** are included to measure the real economy. For the stock market, the author uses the All Ordinaries index (AORD) as a representative. The AORD is the market-weighted index and includes about 500 companies from the Australian Stock Exchange. Finally, total government expenditure is included to control for fiscal policy, which might also affect the economy besides monetary policy. The data is collected from the Reserve Bank of Australia (RBA), Australian Bureau of Statistics (ABS), and Yahoo Finance. The dataset spans from 1990 Q1 to 2023 Q4, comprising 136 observations. [Figure 1: time series plots (raw data)] represents the raw data time series of these 6 variables.
 
 <br>
 
@@ -79,10 +79,11 @@ CPI <- CPI_raw[, c("date", "value")]
 CPI$quarter <- zoo::as.yearqtr(CPI$date)
 CPI <- xts::xts(CPI$value,CPI$quarter)
     # we fix the period (1989Q4 - 2023Q4)
-CPI <- CPI[zoo::index(CPI) >= "1989 Q4" & zoo::index(CPI) < "2024 Q1"]
+CPI <- CPI[zoo::index(CPI) >= "1990 Q1" & zoo::index(CPI) < "2024 Q1"]
+lnCPI <- log(CPI)
   # Inflation (Diff CPI) (1990Q1 - 2023Q4)
-inf <- 100*diff(log(CPI))
-inflation <- inf[2:137]
+#inf <- 100*diff(log(CPI))
+#inflation <- inf[2:137]
 
   # Stock market (01/1985 - 03/2024) monthly
 link_AORD <- "https://query1.finance.yahoo.com/v7/finance/download/%5EAORD?period1=460339200&period2=1711843200&interval=1mo&events=history&includeAdjustedClose=true"
@@ -122,9 +123,9 @@ time <- seq(as.Date("1990-01-01"), by = "quarter", length.out = 136)
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 par(mar=c(3,3,2,2))
 
-plot(time, realgdp, type = "l", lwd = 2 ,col = "grey27", main = "Real gdp ($billion)")
+plot(time, realgdp, type = "l", lwd = 2 ,col = "grey27", main = "Real GDP ($billion)")
 plot(time, cashrate, type = "l", lwd = 2 ,col = "grey27", main = "Cash rate target (%)")
-plot(time, inflation, type = "l", lwd = 2 ,col = "grey27", main = "Inflation (%)")
+plot(time, CPI, type = "l", lwd = 2 ,col = "grey27", main = "CPI")
 plot(time, unemprate, type = "l", lwd = 2 ,col = "grey27", main = "Unemployment rate (%)")
 plot(time, stockprice, type = "l", lwd = 2 , col = "grey27", main = "Stock market index (All ordinaries)")
 plot(time, gov_exp, type = "l", lwd = 2 ,col = "grey27", main = " Total government expenditure ($ billion)")
@@ -138,7 +139,7 @@ plot(time, gov_exp, type = "l", lwd = 2 ,col = "grey27", main = " Total governme
 
 <br>
 
-The author transforms the data in manner that aligns with the purpose of study. The total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 4 variables which are real GDP, AORD, inflation, and real government expenditure in logarithms term, denoted by **_realgdp_**, **_stockprice_**, and **_govexp_** respectively. [Figure 2: time series plots (transformed data)] represents the transformed data, which will be analyzed further.
+The author transforms the data in manner that aligns with the purpose of study. The total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 4 variables which are real GDP, AORD, CPI, and real government expenditure in logarithms term, denoted by **_realgdp_**, **_stockprice_**, **_CPI_**, and **_govexp_** respectively. [Figure 2: time series plots (transformed data)] represents the transformed data, which will be analyzed further.
 
 <br>
 
@@ -152,9 +153,9 @@ par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 options(repr.plot.width=20, repr.plot.height=50)
 par(mar=c(3,3,2,2))
 
-plot(time, lnrealgdp, type = "l", lwd = 2 ,col = "grey27", main = "ln Real gdp")
+plot(time, lnrealgdp, type = "l", lwd = 2 ,col = "grey27", main = "ln Real GDP")
 plot(time, cashrate, type = "l", lwd = 2 ,col = "grey27", main = "Cash rate target (%)")
-plot(time, inflation, type = "l", lwd = 2 ,col = "grey27", main = "Inflation (%)")
+plot(time, lnCPI, type = "l", lwd = 2 ,col = "grey27", main = "ln CPI")
 plot(time, unemprate, type = "l", lwd = 2 ,col = "grey27", main = "Unemployment rate (%)")
 plot(time, lnstockprice, type = "l", lwd = 2 , col = "grey27", main = "ln stock market index price")
 plot(time, ln_gov_exp, type = "l", lwd = 2 ,col = "grey27", main = "ln total government expenditure growth")
@@ -175,7 +176,7 @@ The statistics summary of variables from 1990 Q1 to 2023 Q4 is shown in Table 1.
 
 
 ```{r statistical summary}
-data = data.frame(cashrate, lnrealgdp, inflation, unemprate, lnstockprice, ln_gov_exp)
+data = data.frame(cashrate, lnrealgdp, lnCPI, unemprate, lnstockprice, ln_gov_exp)
 
 summary_stats <- function(x) {
   c(
@@ -191,16 +192,20 @@ result <- sapply(data, summary_stats)
 
 result_df <- as.data.frame(t(result))
 colnames(result_df) <- c("N", "Mean", "St.Dev.", "Min", "Max")
-rownames(result_df) <- c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp")
+rownames(result_df) <- c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp")
 
 #options(width = 200)
 
 knitr::kable(result_df, caption = "Table 1: Summary statistics")
 ```
 
+
+
+
+
 # Preliminary Results
 ### The autocorrelation and partial autocorrelation
-In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. [Figure 3: ACF plots] show the autocorrelation remains in all variables, even after 5 years, except _inflation_. The acf of _inflation_ also indicates the significant autocorrelation in first quarter lag, nevertheless, this might occur due to a type I error.
+In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. [Figure 3: ACF plots] show the autocorrelation remains in all variables, even after 5 years. This indicate the strong correlation between a time series and its lagged values.
 
 
 
@@ -216,7 +221,7 @@ par(mar=c(4,4,4,2))
 # acf(dgovexp, main = "dgovexp")
 
 for (i in 1:ncol(data)) {
-  acf(data[, i], main = c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp")[i])
+  acf(data[, i], main = c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp")[i])
 }
 ```
 <div style="text-align: center;"> 
@@ -224,7 +229,7 @@ for (i in 1:ncol(data)) {
 </div>
 <br>
 
-For the pacf in [Figure 4: PACF plots], it is observed that there have not been any significant spikes  for all variables.
+For the PACF in [Figure 4: PACF plots], it is observed that there have not been any significant spikes  for all variables, except for _unemprate_. The PACF of _unemprate_ indicates significance in partial autocorrelation at first and sixteenth quarter lags; however, this might occur due to a type I error.
 ```{r PACF plot}
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 par(mar=c(4,4,4,2))
@@ -236,7 +241,7 @@ par(mar=c(4,4,4,2))
 # pacf(dgovexp, main = "dgovexp")
 
 for (i in 1:ncol(data)) {
-  pacf(data[, i], main = c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp")[i])
+  pacf(data[, i], main = c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp")[i])
 }
 ```
 
@@ -246,7 +251,8 @@ for (i in 1:ncol(data)) {
 <br>
 
 ### The unit root test
-In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in table 2. Only _cashrate_ and _inflation_ can be rejected on the null hypothesis which indicate that these variables are stationary. 
+In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in Table 2. At the 1% significance level, the null hypothesis cannot be rejected for all variables, indicating that these variables are unit root non-stationary.
+
 
 
 ```{r ADF test}
@@ -254,7 +260,7 @@ In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for
 #| message: false
 #| warning: false
 adf_matrix <- as.data.frame(matrix(nrow=6,ncol=3,NA))
-rownames(adf_matrix) <- c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp")
+rownames(adf_matrix) <- c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp")
 colnames(adf_matrix) <- c("Dickey-Fuller","Lag order", "p-value")
 
 for (i in seq_along(data)) {
@@ -268,7 +274,10 @@ for (i in seq_along(data)) {
 
 knitr::kable(adf_matrix, caption = "Table 2: ADF test")
 ```
-Then, take the first difference to all variables and rerun the ADF test. The results are shown in table 3. It is reasonable to conclude that all variables except _cashrate_ and _inflation_ is integrated of order 1, while the rest are integrated of order 0, or in other words, they are stationary. 
+
+
+
+Then, take the first difference and the second difference of all variables and rerun the ADF test. The results are shown in Table 3 and Table 4. For the first difference in Table 3, at the 1% significance level, the null hypothesis can be rejected for all variables, except _CPI_ and _dgovexp_. It is reasonable to conclude that _cashrate_, _realgdp_, _unemprate_, _stockprice_ are integrated of order 1. And _CPI_ and _govexp_ are integrated of order 2, as shown in the result in Table 4.
 
 
 ```{r create the first difference data}
@@ -279,7 +288,7 @@ Then, take the first difference to all variables and rerun the ADF test. The res
 
 data_diff1 <- as.data.frame(lapply(colnames(data), function(x) na.omit(diff(get(x)))))
 
-colnames(data_diff1) <- paste0("d", c("cashrate", "realgdp", "inflation", "unemprate", "stockprice", "govexp"))
+colnames(data_diff1) <- paste0("d", c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp"))
 
 ```
 
@@ -302,9 +311,41 @@ for (i in seq_along(data)) {
   adf_diff_matrix[i, 3] <- round(as.numeric(result_diff[4]), 2)  # critical values
 }
 
-knitr::kable(adf_diff_matrix, caption = "Table 3: ADF test on first difference")
+knitr::kable(adf_diff_matrix, caption = "Table 3: ADF test on the first difference")
 ```
 
+```{r create the second difference data}
+#| echo: false
+#| message: false
+#| warning: false
+#variables <- c("cashrate", "drealgdp", "inflation", "unemprate", "dstockprice", "dgovexp")
+
+data_diff2 <- as.data.frame(lapply(data_diff1, function(x) diff(x)))
+
+colnames(data_diff2) <- paste0("d", colnames(data_diff2))
+
+```
+
+
+```{r ADF test on second diff}
+#| echo: false
+#| message: false
+#| warning: false
+adf_diff_matrix <- as.data.frame(matrix(nrow=6,ncol=3,NA))
+rownames(adf_diff_matrix) <- colnames(data_diff2)
+colnames(adf_diff_matrix) <- c("Dickey-Fuller","Lag order", "p-value")
+
+for (i in seq_along(data)) {
+  result_diff <- tseries::adf.test(data_diff2[[i]])
+  
+  # Store the results in the 'adf' matrix
+  adf_diff_matrix[i, 1] <- round(as.numeric(result_diff[1]), 2)  # ADF statistic
+  adf_diff_matrix[i, 2] <- result_diff[2]  # p-value
+  adf_diff_matrix[i, 3] <- round(as.numeric(result_diff[4]), 2)  # critical values
+}
+
+knitr::kable(adf_diff_matrix, caption = "Table 4: ADF test on the second difference")
+```
 
 
 ```{r}
@@ -360,7 +401,7 @@ $$
 y_t = \begin{pmatrix}
 \text{cashrate} \\
 \text{realgdp} \\
-\text{inflation} \\
+\text{CPI} \\
 \text{unemprate} \\
 \text{stockprice} \\
 \text{govexp}
