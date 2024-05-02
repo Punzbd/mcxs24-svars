@@ -157,10 +157,15 @@ window.Quarto = {
   <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology">Methodology</a></li>
   <li><a href="#estimation" id="toc-estimation" class="nav-link" data-scroll-target="#estimation">Estimation</a>
   <ul class="collapse">
-  <li><a href="#the-benchmark-model" id="toc-the-benchmark-model" class="nav-link" data-scroll-target="#the-benchmark-model">The benchmark model</a>
+  <li><a href="#the-baseline-model" id="toc-the-baseline-model" class="nav-link" data-scroll-target="#the-baseline-model">The baseline model</a>
   <ul class="collapse">
   <li><a href="#estimation-algorithm" id="toc-estimation-algorithm" class="nav-link" data-scroll-target="#estimation-algorithm">Estimation algorithm</a></li>
   <li><a href="#data-simulation" id="toc-data-simulation" class="nav-link" data-scroll-target="#data-simulation">Data simulation</a></li>
+  </ul></li>
+  <li><a href="#the-extension-model" id="toc-the-extension-model" class="nav-link" data-scroll-target="#the-extension-model">The extension model</a>
+  <ul class="collapse">
+  <li><a href="#estimation-algorithm-1" id="toc-estimation-algorithm-1" class="nav-link" data-scroll-target="#estimation-algorithm-1">Estimation algorithm</a></li>
+  <li><a href="#data-simulation-1" id="toc-data-simulation-1" class="nav-link" data-scroll-target="#data-simulation-1">Data simulation</a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
@@ -201,14 +206,14 @@ window.Quarto = {
 </blockquote>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>This study aims to explore the dynamic impact of monetary policy on the real economy in Australia, specifically focusing on economic growth, inflation, and employment. How does the real economy respond? What is the magnitude and the duration of change? The stock market price is included and can be considered a leading indicator of the real economy.</p>
+<p>This study aims to explore the dynamic impact of monetary policy on the real economy in Australia, specifically focusing on economic growth, prices, and employment. How does the real economy respond? What is the magnitude and the duration of change? The stock market price is included and can be considered a leading indicator of the real economy.</p>
 <p>According to Economic theory, the transmission mechanism of monetary policy to the real economy takes time, as it does not have a fully immediate effect, but it involves some delays. <span class="citation" data-cites="BrischettoVoss1999">Brischetto and Voss (<a href="#ref-BrischettoVoss1999" role="doc-biblioref">1999</a>)</span> find that the contractionary of monetary policy in Australia leads to a decrease in output level between 5 and 15 quarters after the contraction. The price level also gradually falls with some delay with maximum effect, and there is an indication that the effect tends to be permanent. <span class="citation" data-cites="Mojon2001">Mojon and Peersman (<a href="#ref-Mojon2001" role="doc-biblioref">2001</a>)</span> also investigate the effect of monetary policy across 10 euro area countries and find that a contractionary monetary policy shock leads to a temporary fall in GDP that peaks typically around four quarters after the shock and a gradual decrease in the price level.</p>
 <p>On the other hand, <span class="citation" data-cites="Bjornland2009">Bjørnland and Leitemo (<a href="#ref-Bjornland2009" role="doc-biblioref">2009</a>)</span> suggest that, due to the availability of information in financial market, the monetary policy and stock market have simultaneous effects. They also find that real stock prices immediately fall by seven to nine percent due to a monetary policy shock that raises the federal funds rate by 100 basis points. Similarly, <span class="citation" data-cites="Ioannidis2008">Ioannidis and Kontonikas (<a href="#ref-Ioannidis2008" role="doc-biblioref">2008</a>)</span> find that the majority of OECD countries under study, periods of tight money are associated with contemporaneous declines in stock market value and also decreases expected stock returns. Additionally, according to <span class="citation" data-cites="Bjornland2009">Bjørnland and Leitemo (<a href="#ref-Bjornland2009" role="doc-biblioref">2009</a>)</span>, the changes in asset price, particularly stock price, ultimately impact the economic growth by increasing household spending based on their wealth and encouraging investment through the Tobin Q effect. The asset prices also play a role in firm’s ability to fund operations through credit channel. Hence, policymakers are motivated to track the asset price as short-run indicators.</p>
 <p>Understanding insights of these dynamic impacts within the macroeconomy, including the magnitude and duration of impacts, enables the policymakers to precisely predict the outcomes on real economy that might occur after changing the new cash target rate.</p>
 </section>
 <section id="data" class="level1">
 <h1>Data</h1>
-<p>The variables in this study include the cash rate target <strong><em>(cashrate)</em></strong>, which indicates the monetary policy. GDP (in real terms), inflation <strong><em>(inflation)</em></strong>, and the unemployment rate <strong><em>(unemprate)</em></strong> are included to measure the real economy. For the stock market, the author uses the All Ordinaries index (AORD) as a representative. The AORD is the market-weighted index and includes about 500 companies from the Australian Stock Exchange. Finally, total government expenditure is included to control for fiscal policy, which might also affect the economy besides monetary policy. The data is collected from the Reserve Bank of Australia (RBA), Australian Bureau of Statistics (ABS), and Yahoo Finance. The dataset spans from 1990 Q1 to 2023 Q4, comprising 136 observations. <a href="#figure-1-time-series-plots-raw-data">Figure 1: time series plots (raw data)</a> represents the raw data time series of these 6 variables.</p>
+<p>The variables in this study include the cash rate target <strong><em>(cashrate)</em></strong>, which indicates the monetary policy. GDP (in real terms), CPI, and the unemployment rate <strong><em>(unemprate)</em></strong> are included to measure the real economy. For the stock market, the author uses the All Ordinaries index (AORD) as a representative. The AORD is the market-weighted index and includes about 500 companies from the Australian Stock Exchange. Finally, total government expenditure is included to control for fiscal policy, which might also affect the economy besides monetary policy. The data is collected from the Reserve Bank of Australia (RBA), Australian Bureau of Statistics (ABS), and Yahoo Finance. The dataset spans from 1990 Q1 to 2023 Q4, comprising 136 observations. <a href="#figure-1-time-series-plots-raw-data">Figure 1: time series plots (raw data)</a> represents the raw data time series of these 6 variables.</p>
 <p><br></p>
 <div class="cell">
 <div class="cell-output-display">
@@ -223,7 +228,7 @@ window.Quarto = {
 <h5 class="anchored" data-anchor-id="figure-1-time-series-plots-raw-data">Figure 1: time series plots (raw data)</h5>
 </section>
 <p><br></p>
-<p>The author transforms the data in manner that aligns with the purpose of study. The total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 4 variables which are real GDP, AORD, inflation, and real government expenditure in logarithms term, denoted by <strong><em>realgdp</em></strong>, <strong><em>stockprice</em></strong>, and <strong><em>govexp</em></strong> respectively. <a href="#figure-2-time-series-plots-transformed-data">Figure 2: time series plots (transformed data)</a> represents the transformed data, which will be analyzed further.</p>
+<p>The author transforms the data in manner that aligns with the purpose of study. The total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 4 variables which are real GDP, AORD, CPI, and real government expenditure in logarithms term, denoted by <strong><em>realgdp</em></strong>, <strong><em>stockprice</em></strong>, <strong><em>CPI</em></strong>, and <strong><em>govexp</em></strong> respectively. <a href="#figure-2-time-series-plots-transformed-data">Figure 2: time series plots (transformed data)</a> represents the transformed data, which will be analyzed further.</p>
 <p><br></p>
 <div class="cell">
 <div class="cell-output-display">
@@ -271,12 +276,12 @@ window.Quarto = {
 <td style="text-align: right;">6.413</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">inflation</td>
+<td style="text-align: left;">CPI</td>
 <td style="text-align: right;">136</td>
-<td style="text-align: right;">0.664</td>
-<td style="text-align: right;">0.619</td>
-<td style="text-align: right;">-1.905</td>
-<td style="text-align: right;">3.774</td>
+<td style="text-align: right;">4.456</td>
+<td style="text-align: right;">0.249</td>
+<td style="text-align: right;">4.029</td>
+<td style="text-align: right;">4.913</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">unemprate</td>
@@ -311,7 +316,7 @@ window.Quarto = {
 <h1>Preliminary Results</h1>
 <section id="the-autocorrelation-and-partial-autocorrelation" class="level3">
 <h3 class="anchored" data-anchor-id="the-autocorrelation-and-partial-autocorrelation">The autocorrelation and partial autocorrelation</h3>
-<p>In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. <a href="#figure-3-acf-plots">Figure 3: ACF plots</a> show the autocorrelation remains in all variables, even after 5 years, except <em>inflation</em>. The acf of <em>inflation</em> also indicates the significant autocorrelation in first quarter lag, nevertheless, this might occur due to a type I error.</p>
+<p>In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. <a href="#figure-3-acf-plots">Figure 3: ACF plots</a> show the autocorrelation remains in all variables, even after 5 years. This indicate the strong correlation between a time series and its lagged values.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -325,7 +330,7 @@ window.Quarto = {
 <h5 class="anchored" data-anchor-id="figure-3-acf-plots">Figure 3: ACF plots</h5>
 </section>
 <p><br></p>
-<p>For the pacf in <a href="#figure-4-pacf-plots">Figure 4: PACF plots</a>, it is observed that there have not been any significant spikes for all variables.</p>
+<p>For the PACF in <a href="#figure-4-pacf-plots">Figure 4: PACF plots</a>, it is observed that there have not been any significant spikes for all variables, except for <em>unemprate</em>. The PACF of <em>unemprate</em> indicates significance in partial autocorrelation at first and sixteenth quarter lags; however, this might occur due to a type I error.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -342,7 +347,7 @@ window.Quarto = {
 </section>
 <section id="the-unit-root-test" class="level3">
 <h3 class="anchored" data-anchor-id="the-unit-root-test">The unit root test</h3>
-<p>In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in table 2. Only <em>cashrate</em> and <em>inflation</em> can be rejected on the null hypothesis which indicate that these variables are stationary.</p>
+<p>In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in Table 2. At the 1% significance level, the null hypothesis cannot be rejected for all variables, indicating that these variables are unit root non-stationary.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
@@ -369,10 +374,10 @@ window.Quarto = {
 <td style="text-align: right;">0.87</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">inflation</td>
-<td style="text-align: right;">-3.89</td>
+<td style="text-align: left;">CPI</td>
+<td style="text-align: right;">-3.11</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">0.12</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">unemprate</td>
@@ -396,11 +401,11 @@ window.Quarto = {
 </table>
 </div>
 </div>
-<p>Then, take the first difference to all variables and rerun the ADF test. The results are shown in table 3. It is reasonable to conclude that all variables except <em>cashrate</em> and <em>inflation</em> is integrated of order 1, while the rest are integrated of order 0, or in other words, they are stationary.</p>
+<p>Then, take the first difference and the second difference of all variables and rerun the ADF test. The results are shown in Table 3 and Table 4. For the first difference in Table 3, at the 1% significance level, the null hypothesis can be rejected for all variables, except <em>CPI</em> and <em>dgovexp</em>. It is reasonable to conclude that <em>cashrate</em>, <em>realgdp</em>, <em>unemprate</em>, <em>stockprice</em> are integrated of order 1. And <em>CPI</em> and <em>govexp</em> are integrated of order 2, as shown in the result in Table 4.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
-<caption>Table 3: ADF test on first difference</caption>
+<caption>Table 3: ADF test on the first difference</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;"></th>
@@ -423,10 +428,10 @@ window.Quarto = {
 <td style="text-align: right;">0.01</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">dinflation</td>
-<td style="text-align: right;">-6.23</td>
+<td style="text-align: left;">dCPI</td>
+<td style="text-align: right;">-3.87</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.02</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">dunemprate</td>
@@ -445,6 +450,59 @@ window.Quarto = {
 <td style="text-align: right;">-3.75</td>
 <td style="text-align: right;">5</td>
 <td style="text-align: right;">0.02</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table 4: ADF test on the second difference</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Dickey-Fuller</th>
+<th style="text-align: right;">Lag order</th>
+<th style="text-align: right;">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ddcashrate</td>
+<td style="text-align: right;">-7.20</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ddrealgdp</td>
+<td style="text-align: right;">-8.23</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ddCPI</td>
+<td style="text-align: right;">-6.05</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ddunemprate</td>
+<td style="text-align: right;">-6.49</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ddstockprice</td>
+<td style="text-align: right;">-7.55</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ddgovexp</td>
+<td style="text-align: right;">-9.00</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.01</td>
 </tr>
 </tbody>
 </table>
@@ -469,7 +527,7 @@ u_t|Y_{t-1}&amp;\sim iid \mathcal{N} (0_N,I_N)
 y_t = \begin{pmatrix}
 \text{cashrate} \\
 \text{realgdp} \\
-\text{inflation} \\
+\text{CPI} \\
 \text{unemprate} \\
 \text{stockprice} \\
 \text{govexp}
@@ -488,8 +546,8 @@ y_t &amp;= \mu_0 + \sum_{i=1}^{p}A_{i}y_{t-i}+\epsilon_t \\
 </section>
 <section id="estimation" class="level1">
 <h1>Estimation</h1>
-<section id="the-benchmark-model" class="level2">
-<h2 class="anchored" data-anchor-id="the-benchmark-model">The benchmark model</h2>
+<section id="the-baseline-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-baseline-model">The baseline model</h2>
 <section id="estimation-algorithm" class="level3">
 <h3 class="anchored" data-anchor-id="estimation-algorithm">Estimation algorithm</h3>
 <p>The reduced form above can be rewrite in the matrix form as follows:</p>
@@ -527,7 +585,7 @@ exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-X\hat{A})'(Y-X\hat{A}) \right] \
 <section id="the-prior-distribution" class="level4">
 <h4 class="anchored" data-anchor-id="the-prior-distribution">The prior distribution</h4>
 <span class="math display">\[\begin{align}
-P(A,\Sigma|Y,X) &amp;= P(A|\Sigma) P(\Sigma) \\
+P(A,\Sigma) &amp;= P(A|\Sigma) P(\Sigma) \\
 A|\Sigma &amp;\sim \mathcal{MN}_{K \times N} (\underline{A}, \Sigma , \underline{V}) \\
 \Sigma &amp;\sim \mathcal{IW}_{N}(\underline{S},\underline{\nu})
 \end{align}\]</span>
@@ -550,26 +608,23 @@ Var[vec(A)] &amp;= \Sigma \otimes  \underline{V} \\
 <p><span class="math inline">\(\kappa_1\)</span> is overall shrinkage level for autoregressive slopes, the common value is <span class="math inline">\(0.02^{2}\)</span></p>
 <p><span class="math inline">\(\kappa_2\)</span> is overall shrinkage level for the constant term, the common value is <span class="math inline">\(100\)</span></p>
 <span class="math display">\[\begin{align}
-p(A,\Sigma) &amp;\propto det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}}
+P(A,\Sigma) &amp;\propto det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}}
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
 \\
 \end{align}\]</span>
-</section>
-<section id="the-posterior-distribution" class="level4">
-<h4 class="anchored" data-anchor-id="the-posterior-distribution">The posterior distribution</h4>
-<p>From the Bayes’ rule mentioned above, the posterior distribution as follows:</p>
+<p><br> #### The posterior distribution From the Bayes’ rule mentioned above, the posterior distribution as follows:</p>
 <span class="math display">\[\begin{align}
 P(A,\Sigma|Y,X) \propto &amp; L(A,\Sigma|Y,X)P(A,\Sigma) \\
 P(A,\Sigma|Y,X) \propto
 &amp; det(\Sigma)^{-\frac{T}{2}}
-exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(Y-\hat{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(A-\hat{A}) \right] \right\}
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-X\hat{A})'(Y-X\hat{A}) \right] \right\} \\
 &amp;det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}}
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\} \\
 P(A,\Sigma|Y,X) \propto
-&amp; det(\Sigma)^{-\frac{T+NK+\underline{\nu}+1}{2}}
+&amp; det(\Sigma)^{-\frac{T+N+K+\underline{\nu}+1}{2}}
 exp \left\{-\frac{1}{2} tr \left[
 \Sigma^{-1}\left[(A-\hat{A})'X'X(A-\hat{A}) + (A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \\
 +(Y-X\hat{A})'(Y-X\hat{A})+\underline{S})\right] \right] \right\}
@@ -583,7 +638,7 @@ P(A,\Sigma|Y,X) &amp;= P(A|Y,X,\Sigma) P(\Sigma|Y,X) \\
 P(A|Y,X,\Sigma) &amp;\sim \mathcal{MN}_{K \times N} (\overline{A}, \Sigma , \overline{V}) \\
 P(\Sigma|Y,X) &amp;\sim \mathcal{IW}_{N}(\overline{S},\overline{\nu})
 \end{align}\]</span>
-<p><br></p>
+<p><br> And the posterior parameters are structured as follows.</p>
 <span class="math display">\[\begin{align}
 
 \overline{V} &amp;= (X'X+ \underline{V}^{-1})^{-1} \\
@@ -602,9 +657,203 @@ P(\Sigma|Y,X) &amp;\sim \mathcal{IW}_{N}(\overline{S},\overline{\nu})
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/plot random walk-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
+</div>
+</div>
+<p>The target model for estimation is a Sign-Restricted Structural Vector Autoregression (SVAR).</p>
+<span class="math display">\[\begin{align}
+B_0y_t &amp;= b_0 + \sum_{i=1}^{p}B_{1}y_{t-1}+u_t  \\
+u_t|Y_{t-1}&amp;\sim iid \mathcal{N} (0_N,I_N)
+\end{align}\]</span>
+<p>The author randomly draws matrices <span class="math inline">\(A\)</span> and <span class="math inline">\(\Sigma\)</span> from the posterior distribution, which is specified as a Normal Inverse Wishart distribution as described earlier. Following this, the sign restriction is applied to the main diagonal of matrix <span class="math inline">\(B_{0}\)</span>, ensuring positive signs.</p>
+<p>Table 5 displays that the mean values of the main diagonal elements in matrix <span class="math inline">\(B_{0}\)</span> are positive, providing evidence for the validity of the imposed restriction.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table5: Mean of the B0 matrix (Baseline model)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">C1</th>
+<th style="text-align: right;">C2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">R1</td>
+<td style="text-align: right;">0.6395591</td>
+<td style="text-align: right;">-0.0220170</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R2</td>
+<td style="text-align: right;">0.0402778</td>
+<td style="text-align: right;">0.6467075</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>In Table 6, the values in the first column, which represent the constant term in the equation, are close to zero.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table6: Mean of the B+ matrix (Baseline model)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">C1</th>
+<th style="text-align: right;">C2</th>
+<th style="text-align: right;">C3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">R1</td>
+<td style="text-align: right;">0.0346082</td>
+<td style="text-align: right;">0.6354305</td>
+<td style="text-align: right;">-0.0212149</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R2</td>
+<td style="text-align: right;">0.0155527</td>
+<td style="text-align: right;">0.0446449</td>
+<td style="text-align: right;">0.6432964</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="the-extension-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-extension-model">The extension model</h2>
+<section id="estimation-algorithm-1" class="level3">
+<h3 class="anchored" data-anchor-id="estimation-algorithm-1">Estimation algorithm</h3>
+<p>Suppose the author aims to enhance the flexibility of the prior distribution for gamma (<span class="math inline">\(\gamma\)</span>) by modeling it in the following manner.</p>
+<span class="math display">\[\begin{align}
+\color{Grey}P(A,\Sigma\color{Black}|\gamma) &amp;= \color{Grey}P(A|\Sigma) P(\Sigma\color{Black}|\gamma) \\
+\color{Grey}A|\Sigma &amp;\sim \color{Grey}\mathcal{MN}_{K \times N} \color{Grey}(\underline{A}, \Sigma , \underline{V}) \\
+\color{Black}\Sigma|\gamma &amp;\sim \mathcal{IW}_{N}(\gamma I_{N},\underline{\nu}) \\
+\gamma &amp;\sim \mathcal{IG2} (\underline{S},\underline{\nu})
+\end{align}\]</span>
+<p>Thus, the the posterior distribution as follows:</p>
+<span class="math display">\[\begin{align}
+P(A,\Sigma|Y,X,\gamma) \propto &amp; L(A,\Sigma|Y,X,\gamma)P(A,\Sigma) \\
+P(A,\Sigma|Y,X,\gamma) \propto &amp; L(A,\Sigma|Y,X,\gamma)P(A|\Sigma) P(\Sigma|\gamma) \\
+P(A,\Sigma|Y,X,\gamma) \propto
+&amp; det(\Sigma)^{-\frac{T}{2}}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(A-\hat{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-X\hat{A})'(Y-X\hat{A}) \right] \right\} \\
+&amp;det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\gamma I_{N} \right] \right\} \\
+P(A,\Sigma|Y,X,\gamma) \propto
+&amp; det(\Sigma)^{-\frac{T+N+K+\underline{\nu}+1}{2}}
+exp \left\{-\frac{1}{2} tr \left[
+\Sigma^{-1}\left[(A-\hat{A})'X'X(A-\hat{A}) + (A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \\
++(Y-X\hat{A})'(Y-X\hat{A})+\gamma I_{N}\right] \right] \right\} \\
+
+\end{align}\]</span>
+<p>The distribution represented in the form of Normal Inverse Wishart is characterized by the following parameters:</p>
+<span class="math display">\[\begin{align}
+
+\overline{V} &amp;= (X'X+ \underline{V}^{-1})^{-1} \\
+\overline{A} &amp;= \overline{V}(X'Y+\underline{V}^{-1} \underline{A})\\
+\overline{\nu} &amp;= T+\underline{\nu}\\
+\overline{S} &amp;= \gamma I_{N}+Y'Y + \underline{A}'\underline{V}^{-1}\underline{A} -
+\overline{A}'\overline{V}^{-1}\overline{A} \\
+
+\end{align}\]</span>
+<p><br> The posterior distribution of <span class="math inline">\(\gamma\)</span> is also needed as it serves as a crucial component for the sampling procedure.</p>
+<span class="math display">\[\begin{align}
+P(\gamma|A,\Sigma,Y,X) \propto &amp; L(Y|\Sigma,X,A)P(\gamma)P(A,\Sigma)P(\Sigma|\gamma) \\
+\propto &amp; P(\gamma)P(\Sigma|\gamma) \\
+
+= &amp; \gamma^{-\frac{\underline{\nu}+2}{2}}\:exp\left\{{-\frac{1}{2}\frac{\underline{S}}{\lambda}} \right\} \:det(\gamma I_{N})^{\frac{\underline{\nu}}{2}}\:det(\Sigma)^{-\frac{\underline{\nu}+N+1}{2}}\:exp\left\{{-\frac{1}{2}tr[\Sigma^{-1}\gamma I_{N}]} \right\} \\
+
+= &amp;\gamma^{-\frac{\underline{\nu}+2}{2}}\:exp\left\{{-\frac{1}{2}\frac{\underline{S}}{\gamma}} \right\}\:\gamma^{-\frac{N\underline{\nu}}{2}}\:det(\Sigma)^{\frac{\underline{\nu}+N+1}{2}}\:exp\left\{{-\frac{1}{2}\gamma \:tr[\Sigma^{-1}]} \right\} \\
+
+\propto &amp;\gamma^{\frac{N\underline{\nu}-\underline{\nu}}{2}-1} \:
+exp\left\{{-\frac{1}{2}}[\gamma\:tr[\Sigma^{-1}]+{\frac{\underline{S}}{\gamma}}]\right\} \\
+
+\end{align}\]</span>
+<p>The following distribution conforms to the Generalized Inverse Gaussian (GIG) distribution, with the parameters as follows:</p>
+<span class="math display">\[\begin{align}
+\lambda = {\frac{N\underline{\nu}-\underline{\nu}}{2}} \\
+
+\\ \chi = \underline{S}\\
+
+\\ \psi = tr[\Sigma^{-1}]
+\end{align}\]</span>
+<p>The Gibbs Sampler is used to get the posterior draws of the extended model</p>
+<p>For S = 1,000 iterations</p>
+<p>Initialize <span class="math inline">\(\gamma\)</span> at <span class="math inline">\(\gamma^{(0)}\)</span></p>
+<p>At each iteration:</p>
+<ol type="1">
+<li>Draw <span class="math inline">\(\Sigma^{(s)} \sim P(\Sigma|Y,X,\gamma^{(s-1)})\)</span></li>
+<li>Draw <span class="math inline">\(A^{(s)}\sim P(A|\Sigma^{(s)},Y,X)\)</span></li>
+<li>Draw <span class="math inline">\(\gamma^{(s)} \sim P(\gamma|Y,X,A^{(s)},\Sigma^{(s)})\)</span></li>
+</ol>
+<p>The author then utilizes the random draws from <span class="math inline">\(\Sigma^{(s)}, A^{(s)}, \gamma^{(s)}\)</span> to obtain the posterior draw and create the following B0 and B plus matrices.</p>
+</section>
+<section id="data-simulation-1" class="level3">
+<h3 class="anchored" data-anchor-id="data-simulation-1">Data simulation</h3>
+<p>Table 7 indicates that the mean value of the main diagonal of <span class="math inline">\(B_{0}\)</span> remains positive, exhibiting a similar behavior to that of the basic model.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table7: Mean of the B0 matrix (extension model)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">C1</th>
+<th style="text-align: right;">C2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">R1</td>
+<td style="text-align: right;">0.6483893</td>
+<td style="text-align: right;">0.0451440</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R2</td>
+<td style="text-align: right;">-0.0325026</td>
+<td style="text-align: right;">0.6532864</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table8: Mean of the B+ matrix (extension model)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">C1</th>
+<th style="text-align: right;">C2</th>
+<th style="text-align: right;">C3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">R1</td>
+<td style="text-align: right;">0.0373085</td>
+<td style="text-align: right;">0.6471392</td>
+<td style="text-align: right;">0.0441081</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R2</td>
+<td style="text-align: right;">0.0099539</td>
+<td style="text-align: right;">-0.0276806</td>
+<td style="text-align: right;">0.6509088</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </section>

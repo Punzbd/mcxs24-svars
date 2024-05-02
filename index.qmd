@@ -453,7 +453,7 @@ $\Sigma$ is $N\times N$ covariance matrix of the error term
 
 
 # Estimation
-## The benchmark model
+## The baseline model
 ### Estimation algorithm
  
 The reduced form above can be rewrite in the matrix form as follows:
@@ -508,7 +508,7 @@ exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-X\hat{A})'(Y-X\hat{A}) \right] \
 
 ```{=tex}
 \begin{align}
-P(A,\Sigma|Y,X) &= P(A|\Sigma) P(\Sigma) \\
+P(A,\Sigma) &= P(A|\Sigma) P(\Sigma) \\
 A|\Sigma &\sim \mathcal{MN}_{K \times N} (\underline{A}, \Sigma , \underline{V}) \\
 \Sigma &\sim \mathcal{IW}_{N}(\underline{S},\underline{\nu})
 \end{align}
@@ -544,13 +544,13 @@ $\kappa_2$ is overall shrinkage level for the constant term, the common value is
 
 ```{=tex}
 \begin{align}
-p(A,\Sigma) &\propto det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}} 
+P(A,\Sigma) &\propto det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}} 
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
 \\
 \end{align}
 ```
-
+<br>
 #### The posterior distribution 
 From the Bayes' rule mentioned above, the posterior distribution as follows:
 
@@ -559,13 +559,13 @@ From the Bayes' rule mentioned above, the posterior distribution as follows:
 P(A,\Sigma|Y,X) \propto & L(A,\Sigma|Y,X)P(A,\Sigma) \\
 P(A,\Sigma|Y,X) \propto 
 & det(\Sigma)^{-\frac{T}{2}} 
-exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(Y-\hat{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(A-\hat{A}) \right] \right\}
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-X\hat{A})'(Y-X\hat{A}) \right] \right\} \\
 &det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}} 
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\} \\
 P(A,\Sigma|Y,X) \propto 
-& det(\Sigma)^{-\frac{T+NK+\underline{\nu}+1}{2}}
+& det(\Sigma)^{-\frac{T+N+K+\underline{\nu}+1}{2}}
 exp \left\{-\frac{1}{2} tr \left[
 \Sigma^{-1}\left[(A-\hat{A})'X'X(A-\hat{A}) + (A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \\
 +(Y-X\hat{A})'(Y-X\hat{A})+\underline{S})\right] \right] \right\}
@@ -585,7 +585,7 @@ P(\Sigma|Y,X) &\sim \mathcal{IW}_{N}(\overline{S},\overline{\nu})
 ```
 
 <br>
-
+And the posterior parameters are structured as follows.
 ```{=tex}
 \begin{align}
 
@@ -608,20 +608,352 @@ RW1 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
 RW2 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
 
 RW <- cbind(RW1,RW2)
-RW <- RW[2:nrow(RW),]
-Y <- RW
+Y <- RW[2:nrow(RW),]
 
 ```
 
-```{r}
-plot.ts(Y,main = "1,000 simulations of bi-variate Gaussian random walk", xlab = "Obs.", col = "grey27", lwd = 2, frame.plot = FALSE)
+```{r plot random walk}
+plot.ts(Y,main = "1,000 simulations of bi-variate Gaussian random walk", xlab = "Observations", col = "grey27", lwd = 2, frame.plot = FALSE)
+```
+The target model for estimation is a Sign-Restricted Structural Vector Autoregression (SVAR).
+
+```{=tex}
+\begin{align}
+B_0y_t &= b_0 + \sum_{i=1}^{p}B_{1}y_{t-1}+u_t  \\
+u_t|Y_{t-1}&\sim iid \mathcal{N} (0_N,I_N)
+\end{align}
+```
+
+
+```{r Set up variables}
+#| echo: false
+#| message: false
+#| warning: false
+X            = matrix(1,nrow(Y),1)
+X            = cbind(X,RW[2: nrow(RW)-1,])
+N            = 2
+p            = 1
+K = 1+p*N
+```
+
+
+```{r MLE}
+#| echo: false
+#| message: false
+#| warning: false
+A.hat        = solve(t(X)%*%X)%*%t(X)%*%Y                
+Sigma.hat    = t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y) 
+```
+The author randomly draws matrices $A$ and $\Sigma$ from the posterior distribution,  which is specified as a Normal Inverse Wishart distribution as described earlier. Following this, the sign restriction is applied to the main diagonal of matrix $B_{0}$, ensuring positive signs.
+
+```{r prior distribution}
+#| echo: false
+#| message: false
+#| warning: false
+
+kappa.1     = 0.02^2
+kappa.2     = 100
+A.prior     = matrix(0,nrow(A.hat),ncol(A.hat))
+A.prior[2:3,] = diag(N)
+V.prior     = diag(c(kappa.2,kappa.1*((1:p)^(-2))%x%rep(1,N)))
+S.prior     = diag(diag(Sigma.hat))
+nu.prior    = N+1
 ```
 
 
 
+```{r Normal-Inverse wishart posterior}
+#| echo: false
+#| message: false
+#| warning: false
+V.bar.inv   = t(X)%*%X + diag(1/diag(V.prior))
+V.bar       = solve(V.bar.inv)
+A.bar       = V.bar%*%(t(X)%*%Y + diag(1/diag(V.prior))%*%A.prior)
+nu.bar      = nrow(Y) + nu.prior
+S.bar       = S.prior + t(Y)%*%Y + t(A.prior)%*%diag(1/diag(V.prior))%*%A.prior - t(A.bar)%*%V.bar.inv%*%A.bar
+S.bar.inv   = solve(S.bar)
+```
+
+
+```{r posterior draws }
+#| echo: false
+#| message: false
+#| warning: false
+
+# Sampling from normal-inverse Wishart distribution
+S = 1000 # No. of draws
+Sigma.posterior   = rWishart(S, df=nu.bar, Sigma=S.bar.inv) # whole random draw of Sigma
+Sigma.posterior   = apply(Sigma.posterior,3,solve)
+Sigma.posterior   = array(Sigma.posterior,c(N,N,S))
+A.posterior       = array(rnorm(prod(c(dim(A.bar),S))),c(dim(A.bar),S)) # whole random draw of A
+B0.tilde          = array(NA,c(N,N,S))
+L                 = t(chol(V.bar))
+Bplus.tilde       = array(NA,c(N,K,S))
+
+for (s in 1:S){
+  cholSigma.s     = chol(Sigma.posterior[,,s])
+  B0.tilde[,,s]   = solve(t(cholSigma.s)) 
+  A.posterior[,,s]= A.bar + L%*%A.posterior[,,s]%*%cholSigma.s # for each random draw of A
+  Bplus.tilde[,,s]  <- B0.tilde[,,s]%*%t(A.posterior[,,s]) 
+}
+
+```
+
+
+```{r Restriction on B0}
+#| echo: false
+#| message: false
+#| warning: false
+restriction = diag(c(1,1)) # As we want B0 closely to the identity matrix
+
+ # Storage matrix
+i.vec <- c()
+Q.store   = array(NA,c(N,N,S))
+B0.store = array(NA,c(N,N,S))
+Bplus.store = array(NA,c(N,K,S))
+#A.store = array (NA,c(K,N,S))
+#Sigma.store = array(NA,c(N,N,S))
+
+for (s in 1:S) {
+  #A     <- A.posterior[,,s]
+  #Sigma <- Sigma.posterior[,,s]
+  B0.tilde1      = B0.tilde[,,s]
+  Bplus.tilde1   = Bplus.tilde[,,s]
+  
+  sign.restrictions.do.not.hold = TRUE
+  i=1
+  
+  while (sign.restrictions.do.not.hold){
+    X           = matrix(rnorm(N*N),N,N)
+    QR          = qr(X, tol = 1e-10)
+    Q           = qr.Q(QR,complete=TRUE)
+    R           = qr.R(QR,complete=TRUE)
+    Q           = t(Q %*% diag(sign(diag(R))))
+    B0          = Q%*%B0.tilde1
+    Bplus       = Q%*%Bplus.tilde1
+    B0.inv      = solve(B0)
+    check       = all(diag(B0)>0)
+    if (check==1){sign.restrictions.do.not.hold=FALSE}
+    i=i+1
+  }
+    i.vec <- c(i.vec, i)
+    Q.store[,,s] <- Q
+    B0.store[,,s] <- B0
+    B0.mean <- apply(B0.store,1:2,mean)
+    Bplus.store[,,s] <- Bplus
+    Bplus.mean <- apply(Bplus.store,1:2,mean)
+}
+```
+
+Table 5 displays that the mean values of the main diagonal elements in matrix $B_{0}$ are positive, providing evidence for the validity of the imposed restriction.
+
+```{r B0 mean}
+B0_df <- as.data.frame(B0.mean)
+colnames(B0_df) <- c("C1", "C2")
+rownames(B0_df) <- c( "R1", "R2")
+knitr::kable(B0_df, caption = "Table5: Mean of the B0 matrix (Baseline model)")
+```
+In Table 6, the values in the first column, which represent the constant term in the equation, are close to zero.
+
+
+```{r Bplus mean}
+Bplus_df <- as.data.frame(Bplus.mean)
+colnames(Bplus_df) <- c("C1","C2", "C3")
+rownames(Bplus_df) <- c( "R1", "R2")
+knitr::kable(Bplus_df, caption = "Table6: Mean of the B+ matrix (Baseline model)")
+```
+
+
+
+## The extension model
+### Estimation algorithm
+Suppose the author aims to enhance the flexibility of the prior distribution for gamma ($\gamma$) by modeling it in the following manner.
+
+```{=tex}
+\begin{align}
+\color{Grey}P(A,\Sigma\color{Black}|\gamma) &= \color{Grey}P(A|\Sigma) P(\Sigma\color{Black}|\gamma) \\
+\color{Grey}A|\Sigma &\sim \color{Grey}\mathcal{MN}_{K \times N} \color{Grey}(\underline{A}, \Sigma , \underline{V}) \\
+\color{Black}\Sigma|\gamma &\sim \mathcal{IW}_{N}(\gamma I_{N},\underline{\nu}) \\
+\gamma &\sim \mathcal{IG2} (\underline{S},\underline{\nu})
+\end{align}
+```
+
+Thus, the the posterior distribution as follows: 
+
+```{=tex}
+\begin{align}
+P(A,\Sigma|Y,X,\gamma) \propto & L(A,\Sigma|Y,X,\gamma)P(A,\Sigma) \\
+P(A,\Sigma|Y,X,\gamma) \propto & L(A,\Sigma|Y,X,\gamma)P(A|\Sigma) P(\Sigma|\gamma) \\
+P(A,\Sigma|Y,X,\gamma) \propto 
+& det(\Sigma)^{-\frac{T}{2}} 
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(A-\hat{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-X\hat{A})'(Y-X\hat{A}) \right] \right\} \\
+&det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}} 
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
+exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\gamma I_{N} \right] \right\} \\
+P(A,\Sigma|Y,X,\gamma) \propto 
+& det(\Sigma)^{-\frac{T+N+K+\underline{\nu}+1}{2}}
+exp \left\{-\frac{1}{2} tr \left[
+\Sigma^{-1}\left[(A-\hat{A})'X'X(A-\hat{A}) + (A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \\
++(Y-X\hat{A})'(Y-X\hat{A})+\gamma I_{N}\right] \right] \right\} \\
+
+\end{align}
+```
+
+The distribution represented in the form of Normal Inverse Wishart is characterized by the following parameters:
+```{=tex}
+\begin{align}
+
+\overline{V} &= (X'X+ \underline{V}^{-1})^{-1} \\ 
+\overline{A} &= \overline{V}(X'Y+\underline{V}^{-1} \underline{A})\\
+\overline{\nu} &= T+\underline{\nu}\\
+\overline{S} &= \gamma I_{N}+Y'Y + \underline{A}'\underline{V}^{-1}\underline{A} - 
+\overline{A}'\overline{V}^{-1}\overline{A} \\
+
+\end{align}
+```
+
+<br>
+The posterior distribution of $\gamma$ is also needed as it serves as a crucial component for the sampling procedure.
+
+```{=tex}
+\begin{align}
+P(\gamma|A,\Sigma,Y,X) \propto & L(Y|\Sigma,X,A)P(\gamma)P(A,\Sigma)P(\Sigma|\gamma) \\
+\propto & P(\gamma)P(\Sigma|\gamma) \\
+
+= & \gamma^{-\frac{\underline{\nu}+2}{2}}\:exp\left\{{-\frac{1}{2}\frac{\underline{S}}{\lambda}} \right\} \:det(\gamma I_{N})^{\frac{\underline{\nu}}{2}}\:det(\Sigma)^{-\frac{\underline{\nu}+N+1}{2}}\:exp\left\{{-\frac{1}{2}tr[\Sigma^{-1}\gamma I_{N}]} \right\} \\
+
+= &\gamma^{-\frac{\underline{\nu}+2}{2}}\:exp\left\{{-\frac{1}{2}\frac{\underline{S}}{\gamma}} \right\}\:\gamma^{-\frac{N\underline{\nu}}{2}}\:det(\Sigma)^{\frac{\underline{\nu}+N+1}{2}}\:exp\left\{{-\frac{1}{2}\gamma \:tr[\Sigma^{-1}]} \right\} \\
+
+\propto &\gamma^{\frac{N\underline{\nu}-\underline{\nu}}{2}-1} \: 
+exp\left\{{-\frac{1}{2}}[\gamma\:tr[\Sigma^{-1}]+{\frac{\underline{S}}{\gamma}}]\right\} \\
+
+\end{align}
+```
+
+The following distribution conforms to the Generalized Inverse Gaussian (GIG) distribution, with the parameters as follows:
+
+```{=tex}
+\begin{align}
+\lambda = {\frac{N\underline{\nu}-\underline{\nu}}{2}} \\
+
+\\ \chi = \underline{S}\\
+
+\\ \psi = tr[\Sigma^{-1}]
+\end{align}
+```
+
+The Gibbs Sampler is used to get the posterior draws of the extended model
+
+For S = 1,000 iterations 
+
+Initialize $\gamma$ at $\gamma^{(0)}$
+
+At each iteration:
+
+1) Draw $\Sigma^{(s)} \sim P(\Sigma|Y,X,\gamma^{(s-1)})$
+2) Draw $A^{(s)}\sim P(A|\Sigma^{(s)},Y,X)$ 
+3) Draw $\gamma^{(s)} \sim P(\gamma|Y,X,A^{(s)},\Sigma^{(s)})$
+
+
+The author then utilizes the random draws from $\Sigma^{(s)}, A^{(s)}, \gamma^{(s)}$ to obtain the posterior draw and create the following B0 and B plus matrices.
+
 
 ```{r}
-#matrix(1,nrow(Y),1)
+S.bar1 <- array(0, dim = c(2, 2, S))
+S.bar.inv1 <- array(0, dim = c(2, 2, S))
+#A.posterior_list <- list()
+gamma.store <- numeric(S)
+
+for (i in 2:S) {
+  S.bar1[,,i] <- gamma.store[i-1] * diag(2) + t(Y) %*% Y + t(A.prior) %*% diag(1/diag(V.prior)) %*% A.prior - t(A.bar) %*% V.bar.inv %*% A.bar
+  S.bar.inv1[,,i] <- solve(S.bar1[,,i])
+  
+  Sigma.posterior <- rWishart(S, df = nu.bar, Sigma = S.bar.inv1[,,i])
+  Sigma.posterior <- apply(Sigma.posterior, 3, solve)
+  Sigma.posterior <- array(Sigma.posterior, c(N, N, S))
+  
+  cholSigma.s <- chol(Sigma.posterior[,,i])
+  A.posterior[,,i] <- A.bar + L %*% A.posterior[,,i] %*% cholSigma.s
+  
+  lambda <- ((nu.prior * N) - nu.prior) / 2
+  chi <- S.prior
+  psi <- sum(diag(solve(Sigma.posterior[,,i])))
+  gamma.store[i] <- GIGrvg::rgig(n = 1, lambda, chi, psi)
+  
+  B0.tilde[,,i]   = solve(t(cholSigma.s)) 
+  Bplus.tilde[,,i]  <- B0.tilde[,,i]%*%t(A.posterior[,,i]) 
+  
+}
+```
+
+```{r}
+# collect sigma, A, gamma and other variables used to compute B0 and B+ (ignore first element)
+
+A.posterior = A.posterior[,,2:S]
+gamma.store = gamma.store[2:S]
+B0.tilde = B0.tilde[,,2:S]
+Bplus.tilde = Bplus.tilde[,,2:S]
+Sigma.posterior = Sigma.posterior[,,2:S]
+```
+
+
+```{r Restriction on B0 extension}
+#| echo: false
+#| message: false
+#| warning: false
+
+ # Storage matrix
+i.vec <- c()
+Q.store   = array(NA,c(N,N,(S-1)))
+B0.store = array(NA,c(N,N,(S-1)))
+Bplus.store = array(NA,c(N,K,(S-1)))
+
+for (s in 1:(S-1)) {
+  B0.tilde2      = B0.tilde[,,s]
+  Bplus.tilde2   = Bplus.tilde[,,s]
+  
+  sign.restrictions.do.not.hold = TRUE
+  i=1
+  
+  while (sign.restrictions.do.not.hold){
+    X           = matrix(rnorm(N*N),N,N)
+    QR          = qr(X, tol = 1e-10)
+    Q           = qr.Q(QR,complete=TRUE)
+    R           = qr.R(QR,complete=TRUE)
+    Q           = t(Q %*% diag(sign(diag(R))))
+    B0          = Q%*%B0.tilde2
+    Bplus       = Q%*%Bplus.tilde2
+    B0.inv      = solve(B0)
+    check       = all(diag(B0)>0)
+    if (check==1){sign.restrictions.do.not.hold=FALSE}
+    i=i+1
+  }
+    i.vec <- c(i.vec, i)
+    Q.store[,,s] <- Q
+    B0.store[,,s] <- B0
+    B0.mean <- apply(B0.store,1:2,mean)
+    Bplus.store[,,s] <- Bplus
+    Bplus.mean <- apply(Bplus.store,1:2,mean)
+}
+```
+
+### Data simulation
+
+Table 7 indicates that the mean value of the main diagonal of $B_{0}$ remains positive, exhibiting a similar behavior to that of the basic model.
+
+```{r B0 mean for extension}
+B0_df <- as.data.frame(B0.mean)
+colnames(B0_df) <- c("C1", "C2")
+rownames(B0_df) <- c( "R1", "R2")
+knitr::kable(B0_df, caption = "Table7: Mean of the B0 matrix (extension model)")
+```
+
+```{r Bplus mean for extension}
+Bplus_df <- as.data.frame(Bplus.mean)
+colnames(Bplus_df) <- c("C1","C2", "C3")
+rownames(Bplus_df) <- c( "R1", "R2")
+knitr::kable(Bplus_df, caption = "Table8: Mean of the B+ matrix (extension model)")
 ```
 
 
