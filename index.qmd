@@ -620,9 +620,11 @@ The target model for estimation is a Sign-Restricted Structural Vector Autoregre
 ```{=tex}
 \begin{align}
 B_0y_t &= b_0 + \sum_{i=1}^{p}B_{1}y_{t-1}+u_t  \\
+       &= B_+ x_t + u_t
 u_t|Y_{t-1}&\sim iid \mathcal{N} (0_N,I_N)
 \end{align}
 ```
+$B_+=\big[b_0\;B_1\;\dots\;B_p\big]$ and $x_t=\big[1\;y_{t-1}'\;\dots\;y_{t-p}'\big]$.
 
 
 ```{r Set up variables}
@@ -771,8 +773,8 @@ Suppose the author aims to enhance the flexibility of the prior distribution for
 
 ```{=tex}
 \begin{align}
-\color{Grey}P(A,\Sigma\color{Black}|\gamma) &= \color{Grey}P(A|\Sigma) P(\Sigma\color{Black}|\gamma) \\
-\color{Grey}A|\Sigma &\sim \color{Grey}\mathcal{MN}_{K \times N} \color{Grey}(\underline{A}, \Sigma , \underline{V}) \\
+\color{Black}P(A,\Sigma\color{Black}|\gamma) &= \color{Grey}P(A|\Sigma) P(\Sigma\color{Black}|\gamma) \\
+\color{Black}A|\Sigma &\sim \color{Grey}\mathcal{MN}_{K \times N} \color{Black}(\underline{A}, \Sigma , \underline{V}) \\
 \color{Black}\Sigma|\gamma &\sim \mathcal{IW}_{N}(\gamma I_{N},\underline{\nu}) \\
 \gamma &\sim \mathcal{IG2} (\underline{S},\underline{\nu})
 \end{align}
