@@ -550,7 +550,7 @@ exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
 \\
 \end{align}
 ```
-<br>
+
 #### The posterior distribution 
 From the Bayes' rule mentioned above, the posterior distribution as follows:
 
