@@ -951,6 +951,8 @@ rownames(B0_df) <- c( "R1", "R2")
 knitr::kable(B0_df, caption = "Table7: Mean of the B0 matrix (extension model)")
 ```
 
+Table 8 shows that the mean value of the main diagonal of $B_{+}$ remains positive.
+
 ```{r Bplus mean for extension}
 Bplus_df <- as.data.frame(Bplus.mean)
 colnames(Bplus_df) <- c("C1","C2", "C3")
