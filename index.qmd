@@ -528,7 +528,7 @@ The Minnesota prior used as prior of the model, the parameters are follows:
 ```{=tex}
 \begin{align}
 \underline{A} &= [0_{N \times 1} \quad I_N \quad 0_{N \times (p-1)N}]' \\ 
-\Var[vec(A)] &= \Sigma \otimes  \underline{V} \\
+Var[vec(A)] &= \Sigma \otimes  \underline{V} \\
 \underline{V} &= \text{diag}([\kappa_2 \quad \kappa_1 (p^{-2} \otimes \imath_N)]) \\
 \end{align}
 ```
@@ -550,6 +550,7 @@ exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
 \\
 \end{align}
 ```
+<br>
 
 #### The posterior distribution 
 From the Bayes' rule mentioned above, the posterior distribution as follows:
@@ -620,11 +621,9 @@ The target model for estimation is a Sign-Restricted Structural Vector Autoregre
 ```{=tex}
 \begin{align}
 B_0y_t &= b_0 + \sum_{i=1}^{p}B_{1}y_{t-1}+u_t  \\
-       &= B_+ x_t + u_t
 u_t|Y_{t-1}&\sim iid \mathcal{N} (0_N,I_N)
 \end{align}
 ```
-$B_+=\big[b_0\;B_1\;\dots\;B_p\big]$ and $x_t=\big[1\;y_{t-1}'\;\dots\;y_{t-p}'\big]$.
 
 
 ```{r Set up variables}
@@ -773,8 +772,8 @@ Suppose the author aims to enhance the flexibility of the prior distribution for
 
 ```{=tex}
 \begin{align}
-\color{Black}P(A,\Sigma\color{Black}|\gamma) &= \color{Grey}P(A|\Sigma) P(\Sigma\color{Black}|\gamma) \\
-\color{Black}A|\Sigma &\sim \color{Grey}\mathcal{MN}_{K \times N} \color{Black}(\underline{A}, \Sigma , \underline{V}) \\
+\color{Grey}P(A,\Sigma\color{Black}|\gamma) &= \color{Grey}P(A|\Sigma) P(\Sigma\color{Black}|\gamma) \\
+\color{Grey}A|\Sigma &\sim \color{Grey}\mathcal{MN}_{K \times N} \color{Grey}(\underline{A}, \Sigma , \underline{V}) \\
 \color{Black}\Sigma|\gamma &\sim \mathcal{IW}_{N}(\gamma I_{N},\underline{\nu}) \\
 \gamma &\sim \mathcal{IG2} (\underline{S},\underline{\nu})
 \end{align}
@@ -816,6 +815,7 @@ The distribution represented in the form of Normal Inverse Wishart is characteri
 ```
 
 <br>
+
 The posterior distribution of $\gamma$ is also needed as it serves as a crucial component for the sampling procedure.
 
 ```{=tex}
@@ -951,7 +951,8 @@ rownames(B0_df) <- c( "R1", "R2")
 knitr::kable(B0_df, caption = "Table7: Mean of the B0 matrix (extension model)")
 ```
 
-Table 8 shows that the mean value of the main diagonal of $B_{+}$ remains positive.
+
+In Table 8, the values in the first column, which represent the constant term in the equation, are close to zero and exhibit a behavior similar to that of the basic model.
 
 ```{r Bplus mean for extension}
 Bplus_df <- as.data.frame(Bplus.mean)
@@ -959,6 +960,7 @@ colnames(Bplus_df) <- c("C1","C2", "C3")
 rownames(Bplus_df) <- c( "R1", "R2")
 knitr::kable(Bplus_df, caption = "Table8: Mean of the B+ matrix (extension model)")
 ```
+
 
 
 
