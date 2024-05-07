@@ -962,6 +962,11 @@ knitr::kable(Bplus_df, caption = "Table8: Mean of the B+ matrix (extension model
 ```
 
 
+```{r}
+gamma.mean <- round(mean(gamma.store), digits = 4)
+```
+
+And the mean of gamma is equal `r gamma.mean`
 
 
 ## References {.unnumbered}
