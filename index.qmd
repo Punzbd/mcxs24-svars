@@ -551,6 +551,7 @@ exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
 \end{align}
 ```
 <br>
+
 #### The posterior distribution 
 From the Bayes' rule mentioned above, the posterior distribution as follows:
 
@@ -814,6 +815,7 @@ The distribution represented in the form of Normal Inverse Wishart is characteri
 ```
 
 <br>
+
 The posterior distribution of $\gamma$ is also needed as it serves as a crucial component for the sampling procedure.
 
 ```{=tex}
@@ -949,12 +951,16 @@ rownames(B0_df) <- c( "R1", "R2")
 knitr::kable(B0_df, caption = "Table7: Mean of the B0 matrix (extension model)")
 ```
 
+
+In Table 8, the values in the first column, which represent the constant term in the equation, are close to zero and exhibit a behavior similar to that of the basic model.
+
 ```{r Bplus mean for extension}
 Bplus_df <- as.data.frame(Bplus.mean)
 colnames(Bplus_df) <- c("C1","C2", "C3")
 rownames(Bplus_df) <- c( "R1", "R2")
 knitr::kable(Bplus_df, caption = "Table8: Mean of the B+ matrix (extension model)")
 ```
+
 
 
 
