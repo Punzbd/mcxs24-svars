@@ -155,7 +155,7 @@ window.Quarto = {
   <li><a href="#the-unit-root-test" id="toc-the-unit-root-test" class="nav-link" data-scroll-target="#the-unit-root-test">The unit root test</a></li>
   </ul></li>
   <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology">Methodology</a></li>
-  <li><a href="#estimation" id="toc-estimation" class="nav-link" data-scroll-target="#estimation">Estimation</a>
+  <li><a href="#estimation-algorithm-with-simulated-data" id="toc-estimation-algorithm-with-simulated-data" class="nav-link" data-scroll-target="#estimation-algorithm-with-simulated-data">Estimation algorithm with simulated data</a>
   <ul class="collapse">
   <li><a href="#the-baseline-model" id="toc-the-baseline-model" class="nav-link" data-scroll-target="#the-baseline-model">The baseline model</a>
   <ul class="collapse">
@@ -166,6 +166,17 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#estimation-algorithm-1" id="toc-estimation-algorithm-1" class="nav-link" data-scroll-target="#estimation-algorithm-1">Estimation algorithm</a></li>
   <li><a href="#data-simulation-1" id="toc-data-simulation-1" class="nav-link" data-scroll-target="#data-simulation-1">Data simulation</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#empirical-estimation" id="toc-empirical-estimation" class="nav-link" data-scroll-target="#empirical-estimation">Empirical estimation</a>
+  <ul class="collapse">
+  <li><a href="#the-baseline-model-1" id="toc-the-baseline-model-1" class="nav-link" data-scroll-target="#the-baseline-model-1">The baseline model</a>
+  <ul class="collapse">
+  <li><a href="#impulse-response-function" id="toc-impulse-response-function" class="nav-link" data-scroll-target="#impulse-response-function">Impulse response function</a></li>
+  </ul></li>
+  <li><a href="#the-extension-model-1" id="toc-the-extension-model-1" class="nav-link" data-scroll-target="#the-extension-model-1">The extension model</a>
+  <ul class="collapse">
+  <li><a href="#impulse-response-function-1" id="toc-impulse-response-function-1" class="nav-link" data-scroll-target="#impulse-response-function-1">Impulse response function</a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
@@ -524,14 +535,14 @@ u_t|Y_{t-1}&amp;\sim iid \mathcal{N} (0_N,I_N)
 <p><span class="math inline">\(u_t\)</span> is <span class="math inline">\(N\times1\)</span> vector of conditionally on <span class="math inline">\(Y_{t-1}\)</span> orthogonal or independent structural shocks</p>
 <p><br></p>
 <p>Specifically, <span class="math inline">\(y_{t}\)</span> contains 6 variables as follows. <span class="math display">\[
-y_t = \begin{pmatrix}
+y_t = \begin{bmatrix}
 \text{cashrate} \\
 \text{realgdp} \\
 \text{CPI} \\
 \text{unemprate} \\
 \text{stockprice} \\
 \text{govexp}
-\end{pmatrix}
+\end{bmatrix}
 \]</span></p>
 <p>The <strong>reduced form</strong> can be shown as follows.</p>
 <span class="math display">\[\begin{align}
@@ -544,8 +555,8 @@ y_t &amp;= \mu_0 + \sum_{i=1}^{p}A_{i}y_{t-i}+\epsilon_t \\
 <p><span class="math inline">\(\epsilon_t\)</span> is <span class="math inline">\(N\times1\)</span> vector of error terms - a multivariate white noise process</p>
 <p><span class="math inline">\(\Sigma\)</span> is <span class="math inline">\(N\times N\)</span> covariance matrix of the error term</p>
 </section>
-<section id="estimation" class="level1">
-<h1>Estimation</h1>
+<section id="estimation-algorithm-with-simulated-data" class="level1">
+<h1>Estimation algorithm with simulated data</h1>
 <section id="the-baseline-model" class="level2">
 <h2 class="anchored" data-anchor-id="the-baseline-model">The baseline model</h2>
 <section id="estimation-algorithm" class="level3">
@@ -607,13 +618,11 @@ Var[vec(A)] &amp;= \Sigma \otimes  \underline{V} \\
 <p><span class="math inline">\(\imath_N\)</span> = [1,…,1]</p>
 <p><span class="math inline">\(\kappa_1\)</span> is overall shrinkage level for autoregressive slopes, the common value is <span class="math inline">\(0.02^{2}\)</span></p>
 <p><span class="math inline">\(\kappa_2\)</span> is overall shrinkage level for the constant term, the common value is <span class="math inline">\(100\)</span></p>
-<span class="math display">\[\begin{align}
-P(A,\Sigma) &amp;\propto det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}}
-exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
-exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
-\\
-\end{align}\]</span>
-<p><br> #### The posterior distribution From the Bayes’ rule mentioned above, the posterior distribution as follows:</p>
+<p><br></p>
+</section>
+<section id="the-posterior-distribution" class="level4">
+<h4 class="anchored" data-anchor-id="the-posterior-distribution">The posterior distribution</h4>
+<p>From the Bayes’ rule mentioned above, the posterior distribution as follows:</p>
 <span class="math display">\[\begin{align}
 P(A,\Sigma|Y,X) \propto &amp; L(A,\Sigma|Y,X)P(A,\Sigma) \\
 P(A,\Sigma|Y,X) \propto
@@ -662,6 +671,9 @@ P(\Sigma|Y,X) &amp;\sim \mathcal{IW}_{N}(\overline{S},\overline{\nu})
 </div>
 </div>
 </div>
+<section id="figure-5-the-simulation-data-1000-observations" class="level5" style="text-align: center;">
+<h5 class="anchored" data-anchor-id="figure-5-the-simulation-data-1000-observations">Figure 5: The simulation data (1,000 observations)</h5>
+</section>
 <p>The target model for estimation is a Sign-Restricted Structural Vector Autoregression (SVAR).</p>
 <span class="math display">\[\begin{align}
 B_0y_t &amp;= b_0 + \sum_{i=1}^{p}B_{1}y_{t-1}+u_t  \\
@@ -683,13 +695,13 @@ u_t|Y_{t-1}&amp;\sim iid \mathcal{N} (0_N,I_N)
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">R1</td>
-<td style="text-align: right;">0.6395591</td>
-<td style="text-align: right;">-0.0220170</td>
+<td style="text-align: right;">0.6356830</td>
+<td style="text-align: right;">0.0031017</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R2</td>
-<td style="text-align: right;">0.0402778</td>
-<td style="text-align: right;">0.6467075</td>
+<td style="text-align: right;">0.0151974</td>
+<td style="text-align: right;">0.6425507</td>
 </tr>
 </tbody>
 </table>
@@ -711,15 +723,15 @@ u_t|Y_{t-1}&amp;\sim iid \mathcal{N} (0_N,I_N)
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">R1</td>
-<td style="text-align: right;">0.0346082</td>
-<td style="text-align: right;">0.6354305</td>
-<td style="text-align: right;">-0.0212149</td>
+<td style="text-align: right;">0.0356225</td>
+<td style="text-align: right;">0.6318945</td>
+<td style="text-align: right;">0.0036209</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R2</td>
-<td style="text-align: right;">0.0155527</td>
-<td style="text-align: right;">0.0446449</td>
-<td style="text-align: right;">0.6432964</td>
+<td style="text-align: right;">0.0122704</td>
+<td style="text-align: right;">0.0196974</td>
+<td style="text-align: right;">0.6392149</td>
 </tr>
 </tbody>
 </table>
@@ -766,7 +778,8 @@ exp \left\{-\frac{1}{2} tr \left[
 \overline{A}'\overline{V}^{-1}\overline{A} \\
 
 \end{align}\]</span>
-<p><br> The posterior distribution of <span class="math inline">\(\gamma\)</span> is also needed as it serves as a crucial component for the sampling procedure.</p>
+<p><br></p>
+<p>The posterior distribution of <span class="math inline">\(\gamma\)</span> is also needed as it serves as a crucial component for the sampling procedure.</p>
 <span class="math display">\[\begin{align}
 P(\gamma|A,\Sigma,Y,X) \propto &amp; L(Y|\Sigma,X,A)P(\gamma)P(A,\Sigma)P(\Sigma|\gamma) \\
 \propto &amp; P(\gamma)P(\Sigma|\gamma) \\
@@ -788,7 +801,7 @@ exp\left\{{-\frac{1}{2}}[\gamma\:tr[\Sigma^{-1}]+{\frac{\underline{S}}{\gamma}}]
 \\ \psi = tr[\Sigma^{-1}]
 \end{align}\]</span>
 <p>The Gibbs Sampler is used to get the posterior draws of the extended model</p>
-<p>For S = 1,000 iterations</p>
+<p>For S = 5,000 iterations</p>
 <p>Initialize <span class="math inline">\(\gamma\)</span> at <span class="math inline">\(\gamma^{(0)}\)</span></p>
 <p>At each iteration:</p>
 <ol type="1">
@@ -796,7 +809,7 @@ exp\left\{{-\frac{1}{2}}[\gamma\:tr[\Sigma^{-1}]+{\frac{\underline{S}}{\gamma}}]
 <li>Draw <span class="math inline">\(A^{(s)}\sim P(A|\Sigma^{(s)},Y,X)\)</span></li>
 <li>Draw <span class="math inline">\(\gamma^{(s)} \sim P(\gamma|Y,X,A^{(s)},\Sigma^{(s)})\)</span></li>
 </ol>
-<p>The author then utilizes the random draws from <span class="math inline">\(\Sigma^{(s)}, A^{(s)}, \gamma^{(s)}\)</span> to obtain the posterior draw and create the following B0 and B plus matrices.</p>
+<p>The author then utilizes the random draws from <span class="math inline">\(\Sigma^{(s)}, A^{(s)}, \gamma^{(s)}\)</span> to obtain the posterior draw and create the following <span class="math inline">\(B_{0}\)</span> and <span class="math inline">\(B_{+}\)</span> matrices.</p>
 </section>
 <section id="data-simulation-1" class="level3">
 <h3 class="anchored" data-anchor-id="data-simulation-1">Data simulation</h3>
@@ -815,18 +828,19 @@ exp\left\{{-\frac{1}{2}}[\gamma\:tr[\Sigma^{-1}]+{\frac{\underline{S}}{\gamma}}]
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">R1</td>
-<td style="text-align: right;">0.6483893</td>
-<td style="text-align: right;">0.0451440</td>
+<td style="text-align: right;">0.6495386</td>
+<td style="text-align: right;">0.0078490</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R2</td>
-<td style="text-align: right;">-0.0325026</td>
-<td style="text-align: right;">0.6532864</td>
+<td style="text-align: right;">0.0046635</td>
+<td style="text-align: right;">0.6569797</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
+<p>In Table 8, the values in the first column, which represent the constant term in the equation, are close to zero and exhibit a behavior similar to that of the basic model.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
@@ -842,20 +856,325 @@ exp\left\{{-\frac{1}{2}}[\gamma\:tr[\Sigma^{-1}]+{\frac{\underline{S}}{\gamma}}]
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">R1</td>
-<td style="text-align: right;">0.0373085</td>
-<td style="text-align: right;">0.6471392</td>
-<td style="text-align: right;">0.0441081</td>
+<td style="text-align: right;">0.0366380</td>
+<td style="text-align: right;">0.6480238</td>
+<td style="text-align: right;">0.0069453</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R2</td>
-<td style="text-align: right;">0.0099539</td>
-<td style="text-align: right;">-0.0276806</td>
-<td style="text-align: right;">0.6509088</td>
+<td style="text-align: right;">0.0119502</td>
+<td style="text-align: right;">0.0094314</td>
+<td style="text-align: right;">0.6545377</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
+<p>And the mean of <span class="math inline">\(\gamma\)</span> is equal 1.8277</p>
+<p><br></p>
+<p>Once we prove that the algorithm and coding can work with the simulated random walk data, the author will apply the same procedure to the empirical data, which contains 6 variables as indicated in the methodology section.</p>
+</section>
+</section>
+</section>
+<section id="empirical-estimation" class="level1">
+<h1>Empirical estimation</h1>
+<section id="the-baseline-model-1" class="level2">
+<h2 class="anchored" data-anchor-id="the-baseline-model-1">The baseline model</h2>
+<p>The sign restriction that the author want to impose is applied to the contemporaneous shock or matrix <span class="math inline">\(B_{0}^{-1}\)</span> which is attached to the <span class="math inline">\(u_{t}\)</span> after transforming the SVAR model equation.</p>
+<span class="math display">\[\begin{align}
+B_0y_t &amp;= b_0 + \sum_{i=1}^{p}B_{i}y_{t-i}+u_t  \\
+
+y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
+
+\end{align}\]</span>
+<p>However, the SVAR model can be estimated after estimating the reduced form. To obtain the matrices <span class="math inline">\(A\)</span> and <span class="math inline">\(\Sigma\)</span> from the reduced form, the author uses the same technique as when dealing with the simulation data, which involves randomly drawing both matrices from the posterior distribution.</p>
+<p>One of the changes is the prior value of <span class="math inline">\(\kappa_{1}\)</span>, which represents the overall shrinkage level of the autoregressive slope. Formerly, for the simulation data, the author used <span class="math inline">\(0.02^{2}\)</span>, indicating very strong shrinkage. In this section, the author will loosen the shrinkage to 1 (no shrinkage).</p>
+<p><br></p>
+<p>The sign restriction for the monetary policy shock using Taylor’s rule is as follows.</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>cashrate</th>
+<th>realgdp</th>
+<th>CPI</th>
+<th>unemprate</th>
+<th>stockprice</th>
+<th>govexp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>monetary policy shock</td>
+<td>+</td>
+<td>-</td>
+<td>-</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>A monetary policy shock that raises the cash rate target will cool down inflationary pressures (leading to a decrease in <em>CPI</em>) and also slow down economic growth (resulting in a decrease in <em>realgdp</em>).</p>
+<p><br></p>
+<p>As mentioned earlier, this study includes <em>govexp</em> as a control variable for fiscal policy in the model. The sign restriction is imposed on <em>govexp</em> itself, indicating an increase in government expenditure.</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>cashrate</th>
+<th>realgdp</th>
+<th>CPI</th>
+<th>unemprate</th>
+<th>stockprice</th>
+<th>govexp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>fiscal policy shock</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>+</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<p>Or can be represented in the compact form as follows.</p>
+<span class="math display">\[\begin{bmatrix}
+\text{cashrate} \\
+\text{realgdp} \\
+\text{CPI} \\
+\text{unemprate} \\
+\text{stockprice} \\
+\text{govexp}
+\end{bmatrix}
+=
+\underbrace{\begin{bmatrix}
+    + &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? \\
+    - &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? \\
+    - &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? \\
+    \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? \\
+    \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? \\
+    \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; \color{Grey}? &amp;&amp; + \\
+\end{bmatrix}}_{B_{0}^{-1}}
+*
+\begin{bmatrix}
+{u_{t}^{monetary\:pol.}} \\
+{\color{Grey}u_{\color{Grey}t}}^{\color{Grey}2} \\
+{\color{Grey}u_{\color{Grey}t}}^{\color{Grey}3} \\
+{\color{Grey}u_{\color{Grey}t}}^{\color{Grey}4} \\
+{\color{Grey}u_{\color{Grey}t}}^{\color{Grey}5} \\
+{u_{t}^{fiscal\:pol.}}
+\end{bmatrix} \]</span>
+<p>After imposing these restrictions on <span class="math inline">\(B_{0}^{-1}\)</span>, the mean of <span class="math inline">\(B_{0}^{-1}\)</span> is displayed in Table 9, conforming to the sign restrictions (in the <span class="math inline">\(1^{st} - 3^{rd}\)</span> rows of the <span class="math inline">\(1^{st}\)</span> column and the <span class="math inline">\(6^{th}\)</span> row of the <span class="math inline">\(6^{th}\)</span> column)</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table9: Mean of the B0 inverse matrix</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">C1</th>
+<th style="text-align: right;">C2</th>
+<th style="text-align: right;">C3</th>
+<th style="text-align: right;">C4</th>
+<th style="text-align: right;">C5</th>
+<th style="text-align: right;">C6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">R1</td>
+<td style="text-align: right;">0.1139</td>
+<td style="text-align: right;">0.0040</td>
+<td style="text-align: right;">-7e-04</td>
+<td style="text-align: right;">-0.0019</td>
+<td style="text-align: right;">-0.0003</td>
+<td style="text-align: right;">-0.0074</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R2</td>
+<td style="text-align: right;">-0.0034</td>
+<td style="text-align: right;">0.0001</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">-0.0005</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">R3</td>
+<td style="text-align: right;">-0.0018</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R4</td>
+<td style="text-align: right;">0.0712</td>
+<td style="text-align: right;">-0.0017</td>
+<td style="text-align: right;">7e-04</td>
+<td style="text-align: right;">-0.0014</td>
+<td style="text-align: right;">0.0016</td>
+<td style="text-align: right;">-0.0078</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">R5</td>
+<td style="text-align: right;">0.0052</td>
+<td style="text-align: right;">-0.0004</td>
+<td style="text-align: right;">2e-04</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">-0.0002</td>
+<td style="text-align: right;">-0.0036</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R6</td>
+<td style="text-align: right;">0.0004</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">-0.0001</td>
+<td style="text-align: right;">0.0049</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="impulse-response-function" class="level3">
+<h3 class="anchored" data-anchor-id="impulse-response-function">Impulse response function</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="figure-6-the-impulse-response-to-the-monetary-shock-baseline-model" class="level5" style="text-align: center;">
+<h5 class="anchored" data-anchor-id="figure-6-the-impulse-response-to-the-monetary-shock-baseline-model">Figure 6: The impulse response to the monetary shock (baseline model)</h5>
+</section>
+<p><br></p>
+<p>The <a href="#figure-6-the-impulse-response-to-the-monetary-shock-baseline-model">Figure 6: The impulse response to the monetary shock (baseline model)</a> displays the response to the monetary shock. The light yellow shaded area represents the 68% confidence interval. In the short run to medium run, half year to three years after the shock, real GDP experiences a slight decline. Similarly, in the medium run, three to four years after the shock, the CPI also shows a slight decrease, and both variables exhibiting a persistent trend.</p>
+<p>Regarding the cash rate itself, after rising from the shock, it tends to normalize after 2.5 years. The unemployment rate rises contemporaneously with the shock and persists even 5 years afterward. However, the stock price and government expenditure do not show any pronounced response. Unfortunately, for these four variables, including zero in the shaded area indicates that they are not significantly different from zero.</p>
+</section>
+</section>
+<section id="the-extension-model-1" class="level2">
+<h2 class="anchored" data-anchor-id="the-extension-model-1">The extension model</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Table10: Mean of the B0 inverse matrix (extension model)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">C1</th>
+<th style="text-align: right;">C2</th>
+<th style="text-align: right;">C3</th>
+<th style="text-align: right;">C4</th>
+<th style="text-align: right;">C5</th>
+<th style="text-align: right;">C6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">R1</td>
+<td style="text-align: right;">0.1161</td>
+<td style="text-align: right;">0.0009</td>
+<td style="text-align: right;">-0.0007</td>
+<td style="text-align: right;">-0.0012</td>
+<td style="text-align: right;">7e-04</td>
+<td style="text-align: right;">-0.0111</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R2</td>
+<td style="text-align: right;">-0.0036</td>
+<td style="text-align: right;">0.0001</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">-0.0005</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">R3</td>
+<td style="text-align: right;">-0.0022</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R4</td>
+<td style="text-align: right;">0.0624</td>
+<td style="text-align: right;">-0.0017</td>
+<td style="text-align: right;">-0.0012</td>
+<td style="text-align: right;">0.0009</td>
+<td style="text-align: right;">6e-04</td>
+<td style="text-align: right;">-0.0068</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">R5</td>
+<td style="text-align: right;">0.0057</td>
+<td style="text-align: right;">-0.0001</td>
+<td style="text-align: right;">-0.0002</td>
+<td style="text-align: right;">-0.0005</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">-0.0037</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R6</td>
+<td style="text-align: right;">0.0005</td>
+<td style="text-align: right;">-0.0001</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">-0.0001</td>
+<td style="text-align: right;">-1e-04</td>
+<td style="text-align: right;">0.0050</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="impulse-response-function-1" class="level3">
+<h3 class="anchored" data-anchor-id="impulse-response-function-1">Impulse response function</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="figure-7-the-impulse-response-to-the-monetary-shock-extension-model" class="level5" style="text-align: center;">
+<h5 class="anchored" data-anchor-id="figure-7-the-impulse-response-to-the-monetary-shock-extension-model">Figure 7: The impulse response to the monetary shock (extension model)</h5>
+</section>
+<p><br></p>
+<p>However, the <a href="#figure-7-the-impulse-response-to-the-monetary-shock-extension-model">Figure 7: The impulse response to the monetary shock (extension model)</a> displays the impulse response slightly differently from what it represents in Figure 6, the baseline model. The CPI tends to decrease after 1.5 year of the shock and continues declining even after 5 years without a chance to recover. Furthermore, real GDP is observed to decrease from half a year to around 3 years after the shock.</p>
+<p>As for the unemployment rate, stock price, and government expenditure, there isn’t much different from the previous model. However, the cash rate experiences a faster decline than in the basic model, reaching negative values and normalizing after 4 years following the shock. Despite these variations, all of these variables remain not significantly different from zero.</p>
 </section>
 </section>
 <section id="references" class="level2 unnumbered">

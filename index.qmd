@@ -203,6 +203,7 @@ knitr::kable(result_df, caption = "Table 1: Summary statistics")
 
 
 
+
 # Preliminary Results
 ### The autocorrelation and partial autocorrelation
 In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. [Figure 3: ACF plots] show the autocorrelation remains in all variables, even after 5 years. This indicate the strong correlation between a time series and its lagged values.
@@ -398,14 +399,14 @@ $u_t$ is $N\times1$ vector of conditionally on $Y_{t-1}$ orthogonal or independe
 
 Specifically, $y_{t}$ contains 6 variables as follows.
 $$
-y_t = \begin{pmatrix}
+y_t = \begin{bmatrix}
 \text{cashrate} \\
 \text{realgdp} \\
 \text{CPI} \\
 \text{unemprate} \\
 \text{stockprice} \\
 \text{govexp}
-\end{pmatrix}
+\end{bmatrix}
 $$
 
 
@@ -434,25 +435,7 @@ $\Sigma$ is $N\times N$ covariance matrix of the error term
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Estimation
+# Estimation algorithm with simulated data
 ## The baseline model
 ### Estimation algorithm
  
@@ -542,14 +525,7 @@ $\kappa_1$ is overall shrinkage level for autoregressive slopes, the common valu
 
 $\kappa_2$ is overall shrinkage level for the constant term, the common value is $100$
 
-```{=tex}
-\begin{align}
-P(A,\Sigma) &\propto det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}} 
-exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\underline{A})'\underline{V}^{-1}(A-\underline{A}) \right] \right\}
-exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
-\\
-\end{align}
-```
+
 <br>
 
 #### The posterior distribution 
@@ -616,6 +592,12 @@ Y <- RW[2:nrow(RW),]
 ```{r plot random walk}
 plot.ts(Y,main = "1,000 simulations of bi-variate Gaussian random walk", xlab = "Observations", col = "grey27", lwd = 2, frame.plot = FALSE)
 ```
+<div style="text-align: center;">  
+##### Figure 5: The simulation data (1,000 observations) 
+</div>
+
+
+
 The target model for estimation is a Sign-Restricted Structural Vector Autoregression (SVAR).
 
 ```{=tex}
@@ -682,7 +664,7 @@ S.bar.inv   = solve(S.bar)
 #| warning: false
 
 # Sampling from normal-inverse Wishart distribution
-S = 1000 # No. of draws
+S = 5000 # No. of draws
 Sigma.posterior   = rWishart(S, df=nu.bar, Sigma=S.bar.inv) # whole random draw of Sigma
 Sigma.posterior   = apply(Sigma.posterior,3,solve)
 Sigma.posterior   = array(Sigma.posterior,c(N,N,S))
@@ -705,7 +687,7 @@ for (s in 1:S){
 #| echo: false
 #| message: false
 #| warning: false
-restriction = diag(c(1,1)) # As we want B0 closely to the identity matrix
+#restriction = diag(c(1,1)) # As we want B0 to have positive value on main diagonal 
 
  # Storage matrix
 i.vec <- c()
@@ -847,7 +829,7 @@ The following distribution conforms to the Generalized Inverse Gaussian (GIG) di
 
 The Gibbs Sampler is used to get the posterior draws of the extended model
 
-For S = 1,000 iterations 
+For S = 5,000 iterations 
 
 Initialize $\gamma$ at $\gamma^{(0)}$
 
@@ -858,7 +840,7 @@ At each iteration:
 3) Draw $\gamma^{(s)} \sim P(\gamma|Y,X,A^{(s)},\Sigma^{(s)})$
 
 
-The author then utilizes the random draws from $\Sigma^{(s)}, A^{(s)}, \gamma^{(s)}$ to obtain the posterior draw and create the following B0 and B plus matrices.
+The author then utilizes the random draws from $\Sigma^{(s)}, A^{(s)}, \gamma^{(s)}$ to obtain the posterior draw and create the following $B_{0}$ and $B_{+}$ matrices.
 
 
 ```{r}
@@ -966,7 +948,521 @@ knitr::kable(Bplus_df, caption = "Table8: Mean of the B+ matrix (extension model
 gamma.mean <- round(mean(gamma.store), digits = 4)
 ```
 
-And the mean of gamma is equal `r gamma.mean`
+And the mean of $\gamma$ is equal `r gamma.mean`
+
+<br>
+
+Once we prove that the algorithm and coding can work with the simulated random walk data, the author will apply the same procedure to the empirical data, which contains 6 variables as indicated in the methodology section.
+
+
+# Empirical estimation
+
+## The baseline model
+
+```{r Set up variables_Empirical}
+#| echo: false
+#| message: false
+#| warning: false
+
+p            = 5   # deal with quarterly data
+Y            = data[(1+p):nrow(data),]
+X            = matrix(1,nrow(Y),1)
+N            = ncol(Y)
+K            = 1+p*N
+h            = 20   # 20 quarters step ahead forecast (5 years)
+
+for (i in 1:p){
+  X     = cbind(X,data[((p+1):nrow(data))-i,])
+}
+
+X <- as.matrix(X)  # change from data frame to matrix
+Y <- as.matrix(Y)  # change from data frame to matrix
+```
+
+
+```{r MLE Empirical}
+#| echo: false
+#| message: false
+#| warning: false
+A.hat        = solve(t(X)%*%X) %*%t(X) %*%Y                
+Sigma.hat    = t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y) 
+```
+
+
+The sign restriction that the author want to impose is applied to the contemporaneous shock or matrix $B_{0}^{-1}$ which is attached to the $u_{t}$ after transforming the SVAR model equation.
+
+```{=tex}
+\begin{align}
+B_0y_t &= b_0 + \sum_{i=1}^{p}B_{i}y_{t-i}+u_t  \\
+
+y_t &= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
+
+\end{align}
+```
+
+However, the SVAR model can be estimated after estimating the reduced form. To obtain the matrices $A$ and $\Sigma$ from the reduced form, the author uses the same technique as when dealing with the simulation data, which involves randomly drawing both matrices from the posterior distribution.
+
+One of the changes is the prior value  of $\kappa_{1}$, which represents the overall shrinkage level of the autoregressive slope. Formerly, for the simulation data, the author used $0.02^{2}$, indicating very strong shrinkage. In this section, the author will loosen the shrinkage to 1 (no shrinkage).
+
+<br>
+
+The sign restriction for the monetary policy shock using Taylor's rule is as follows.
+
+
+|  | cashrate | realgdp | CPI | unemprate | stockprice | govexp |
+|--------------|----------|----------|------|----------|----------|----------|
+| monetary policy shock | + | - | - |  |  |  |
+
+A monetary policy shock that raises the cash rate target will cool down inflationary pressures (leading to a decrease in _CPI_) and also slow down economic growth (resulting in a decrease in _realgdp_).
+
+
+<br>
+
+As mentioned earlier, this study includes _govexp_ as a control variable for fiscal policy in the model. The sign restriction is imposed on _govexp_ itself, indicating an increase in government expenditure.
+
+
+|  | cashrate | realgdp | CPI | unemprate | stockprice | govexp |
+|--------------|----------|----------|------|----------|----------|----------|
+| fiscal policy shock |  |  |  |  |  | + |
+
+<br>
+
+Or can be represented in the compact form as follows.
+
+```{=tex}
+\begin{bmatrix}
+\text{cashrate} \\
+\text{realgdp} \\
+\text{CPI} \\
+\text{unemprate} \\
+\text{stockprice} \\
+\text{govexp}
+\end{bmatrix}
+=
+\underbrace{\begin{bmatrix}
+    + && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? \\
+    - && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? \\
+    - && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? \\
+    \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? \\
+    \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? \\
+    \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? && \color{Grey}? && + \\
+\end{bmatrix}}_{B_{0}^{-1}}
+*
+\begin{bmatrix}
+{u_{t}^{monetary\:pol.}} \\
+{\color{Grey}u_{\color{Grey}t}}^{\color{Grey}2} \\
+{\color{Grey}u_{\color{Grey}t}}^{\color{Grey}3} \\
+{\color{Grey}u_{\color{Grey}t}}^{\color{Grey}4} \\
+{\color{Grey}u_{\color{Grey}t}}^{\color{Grey}5} \\
+{u_{t}^{fiscal\:pol.}}
+\end{bmatrix} 
+```
+
+
+
+
+```{r prior distribution Emperical}
+#| echo: false
+#| message: false
+#| warning: false
+
+kappa.1     = 1
+kappa.2     = 100
+A.prior     = matrix(0,nrow(A.hat),ncol(A.hat))
+A.prior[2:(N+1),] = diag(N)
+V.prior     = diag(c(kappa.2,kappa.1*((1:p)^(-2))%x%rep(1,N)))
+S.prior     = diag(diag(Sigma.hat))
+nu.prior    = N+1
+```
+
+
+```{r Normal-Inverse wishart posterior Empirical}
+#| echo: false
+#| message: false
+#| warning: false
+V.bar.inv   = t(X)%*%X + diag(1/diag(V.prior))
+V.bar       = solve(V.bar.inv)
+A.bar       = V.bar%*%(t(X)%*%Y + diag(1/diag(V.prior))%*%A.prior)
+nu.bar      = nrow(Y) + nu.prior
+S.bar       = S.prior + t(Y)%*%Y + t(A.prior)%*%diag(1/diag(V.prior))%*%A.prior - t(A.bar)%*%V.bar.inv%*%A.bar
+S.bar.inv   = solve(S.bar)
+```
+
+
+```{r posterior draws Empirical}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Sampling from normal-inverse Wishart distribution
+S = 5000 # No. of draws
+Sigma.posterior   = rWishart(S, df=nu.bar, Sigma=S.bar.inv) # whole random draw of Sigma
+Sigma.posterior   = apply(Sigma.posterior,3,solve)
+Sigma.posterior   = array(Sigma.posterior,c(N,N,S))
+A.posterior       = array(rnorm(prod(c(dim(A.bar),S))),c(dim(A.bar),S)) # whole random draw of A
+B0.tilde          = array(NA,c(N,N,S))
+L                 = t(chol(V.bar))
+Bplus.tilde       = array(NA,c(N,K,S))
+
+for (s in 1:S){
+  cholSigma.s     = chol(Sigma.posterior[,,s])
+  B0.tilde[,,s]   = solve(t(cholSigma.s)) 
+  A.posterior[,,s]= A.bar + L%*%A.posterior[,,s]%*%cholSigma.s # for each random draw of A
+  Bplus.tilde[,,s]  <- B0.tilde[,,s]%*%t(A.posterior[,,s]) 
+}
+
+```
+
+
+
+```{r Sign restriction}
+#mon.shock <- c(1,-1,-1,0,0,0)
+#fis.shock <- c(0,0,0,0,0,1)
+
+#R1            = diag(mon.shock)
+```
+
+
+```{r Restriction on B0 inverse}
+#| echo: false
+#| message: false
+#| warning: false
+
+ # Storage matrix
+#i.vec <- c()
+Q.store   = array(NA,c(N,N,S))
+B0.store = array(NA,c(N,N,S))
+Bplus.store = array(NA,c(N,K,S))
+B0.inv.store = array(NA,c(N,N,S))
+#Sigma.store = array(NA,c(N,N,S))
+
+for (s in 1:S) {
+  #A     <- A.posterior[,,s]
+  #Sigma <- Sigma.posterior[,,s]
+  B0.tilde1      = B0.tilde[,,s]
+  Bplus.tilde1   = Bplus.tilde[,,s]
+  
+  sign.restrictions.do.not.hold = TRUE
+  i=1
+  
+  while (sign.restrictions.do.not.hold){
+    X           = matrix(rnorm(N*N),N,N)
+    QR          = qr(X, tol = 1e-10)
+    Q           = qr.Q(QR,complete=TRUE)
+    R           = qr.R(QR,complete=TRUE)
+    Q           = t(Q %*% diag(sign(diag(R))))
+    B0          = Q%*%B0.tilde1
+    Bplus       = Q%*%Bplus.tilde1
+    B0.inv      = solve(B0)
+    check       = (B0.inv[1, 1] > 0 & B0.inv[2, 1] < 0 & B0.inv[3, 1] < 0 & B0.inv[6, 6] > 0) >0
+    #prod(R1 %*% B0.inv %*% diag(N)[,1] >= 0)
+    if (check==1){sign.restrictions.do.not.hold=FALSE}
+    i=i+1
+  }
+    #i.vec <- c(i.vec, i)
+    Q.store[,,s] <- Q
+    B0.store[,,s] <- B0
+    #B0.mean <- apply(B0.store,1:2,mean)
+    Bplus.store[,,s] <- Bplus
+    #Bplus.mean <- apply(Bplus.store,1:2,mean)
+    B0.inv.store[,,s] <- B0.inv
+    B0.inv.mean <- apply(B0.inv.store,1:2,mean)
+}
+```
+
+
+```{r}
+#B0.inv[1,1] >0  & B0.inv[2,1] <0 & B0.inv[3,1] <0
+
+# prod(R1 %*% B0.inv %*% diag(N)[,1] >= 0)
+```
+
+
+After imposing these restrictions on $B_{0}^{-1}$, the mean of $B_{0}^{-1}$ is displayed in Table 9, conforming to the sign restrictions (in the $1^{st} - 3^{rd}$ rows of the  $1^{st}$ column and the $6^{th}$ row of the $6^{th}$ column)
+
+
+```{r Show B0.inv.mean}
+B0.inv_df <- as.data.frame(B0.inv.mean)
+B0.inv_df <- round(B0.inv_df, digits = 4)
+colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
+rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
+knitr::kable(B0.inv_df, caption = "Table9: Mean of the B0 inverse matrix")
+```
+
+### Impulse response function
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+IRF.posterior     = array(NA,c(N,N,h+1,S))
+IRF.inf.posterior = array(NA,c(N,N,S))
+FEVD.posterior    = array(NA,c(N,N,h+1,S))
+J                 = cbind(diag(N),matrix(0,N,N*(p-1)))
+for (s in 1:S){
+  A.bold          = rbind(t(A.posterior[2:(1+N*p),,s]),cbind(diag(N*(p-1)),matrix(0,N*(p-1),N)))
+  IRF.inf.posterior[,,s]          = J %*% solve(diag(N*p)-A.bold) %*% t(J) %*% B0.inv.store[,,s]
+  A.bold.power    = A.bold
+  for (i in 1:(h+1)){
+    if (i==1){
+      IRF.posterior[,,i,s]        = B0.inv.store[,,s]
+    } else {
+      IRF.posterior[,,i,s]        = J %*% A.bold.power %*% t(J) %*% B0.inv.store[,,s]
+      A.bold.power                = A.bold.power %*% A.bold
+    }
+    for (n in 1:N){
+      for (nn in 1:N){
+        FEVD.posterior[n,nn,i,s]  = sum(IRF.posterior[n,nn,1:i,s]^2)
+      }
+    }
+    FEVD.posterior[,,i,s]         = diag(1/apply(FEVD.posterior[,,i,s],1,sum))%*%FEVD.posterior[,,i,s]
+  }
+}
+FEVD.posterior    = 100*FEVD.posterior
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+IRFs.k1           = apply(IRF.posterior[,1,,],1:2,median)
+rownames(IRFs.k1) = rownames(adf_matrix)
+```
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(HDInterval)
+IRFs.k1.hdi    = apply(IRF.posterior[,1,,],1:2,hdi, credMass=0.68)
+hh = 1:(h+1)
+```
+
+
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+par(mfrow=c(3,2), mar=c(4,4,2,2),cex.axis=1, cex.lab=1)
+
+for (n in 1:N){
+  ylims     = range(IRFs.k1[n,hh],IRFs.k1.hdi[,n,hh])
+  plot(hh,IRFs.k1[n,hh], type="l", ylim=ylims, axes=FALSE, xlab="", ylab=rownames(IRFs.k1)[n])
+  if (n==5| n==6){
+    axis(1,c(1,5,9,13,17,21),c("1 qtr.","1 yr.","2 yrs.","3 yrs.","4 yrs.","5 yrs."))
+  } else {
+    axis(1,c(1,5,9,13,17,21),c("","","","","",""))
+  }
+  axis(2,c(ylims[1],0,ylims[2]),round(c(ylims[1],0,ylims[2]),3))
+  polygon(c(hh,(h+1):1), c(IRFs.k1.hdi[1,n,hh],IRFs.k1.hdi[2,n,(h+1):1]), col="lightgoldenrod1",border="goldenrod2")
+  abline(h=0)
+  lines(hh, IRFs.k1[n,hh],lwd=2.5,col="gray26")
+}
+
+
+```
+<div style="text-align: center;">  
+##### Figure 6: The impulse response to the monetary shock (baseline model) 
+</div>
+
+
+<br>
+
+The [Figure 6: The impulse response to the monetary shock (baseline model)] displays the response to the monetary shock. The light yellow shaded area represents the 68% confidence interval. In the short run to medium run, half year to three years after the shock, real GDP experiences a slight decline. Similarly, in the medium run, three to four years after the shock, the CPI also shows a slight decrease, and both variables exhibiting a persistent trend.
+
+Regarding the cash rate itself, after rising from the shock, it tends to normalize after 2.5 years. The unemployment rate rises contemporaneously with the shock and persists even 5 years afterward. However, the stock price and government expenditure do not show any pronounced response. Unfortunately, for these four variables, including zero in the shaded area indicates that they are not significantly different from zero.
+
+
+## The extension model
+
+
+```{r}
+S.bar1 <- array(0, dim = c(N, N, S))
+S.bar.inv1 <- array(0, dim = c(N, N, S))
+#A.posterior_list <- list()
+gamma.store <- numeric(S)
+
+for (i in 2:S) {
+  S.bar1[,,i] <- gamma.store[i-1] * diag(N) + t(Y) %*% Y + t(A.prior) %*% diag(1/diag(V.prior)) %*% A.prior - t(A.bar) %*% V.bar.inv %*% A.bar
+  S.bar.inv1[,,i] <- solve(S.bar1[,,i])
+  
+  Sigma.posterior <- rWishart(S, df = nu.bar, Sigma = S.bar.inv1[,,i])
+  Sigma.posterior <- apply(Sigma.posterior, 3, solve)
+  Sigma.posterior <- array(Sigma.posterior, c(N, N, S))
+  
+  cholSigma.s <- chol(Sigma.posterior[,,i])
+  A.posterior[,,i] <- A.bar + L %*% A.posterior[,,i] %*% cholSigma.s
+  
+  lambda <- ((nu.prior * N) - nu.prior) / 2
+  chi <- S.prior
+  psi <- sum(diag(solve(Sigma.posterior[,,i])))
+  gamma.store[i] <- GIGrvg::rgig(n = 1, lambda, chi, psi)
+  
+  B0.tilde[,,i]   = solve(t(cholSigma.s)) 
+  Bplus.tilde[,,i]  <- B0.tilde[,,i]%*%t(A.posterior[,,i]) 
+  
+}
+```
+
+
+```{r}
+# collect sigma, A, gamma and other variables used to compute B0 and B+ (ignore first element)
+
+A.posterior = A.posterior[,,2:S]
+gamma.store = gamma.store[2:S]
+B0.tilde = B0.tilde[,,2:S]
+Bplus.tilde = Bplus.tilde[,,2:S]
+Sigma.posterior = Sigma.posterior[,,2:S]
+```
+
+
+```{r Restriction on B0 inverse_Empirical}
+#| echo: false
+#| message: false
+#| warning: false
+
+ # Storage matrix
+#i.vec <- c()
+Q.store   = array(NA,c(N,N,(S-1)))
+B0.store = array(NA,c(N,N,(S-1)))
+Bplus.store = array(NA,c(N,K,(S-1)))
+B0.inv.store = array(NA,c(N,N,(S-1)))
+
+for (s in 1:(S-1)) {
+  B0.tilde2      = B0.tilde[,,s]
+  Bplus.tilde2   = Bplus.tilde[,,s]
+  
+  sign.restrictions.do.not.hold = TRUE
+  i=1
+  
+  while (sign.restrictions.do.not.hold){
+    X           = matrix(rnorm(N*N),N,N)
+    QR          = qr(X, tol = 1e-10)
+    Q           = qr.Q(QR,complete=TRUE)
+    R           = qr.R(QR,complete=TRUE)
+    Q           = t(Q %*% diag(sign(diag(R))))
+    B0          = Q%*%B0.tilde2
+    Bplus       = Q%*%Bplus.tilde2
+    B0.inv      = solve(B0)
+    check       = (B0.inv[1, 1] > 0 & B0.inv[2, 1] < 0 & B0.inv[3, 1] < 0 & B0.inv[6, 6] > 0) >0
+    if (check==1){sign.restrictions.do.not.hold=FALSE}
+    i=i+1
+  }
+    #i.vec <- c(i.vec, i)
+    Q.store[,,s] <- Q
+    B0.store[,,s] <- B0
+    B0.mean <- apply(B0.store,1:2,mean)
+    Bplus.store[,,s] <- Bplus
+    Bplus.mean <- apply(Bplus.store,1:2,mean)
+    B0.inv.store[,,s] <- B0.inv
+    B0.inv.mean <- apply(B0.inv.store,1:2,mean)
+}
+```
+
+
+
+```{r}
+B0.inv_df <- as.data.frame(B0.inv.mean)
+B0.inv_df <- round(B0.inv_df, digits = 4)
+colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
+rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
+knitr::kable(B0.inv_df, caption = "Table10: Mean of the B0 inverse matrix (extension model)")
+```
+
+
+
+### Impulse response function
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+IRF.posterior     = array(NA,c(N,N,h+1,(S-1)))
+IRF.inf.posterior = array(NA,c(N,N,(S-1)))
+FEVD.posterior    = array(NA,c(N,N,h+1,(S-1)))
+J                 = cbind(diag(N),matrix(0,N,N*(p-1)))
+for (s in 1:(S-1)){
+  A.bold          = rbind(t(A.posterior[2:(1+N*p),,s]),cbind(diag(N*(p-1)),matrix(0,N*(p-1),N)))
+  IRF.inf.posterior[,,s]          = J %*% solve(diag(N*p)-A.bold) %*% t(J) %*% B0.inv.store[,,s]
+  A.bold.power    = A.bold
+  for (i in 1:(h+1)){
+    if (i==1){
+      IRF.posterior[,,i,s]        = B0.inv.store[,,s]
+    } else {
+      IRF.posterior[,,i,s]        = J %*% A.bold.power %*% t(J) %*% B0.inv.store[,,s]
+      A.bold.power                = A.bold.power %*% A.bold
+    }
+    for (n in 1:N){
+      for (nn in 1:N){
+        FEVD.posterior[n,nn,i,s]  = sum(IRF.posterior[n,nn,1:i,s]^2)
+      }
+    }
+    FEVD.posterior[,,i,s]         = diag(1/apply(FEVD.posterior[,,i,s],1,sum))%*%FEVD.posterior[,,i,s]
+  }
+}
+FEVD.posterior    = 100*FEVD.posterior
+```
+
+
+```{r}
+IRFs.k1           = apply(IRF.posterior[,1,,],1:2,median)
+rownames(IRFs.k1) = rownames(adf_matrix)
+```
+
+
+```{r}
+library(HDInterval)
+IRFs.k1.hdi    = apply(IRF.posterior[,1,,],1:2,hdi, credMass=0.68)
+hh = 1:(h+1)
+```
+
+
+
+
+```{r}
+par(mfrow=c(3,2), mar=c(4,4,2,2),cex.axis=1, cex.lab=1)
+
+for (n in 1:N){
+  ylims     = range(IRFs.k1[n,hh],IRFs.k1.hdi[,n,hh])
+  plot(hh,IRFs.k1[n,hh], type="l", ylim=ylims, axes=FALSE, xlab="", ylab=rownames(IRFs.k1)[n])
+  if (n==5| n==6){
+    axis(1,c(1,5,9,13,17,21),c("1 qtr.","1 yr.","2 yrs.","3 yrs.","4 yrs.","5 yrs."))
+  } else {
+    axis(1,c(1,5,9,13,17,21),c("","","","","",""))
+  }
+  axis(2,c(ylims[1],0,ylims[2]),round(c(ylims[1],0,ylims[2]),3))
+  polygon(c(hh,(h+1):1), c(IRFs.k1.hdi[1,n,hh],IRFs.k1.hdi[2,n,(h+1):1]), col="lightgoldenrod1",border="goldenrod2")
+  abline(h=0)
+  lines(hh, IRFs.k1[n,hh],lwd=2.5,col="gray26")
+}
+
+
+```
+<div style="text-align: center;">  
+##### Figure 7: The impulse response to the monetary shock (extension model) 
+</div>
+
+
+<br>
+
+However, the [Figure 7: The impulse response to the monetary shock (extension model)] displays the impulse response slightly differently from what it represents in Figure 6, the baseline model. The CPI tends to decrease after 1.5 year of the shock and continues declining even after 5 years without a chance to recover. Furthermore, real GDP is observed to decrease from half a year to around 3 years after the shock.
+
+As for the unemployment rate, stock price, and government expenditure, there isn't much different from the previous model. However, the cash rate experiences a faster decline than in the basic model, reaching negative values and normalizing after 4 years following the shock. Despite these variations, all of these variables remain not significantly different from zero.
+
+
+
+
+
+
+
+
+
+
 
 
 ## References {.unnumbered}
