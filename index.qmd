@@ -646,7 +646,7 @@ nu.prior    = N+1
 
 
 ```{r Normal-Inverse wishart posterior}
-#| echo: false
+#| echo: true
 #| message: false
 #| warning: false
 V.bar.inv   = t(X)%*%X + diag(1/diag(V.prior))
@@ -659,7 +659,7 @@ S.bar.inv   = solve(S.bar)
 
 
 ```{r posterior draws }
-#| echo: false
+#| echo: true
 #| message: false
 #| warning: false
 
@@ -844,6 +844,7 @@ The author then utilizes the random draws from $\Sigma^{(s)}, A^{(s)}, \gamma^{(
 
 
 ```{r}
+#| echo: true
 S.bar1 <- array(0, dim = c(2, 2, S))
 S.bar.inv1 <- array(0, dim = c(2, 2, S))
 #A.posterior_list <- list()
