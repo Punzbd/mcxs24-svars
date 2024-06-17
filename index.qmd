@@ -36,84 +36,65 @@ The variables in this study include the cash rate target **_(cashrate)_**, which
 
   # Unemployment rate (02/1978 - 02/2024) monthly data
 unemp_rate_raw <- readrba::read_rba(series_id = "GLFSURSA")
-unemp_rate <- unemp_rate_raw[, c("date", "value")]
-unemp_rate <- xts::xts(unemp_rate$value,unemp_rate$date)
+unemp_rate     <- unemp_rate_raw[, c("date", "value")]
+unemp_rate     <- xts::xts(unemp_rate$value,unemp_rate$date)
     # we fix the period (1990Q1 - 2023Q4)    
-unemp_rate <- xts::to.quarterly(unemp_rate, OHLC = FALSE)
-unemprate <- unemp_rate[zoo::index(unemp_rate) >= "1990 Q1" & zoo::index(unemp_rate) < "2024 Q1"]
+unemp_rate     <- xts::to.quarterly(unemp_rate, OHLC = FALSE)
+unemprate      <- unemp_rate[zoo::index(unemp_rate) >= "1990 Q1" & zoo::index(unemp_rate) < "2024 Q1"]
 
   # GDP deflator (09/1959 - 12/2023) quarterly
-gdp_df_raw <- readabs::read_abs(series_id = "A2303730T")
-gdp_df <- gdp_df_raw[, c("date", "value")]
+gdp_df_raw     <- readabs::read_abs(series_id = "A2303730T")
+gdp_df         <- gdp_df_raw[, c("date", "value")]
 gdp_df$quarter <- zoo::as.yearqtr(gdp_df$date)
-gdp_df <- xts::xts(gdp_df$value,gdp_df$quarter)
+gdp_df         <- xts::xts(gdp_df$value,gdp_df$quarter)
     # we fix the period (1990Q1 - 2023Q4)  
-gdp_df <- gdp_df[zoo::index(gdp_df) >= "1989 Q4" & zoo::index(gdp_df) < "2024 Q1"]
+gdp_df         <- gdp_df[zoo::index(gdp_df) >= "1989 Q4" & zoo::index(gdp_df) < "2024 Q1"]
 
   # Real GDP seasonal adjusted
-real_gdp_raw <- readrba::read_rba(series_id = "GGDPCVGDP")
-real_gdp <- real_gdp_raw[, c("date", "value")]
+real_gdp_raw   <- readrba::read_rba(series_id = "GGDPCVGDP")
+real_gdp       <- real_gdp_raw[, c("date", "value")]
 real_gdp$quarter <- zoo::as.yearqtr(real_gdp$date)
-real_gdp <- xts::xts(real_gdp$value,real_gdp$quarter)
+real_gdp       <- xts::xts(real_gdp$value,real_gdp$quarter)
     # we fix the period (1990Q1 - 2023Q4)   
-realgdp <- real_gdp[zoo::index(real_gdp) >= "1990 Q1" & zoo::index(real_gdp) < "2024 Q1"]
-realgdp <- realgdp/1000
-lnrealgdp <- log(realgdp)
-    # calculate gdp growth
-#realgdp_temp <- real_gdp[zoo::index(real_gdp) >= "1989 Q4" & zoo::index(real_gdp) < "2024 Q1"]
-#drealgdp <- 100*diff(log(realgdp_temp))
-#drealgdp <- drealgdp[2:137]
-
+realgdp        <- real_gdp[zoo::index(real_gdp) >= "1990 Q1" & zoo::index(real_gdp) < "2024 Q1"]
+realgdp        <- realgdp/1000
+lnrealgdp      <- log(realgdp)
 
   # Cash target rate (01/1990 - 03/2024) daily
-i_raw <- readrba::read_rba(series_id = "FIRMMCRTD")
-i <- i_raw[, c("date", "value")]
-i <- xts::xts(i$value,i$date)
+i_raw          <- readrba::read_rba(series_id = "FIRMMCRTD")
+i              <- i_raw[, c("date", "value")]
+i              <- xts::xts(i$value,i$date)
     # Convert to quarter and fix the period (1990Q1 - 2023Q4)
-cashrate <- xts::to.quarterly(i, OHLC = FALSE)[1:136]
+cashrate       <- xts::to.quarterly(i, OHLC = FALSE)[1:136]
 
 
   # CPI (06/1922 - 12/2023) quarterly
-CPI_raw <- readrba::read_rba(series_id = "GCPIAG")
-CPI <- CPI_raw[, c("date", "value")]
-CPI$quarter <- zoo::as.yearqtr(CPI$date)
-CPI <- xts::xts(CPI$value,CPI$quarter)
+CPI_raw        <- readrba::read_rba(series_id = "GCPIAG")
+CPI            <- CPI_raw[, c("date", "value")]
+CPI$quarter    <- zoo::as.yearqtr(CPI$date)
+CPI            <- xts::xts(CPI$value,CPI$quarter)
     # we fix the period (1989Q4 - 2023Q4)
-CPI <- CPI[zoo::index(CPI) >= "1990 Q1" & zoo::index(CPI) < "2024 Q1"]
-lnCPI <- log(CPI)
-  # Inflation (Diff CPI) (1990Q1 - 2023Q4)
-#inf <- 100*diff(log(CPI))
-#inflation <- inf[2:137]
+CPI            <- CPI[zoo::index(CPI) >= "1990 Q1" & zoo::index(CPI) < "2024 Q1"]
+lnCPI          <- log(CPI)
 
   # Stock market (01/1985 - 03/2024) monthly
 link_AORD <- "https://query1.finance.yahoo.com/v7/finance/download/%5EAORD?period1=460339200&period2=1711843200&interval=1mo&events=history&includeAdjustedClose=true"
-AORD_raw <- read.csv(link_AORD)
-AORD <- AORD_raw[, c("Date", "Close")]
-AORD <- xts::xts(AORD$Close,as.Date(AORD$Date))
+AORD_raw       <- read.csv(link_AORD)
+AORD           <- AORD_raw[, c("Date", "Close")]
+AORD           <- xts::xts(AORD$Close,as.Date(AORD$Date))
     # Convert to quarter and fix the period (1990Q1 - 2023Q4) and convert to ln term
-AORD <- xts::to.quarterly(AORD, OHLC = FALSE)
-stockprice <- AORD[zoo::index(AORD) >= "1990 Q1" & zoo::index(AORD) < "2024 Q1" ]
-lnstockprice <- log(stockprice)
-    # calculate the growth of stock price
-#stockprice_temp <- AORD[zoo::index(AORD) >= "1989 Q4" & zoo::index(AORD) < "2024 Q1" ]
-#stockprice_r <- stockprice_temp / gdp_df
-#dstockprice <- 100*diff(log(stockprice_r))
-#dstockprice <- dstockprice[2:137]
+AORD           <- xts::to.quarterly(AORD, OHLC = FALSE)
+stockprice     <- AORD[zoo::index(AORD) >= "1990 Q1" & zoo::index(AORD) < "2024 Q1" ]
+lnstockprice   <- log(stockprice)
 
   # Government spending (Final consumption national + state and local + seasonal adj) (09/1959 - 12/2023) quarterly
-gov_raw <- readabs::read_abs(series_id = "A2304036K")
-gov <- gov_raw[, c("date", "value")]
-gov$quarter <- zoo::as.yearqtr(gov$date)
-gov <- xts::xts(gov$value,gov$quarter)
+gov_raw        <- readabs::read_abs(series_id = "A2304036K")
+gov            <- gov_raw[, c("date", "value")]
+gov$quarter    <- zoo::as.yearqtr(gov$date)
+gov            <- xts::xts(gov$value,gov$quarter)
     # we fix the period (1990Q1 - 2023Q4) and convert to real term, ln term
-gov_exp <- gov[zoo::index(gov) >= "1990 Q1" & zoo::index(gov) < "2024 Q1"]
-ln_gov_exp<- log(gov_exp)
-
-    # calculate the growth of government spending
-#gov_exp_temp <- gov[zoo::index(gov) >= "1989 Q4" & zoo::index(gov) < "2024 Q1"]
-#gov_exp_r <- gov_exp_temp/(gdp_df*1000)
-#dgovexp <- 100*diff(log(gov_exp_r))
-#dgovexp <- dgovexp[2:137]
+gov_exp        <- gov[zoo::index(gov) >= "1990 Q1" & zoo::index(gov) < "2024 Q1"]
+ln_gov_exp     <- log(gov_exp)
 ```
 
 
@@ -129,9 +110,6 @@ plot(time, CPI, type = "l", lwd = 2 ,col = "grey27", main = "CPI")
 plot(time, unemprate, type = "l", lwd = 2 ,col = "grey27", main = "Unemployment rate (%)")
 plot(time, stockprice, type = "l", lwd = 2 , col = "grey27", main = "Stock market index (All ordinaries)")
 plot(time, gov_exp, type = "l", lwd = 2 ,col = "grey27", main = " Total government expenditure ($ billion)")
-
-#mtext("Plot of variables (before transforming)", outer = TRUE, cex = 1.1, font = 2, col = "darkslateblue")
-
 ```
 <div style="text-align: center;">  
 ##### Figure 1: time series plots (raw data) 
@@ -160,14 +138,11 @@ plot(time, unemprate, type = "l", lwd = 2 ,col = "grey27", main = "Unemployment 
 plot(time, lnstockprice, type = "l", lwd = 2 , col = "grey27", main = "ln stock market index price")
 plot(time, ln_gov_exp, type = "l", lwd = 2 ,col = "grey27", main = "ln total government expenditure")
 
-#mtext("Plot of 6 variables (after transforming)", outer = TRUE, cex = 1.1, font = 2, col = "darkslateblue")
 ```
 
 <div style="text-align: center;"> 
 ##### Figure 2: time series plots (transformed data) 
 </div>
-
-
 
 
 <br>
@@ -176,21 +151,21 @@ The statistics summary of variables from 1990 Q1 to 2023 Q4 is shown in Table 1.
 
 
 ```{r statistical summary}
-data = data.frame(cashrate, lnrealgdp, lnCPI, unemprate, lnstockprice, ln_gov_exp)
+data          <- data.frame(cashrate, lnrealgdp, lnCPI, unemprate, lnstockprice, ln_gov_exp)
 
 summary_stats <- function(x) {
   c(
-    N = length(x),
-    Mean = round(mean(x, na.rm = TRUE),3),
-    St.Dev. = round(sd(x, na.rm = TRUE),3),
-    Min = round(min(x, na.rm = TRUE),3),
-    Max = round(max(x, na.rm = TRUE),3)
+    N       <- length(x),
+    Mean    <- round(mean(x, na.rm = TRUE),3),
+    St.Dev. <- round(sd(x, na.rm = TRUE),3),
+    Min     <- round(min(x, na.rm = TRUE),3),
+    Max     <- round(max(x, na.rm = TRUE),3)
   )
 }
 
-result <- sapply(data, summary_stats)
+result      <- sapply(data, summary_stats)
 
-result_df <- as.data.frame(t(result))
+result_df   <- as.data.frame(t(result))
 colnames(result_df) <- c("N", "Mean", "St.Dev.", "Min", "Max")
 rownames(result_df) <- c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp")
 
@@ -198,10 +173,6 @@ rownames(result_df) <- c("cashrate", "realgdp", "CPI", "unemprate", "stockprice"
 
 knitr::kable(result_df, caption = "Table 1: Summary statistics")
 ```
-
-
-
-
 
 
 # Preliminary Results
@@ -213,13 +184,6 @@ In this section, the autocorrelation and partial autocorrelation analyses are us
 ```{r ACF plot}
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 par(mar=c(4,4,4,2))
-
-# acf(cashrate, main = "cashrate")
-# acf(drealgdp, main = "drealgdp")
-# acf(inflation, main = "inflation")
-# acf(unemprate, main = "unemprate")
-# acf(dstockprice, main = "dstockprice")
-# acf(dgovexp, main = "dgovexp")
 
 for (i in 1:ncol(data)) {
   acf(data[, i], main = c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp")[i])
@@ -234,12 +198,6 @@ For the PACF in [Figure 4: PACF plots], it is observed that there have not been 
 ```{r PACF plot}
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 par(mar=c(4,4,4,2))
-# pacf(cashrate, main = "cashrate")
-# pacf(drealgdp, main = "drealgdp")
-# pacf(inflation, main = "inflation")
-# pacf(unemprate, main = "unemprate")
-# pacf(dstockprice, main = "dstockprice")
-# pacf(dgovexp, main = "dgovexp")
 
 for (i in 1:ncol(data)) {
   pacf(data[, i], main = c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp")[i])
@@ -285,7 +243,6 @@ Then, take the first difference and the second difference of all variables and r
 #| echo: false
 #| message: false
 #| warning: false
-#variables <- c("cashrate", "drealgdp", "inflation", "unemprate", "dstockprice", "dgovexp")
 
 data_diff1 <- as.data.frame(lapply(colnames(data), function(x) na.omit(diff(get(x)))))
 
@@ -319,7 +276,6 @@ knitr::kable(adf_diff_matrix, caption = "Table 3: ADF test on the first differen
 #| echo: false
 #| message: false
 #| warning: false
-#variables <- c("cashrate", "drealgdp", "inflation", "unemprate", "dstockprice", "dgovexp")
 
 data_diff2 <- as.data.frame(lapply(data_diff1, function(x) diff(x)))
 
@@ -347,31 +303,6 @@ for (i in seq_along(data)) {
 
 knitr::kable(adf_diff_matrix, caption = "Table 4: ADF test on the second difference")
 ```
-
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-### The unit root test without differencing
-#Y = data.frame(cashrate, realgdp, inflation, unemprate, stockprice, gov_exp)
-
-#adf_diff_matrix <- as.data.frame(matrix(nrow=6,ncol=3,NA))
-#rownames(adf_diff_matrix) <- colnames(Y)
-#colnames(adf_diff_matrix) <- c("Dickey-Fuller","Lag order", "p-value")
-
-#for (i in seq_along(Y)) {
- #result_diff <- tseries::adf.test(Y[[i]])
-  
-  # Store the results in the 'adf' matrix
- # adf_diff_matrix[i, 1] <- round(as.numeric(result_diff[1]), 2)  # ADF statistic
- # adf_diff_matrix[i, 2] <- result_diff[2]  # p-value
- # adf_diff_matrix[i, 3] <- round(as.numeric(result_diff[4]), 2)  # critical values
-#}
-
-#knitr::kable(adf_diff_matrix)
-```
-
 
 
 # Methodology
@@ -430,8 +361,6 @@ $\mu_0$ is $N\times1$ vector of constant terms
 $\epsilon_t$ is $N\times1$ vector of error terms - a multivariate white noise process
 
 $\Sigma$ is $N\times N$ covariance matrix of the error term
-
-
 
 
 
@@ -525,6 +454,31 @@ $\kappa_1$ is overall shrinkage level for autoregressive slopes, the common valu
 
 $\kappa_2$ is overall shrinkage level for the constant term, the common value is $100$
 
+This can be represented in code as follows:
+
+```{r}
+kappa.1 <- 0.02^2
+kappa.2 <- 100 
+```
+
+```{r prior distribution}
+#| echo: true
+Prior.Dist  <- function (N,p,Sigma.hat,kappa.1,kappa.2) {
+
+  K                 <- 1 + N*p 
+
+  A.prior           <- matrix(0,K,N)
+  A.prior[2:(N+1),] <- diag(N) 
+  V.prior           <- diag(c(kappa.2,kappa.1*((1:p)^(-2))%x%rep(1,N)))
+  S.prior           <- diag(diag(Sigma.hat))
+  nu.prior          <- N+1
+  
+  return (list(A.prior  = A.prior,
+               V.prior  = V.prior,
+               S.prior  = S.prior,
+               nu.prior = nu.prior))
+}
+```
 
 <br>
 
@@ -575,17 +529,85 @@ And the posterior parameters are structured as follows.
 \end{align}
 ```
 
+
+This can be represented in code as follows:
+
+```{r Normal-Inverse wishart posterior}
+#| echo: true
+Post.Dist <- function (X,Y,prior.parameters) {
+  
+  A.prior     <- prior.parameters$A.prior
+  V.prior     <- prior.parameters$V.prior
+  S.prior     <- prior.parameters$S.prior
+  nu.prior    <- prior.parameters$nu.prior
+  
+  V.bar.inv   <- t(X)%*%X + diag(1/diag(V.prior))
+  V.bar       <- solve(V.bar.inv)
+  A.bar       <- V.bar%*%(t(X)%*%Y + diag(1/diag(V.prior))%*%A.prior)
+  nu.bar      <- nrow(Y) + nu.prior
+  S.bar       <- S.prior + t(Y)%*%Y + t(A.prior)%*%diag(1/diag(V.prior))%*%A.prior - t(A.bar)%*%V.bar.inv%*%A.bar
+  S.bar.inv   <- solve(S.bar)
+  
+  return (list(V.bar      = V.bar,
+               A.bar      = A.bar,
+               nu.bar     = nu.bar,
+               S.bar      = S.bar,
+               S.bar.inv  = S.bar.inv,
+               V.bar.inv  = V.bar.inv))
+}
+```
+
+
+The draws from the posterior distribution can be represented in code as follows:
+
+```{r draw posterior}
+#| echo: true
+Post.Draw <- function (N,S,p,posterior.parameters){
+  
+  K = 1+N*p
+  
+  A.bar               <- posterior.parameters$A.bar
+  V.bar               <- posterior.parameters$V.bar
+  S.bar               <- posterior.parameters$S.bar
+  nu.bar              <- posterior.parameters$nu.bar
+  S.bar.inv           <- posterior.parameters$S.bar.inv
+  
+  Sigma.posterior     <- rWishart(S, df=nu.bar, Sigma=S.bar.inv)  
+  Sigma.posterior     <- apply(Sigma.posterior,3,solve)            
+  Sigma.posterior     <- array(Sigma.posterior,c(N,N,S))   
+  A.posterior         <- array(rnorm(prod(c(dim(A.bar),S))),c(dim(A.bar),S)) 
+  B0.tilde            <- array(NA,c(N,N,S))
+  L                   <- t(chol(V.bar)) 
+  Bplus.tilde         <- array(NA,c(N,K,S))
+  
+  for (s in 1:S){
+    cholSigma.s       <- chol(Sigma.posterior[,,s])
+    B0.tilde[,,s]     <- solve(t(cholSigma.s)) 
+    A.posterior[,,s]  <- A.bar + L%*%A.posterior[,,s]%*%cholSigma.s 
+    Bplus.tilde[,,s]  <- B0.tilde[,,s]%*%t(A.posterior[,,s])
+  }
+
+  return(list(A.posterior     = A.posterior,
+              B0.tilde        = B0.tilde,
+              Bplus.tilde     = Bplus.tilde,
+              Sigma.posterior = Sigma.posterior)
+         )
+}
+```
+
+<br>
+
 ### Data simulation
 
 The author generates 1,000 observations from bi-variate Gaussian random walk process to prove that the algorithm works. 
 
 ```{r data simulation}
 set.seed(2024)
-RW1 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
-RW2 <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
+RW1  <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
+RW2  <- arima.sim(model= list(order = c(0, 1, 0)), n=1000, mean=0, sd=1)
 
-RW <- cbind(RW1,RW2)
-Y <- RW[2:nrow(RW),]
+RW   <- cbind(RW1,RW2)
+Y    <- RW[2:nrow(RW),]
 
 ```
 
@@ -595,8 +617,6 @@ plot.ts(Y,main = "1,000 simulations of bi-variate Gaussian random walk", xlab = 
 <div style="text-align: center;">  
 ##### Figure 5: The simulation data (1,000 observations) 
 </div>
-
-
 
 The target model for estimation is a Sign-Restricted Structural Vector Autoregression (SVAR).
 
@@ -612,11 +632,15 @@ u_t|Y_{t-1}&\sim iid \mathcal{N} (0_N,I_N)
 #| echo: false
 #| message: false
 #| warning: false
-X            = matrix(1,nrow(Y),1)
-X            = cbind(X,RW[2: nrow(RW)-1,])
-N            = 2
-p            = 1
-K = 1+p*N
+X            <- matrix(1,nrow(Y),1)
+X            <- cbind(X,RW[2: nrow(RW)-1,])
+N            <- 2
+p            <- 1
+K            <- 1+p*N
+```
+
+```{r}
+S = 20000
 ```
 
 
@@ -624,11 +648,13 @@ K = 1+p*N
 #| echo: false
 #| message: false
 #| warning: false
-A.hat        = solve(t(X)%*%X)%*%t(X)%*%Y                
-Sigma.hat    = t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y) 
+A.hat        <- solve(t(X)%*%X)%*%t(X)%*%Y                
+Sigma.hat    <- t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y) 
 ```
+
 The author randomly draws matrices $A$ and $\Sigma$ from the posterior distribution,  which is specified as a Normal Inverse Wishart distribution as described earlier. Following this, the sign restriction is applied to the main diagonal of matrix $B_{0}$, ensuring positive signs.
 
+<<<<<<< Updated upstream
 ```{r prior distribution}
 #| echo: false
 #| message: false
@@ -646,7 +672,7 @@ nu.prior    = N+1
 
 
 ```{r Normal-Inverse wishart posterior}
-#| echo: false
+#| echo: true
 #| message: false
 #| warning: false
 V.bar.inv   = t(X)%*%X + diag(1/diag(V.prior))
@@ -659,7 +685,7 @@ S.bar.inv   = solve(S.bar)
 
 
 ```{r posterior draws }
-#| echo: false
+#| echo: true
 #| message: false
 #| warning: false
 
@@ -682,56 +708,73 @@ for (s in 1:S){
 
 ```
 
+=======
+>>>>>>> Stashed changes
 
 ```{r Restriction on B0}
-#| echo: false
-#| message: false
-#| warning: false
-#restriction = diag(c(1,1)) # As we want B0 to have positive value on main diagonal 
-
- # Storage matrix
-i.vec <- c()
-Q.store   = array(NA,c(N,N,S))
-B0.store = array(NA,c(N,N,S))
-Bplus.store = array(NA,c(N,K,S))
-#A.store = array (NA,c(K,N,S))
-#Sigma.store = array(NA,c(N,N,S))
-
-for (s in 1:S) {
-  #A     <- A.posterior[,,s]
-  #Sigma <- Sigma.posterior[,,s]
-  B0.tilde1      = B0.tilde[,,s]
-  Bplus.tilde1   = Bplus.tilde[,,s]
+#| echo: true
+ImposeSignRestriction <- function (restrictions,N,p,posterior.draws){
   
-  sign.restrictions.do.not.hold = TRUE
-  i=1
+  A.posterior         <- posterior.draws$A.posterior
+  Sigma.posterior     <- posterior.draws$Sigma.posterior
+  B0.tilde            <- posterior.draws$B0.tilde
+  Bplus.tilde         <- posterior.draws$Bplus.tilde
+  S                   <- dim(A.posterior)[3]
+  B0.store            <- array(NA,c(N,N,S))
+  Bplus.store         <- array(NA,c(N,K,S))
   
-  while (sign.restrictions.do.not.hold){
-    X           = matrix(rnorm(N*N),N,N)
-    QR          = qr(X, tol = 1e-10)
-    Q           = qr.Q(QR,complete=TRUE)
-    R           = qr.R(QR,complete=TRUE)
-    Q           = t(Q %*% diag(sign(diag(R))))
-    B0          = Q%*%B0.tilde1
-    Bplus       = Q%*%Bplus.tilde1
-    B0.inv      = solve(B0)
-    check       = all(diag(B0)>0)
-    if (check==1){sign.restrictions.do.not.hold=FALSE}
-    i=i+1
+  i.vec = c()
+
+  for (s in 1:S){
+    B0.tilde1         <- B0.tilde[,,s]
+    Bplus.tilde1      <- Bplus.tilde[,,s]
+    
+    i=1
+    sign.restrictions.do.not.hold = TRUE 
+    
+    while (sign.restrictions.do.not.hold){
+    X                 <- matrix(rnorm(N*N),N,N)         
+    QR                <- qr(X, tol = 1e-10)
+    Q                 <- qr.Q(QR,complete=TRUE)
+    R                 <- qr.R(QR,complete=TRUE)
+    Q                 <- t(Q %*% diag(sign(diag(R))))
+    B0                <- Q%*%B0.tilde1                   
+    Bplus             <- Q%*%Bplus.tilde1                  
+    B0.inv            <- solve(B0)      
+    check             <- all(diag(B0)>0)
+    
+    if (check){sign.restrictions.do.not.hold=FALSE}
+    i=i+1 
+    }
+    i.vec             <- c(i.vec,i) 
+    B0.store[,,s]     <- B0
+    Bplus.store[,,s]  <- Bplus
   }
-    i.vec <- c(i.vec, i)
-    Q.store[,,s] <- Q
-    B0.store[,,s] <- B0
-    B0.mean <- apply(B0.store,1:2,mean)
-    Bplus.store[,,s] <- Bplus
-    Bplus.mean <- apply(Bplus.store,1:2,mean)
+  
+  return (list(B0.store    = B0.store,
+               Bplus.store = Bplus.store,
+               i           = i.vec))
 }
 ```
+
+
+```{r Estimate the baseline model}
+prior.parameters      <- Prior.Dist(N,p,Sigma.hat,kappa.1,kappa.2)
+posterior.parameters  <- Post.Dist(X,Y,prior.parameters)
+posterior.draws       <- Post.Draw(N,S,p,posterior.parameters)
+B.draws.restricted    <- ImposeSignRestriction(restrictions,N,p,posterior.draws)
+B0.store              <- B.draws.restricted$B0.store
+Bplus.store           <- B.draws.restricted$Bplus.store
+B0.mean               <- apply(B0.store,1:2,mean)
+Bplus.mean            <- apply(Bplus.store,1:2,mean)
+```
+
+
 
 Table 5 displays that the mean values of the main diagonal elements in matrix $B_{0}$ are positive, providing evidence for the validity of the imposed restriction.
 
 ```{r B0 mean}
-B0_df <- as.data.frame(B0.mean)
+B0_df           <- as.data.frame(B0.mean)
 colnames(B0_df) <- c("C1", "C2")
 rownames(B0_df) <- c( "R1", "R2")
 knitr::kable(B0_df, caption = "Table5: Mean of the B0 matrix (Baseline model)")
@@ -740,7 +783,7 @@ In Table 6, the values in the first column, which represent the constant term in
 
 
 ```{r Bplus mean}
-Bplus_df <- as.data.frame(Bplus.mean)
+Bplus_df           <- as.data.frame(Bplus.mean)
 colnames(Bplus_df) <- c("C1","C2", "C3")
 rownames(Bplus_df) <- c( "R1", "R2")
 knitr::kable(Bplus_df, caption = "Table6: Mean of the B+ matrix (Baseline model)")
@@ -829,7 +872,7 @@ The following distribution conforms to the Generalized Inverse Gaussian (GIG) di
 
 The Gibbs Sampler is used to get the posterior draws of the extended model
 
-For S = 5,000 iterations 
+For S = 10,000 iterations 
 
 Initialize $\gamma$ at $\gamma^{(0)}$
 
@@ -842,8 +885,11 @@ At each iteration:
 
 The author then utilizes the random draws from $\Sigma^{(s)}, A^{(s)}, \gamma^{(s)}$ to obtain the posterior draw and create the following $B_{0}$ and $B_{+}$ matrices.
 
+This can be represented in code as follows:
 
 ```{r}
+#| echo: true
+<<<<<<< Updated upstream
 S.bar1 <- array(0, dim = c(2, 2, S))
 S.bar.inv1 <- array(0, dim = c(2, 2, S))
 #A.posterior_list <- list()
@@ -852,82 +898,84 @@ gamma.store <- numeric(S)
 for (i in 2:S) {
   S.bar1[,,i] <- gamma.store[i-1] * diag(2) + t(Y) %*% Y + t(A.prior) %*% diag(1/diag(V.prior)) %*% A.prior - t(A.bar) %*% V.bar.inv %*% A.bar
   S.bar.inv1[,,i] <- solve(S.bar1[,,i])
+=======
+Gibbsampler.Extension <- function(Y, prior.parameters, posterior.parameters, S, N, K) {
+  A.prior             <- prior.parameters$A.prior
+  V.prior             <- prior.parameters$V.prior
+  nu.prior            <- prior.parameters$nu.prior
+  S.prior             <- prior.parameters$S.prior
+  A.bar               <- posterior.parameters$A.bar
+  V.bar               <- posterior.parameters$V.bar
+  V.bar.inv           <- posterior.parameters$V.bar.inv
+  nu.bar              <- posterior.parameters$nu.bar
+>>>>>>> Stashed changes
   
-  Sigma.posterior <- rWishart(S, df = nu.bar, Sigma = S.bar.inv1[,,i])
-  Sigma.posterior <- apply(Sigma.posterior, 3, solve)
-  Sigma.posterior <- array(Sigma.posterior, c(N, N, S))
+  # Initialize variables
+  S.bar               <- array(0, dim = c(N, N, S))
+  S.bar.inv           <- array(0, dim = c(N, N, S))
+  gamma.store         <- numeric(S)
+  gamma.store[1]      <- 1
+  A.posterior         <- array(0, dim = c(K, N, S))
+  B0.tilde            <- array(0, dim = c(N, N, S))
+  Bplus.tilde         <- array(0, dim = c(N, K, S))
+  Sigma.store         <- array(0, dim = c(N, N, S))
+  i.vec = c()
   
-  cholSigma.s <- chol(Sigma.posterior[,,i])
-  A.posterior[,,i] <- A.bar + L %*% A.posterior[,,i] %*% cholSigma.s
-  
-  lambda <- ((nu.prior * N) - nu.prior) / 2
-  chi <- S.prior
-  psi <- sum(diag(solve(Sigma.posterior[,,i])))
-  gamma.store[i] <- GIGrvg::rgig(n = 1, lambda, chi, psi)
-  
-  B0.tilde[,,i]   = solve(t(cholSigma.s)) 
-  Bplus.tilde[,,i]  <- B0.tilde[,,i]%*%t(A.posterior[,,i]) 
-  
+  for (i in 2:S) {
+    # Calculate S.bar1
+    S.bar[,,i]        <- gamma.store[i-1] * diag(N) + t(Y) %*% Y + t(A.prior) %*% diag(1/diag(V.prior)) %*% A.prior - t(A.bar) %*% V.bar.inv %*% A.bar
+    S.bar.inv[,,i]    <- solve(S.bar[,,i])
+    
+    # Generate posterior samples using rWishart
+    Sigma.posterior   <- rWishart(1, df = nu.bar, Sigma = S.bar.inv[,,i])
+    Sigma.posterior   <- apply(Sigma.posterior, 3, solve)
+    Sigma.posterior   <- array(Sigma.posterior, c(N, N, 1))
+    Sigma.store[,,i]  <- Sigma.posterior[,,1]
+    cholSigma.s       <- chol(Sigma.posterior[,,1])
+    L                 <- t(chol(V.bar)) 
+    A.posterior[,,i]  <- A.bar + L %*% A.posterior[,,i] %*% cholSigma.s
+    
+    # Compute lambda, chi, and psi
+    lambda            <- ((nu.prior * N) - nu.prior) / 2
+    chi               <- S.prior
+    psi               <- sum(diag(solve(Sigma.posterior[,,1])))
+    
+    # Generate gamma using rgig
+    gamma.store[i]    <- GIGrvg::rgig(n = 1, lambda, chi, psi)
+    
+    # Update B0.tilde and Bplus.tilde
+    B0.tilde[,,i]     <- solve(t(cholSigma.s))
+    Bplus.tilde[,,i]  <- B0.tilde[,,i] %*% t(A.posterior[,,i])
+  }
+
+  return(list(A.posterior      = A.posterior[,,2:S],
+               gamma.store     = gamma.store[2:S],
+               B0.tilde        = B0.tilde[,,2:S],
+               Bplus.tilde     = Bplus.tilde[,,2:S],
+               Sigma.posterior = Sigma.store[,,2:S],
+               i               = i.vec))
 }
 ```
+
 
 ```{r}
-# collect sigma, A, gamma and other variables used to compute B0 and B+ (ignore first element)
-
-A.posterior = A.posterior[,,2:S]
-gamma.store = gamma.store[2:S]
-B0.tilde = B0.tilde[,,2:S]
-Bplus.tilde = Bplus.tilde[,,2:S]
-Sigma.posterior = Sigma.posterior[,,2:S]
+posterior.draws     <- Gibbsampler.Extension(Y, prior.parameters, posterior.parameters, S, N, K)
+B.draws.restricted  <- ImposeSignRestriction(restrictions,N,p,posterior.draws)
+B0.store            <- B.draws.restricted$B0.store
+Bplus.store         <- B.draws.restricted$Bplus.store
+gamma.store         <- posterior.draws$gamma.store
+B0.mean             <- apply(B0.store,1:2,mean)
+Bplus.mean          <- apply(Bplus.store,1:2,mean)
+gamma.mean          <- round(mean(gamma.store), digits = 4)
 ```
 
-
-```{r Restriction on B0 extension}
-#| echo: false
-#| message: false
-#| warning: false
-
- # Storage matrix
-i.vec <- c()
-Q.store   = array(NA,c(N,N,(S-1)))
-B0.store = array(NA,c(N,N,(S-1)))
-Bplus.store = array(NA,c(N,K,(S-1)))
-
-for (s in 1:(S-1)) {
-  B0.tilde2      = B0.tilde[,,s]
-  Bplus.tilde2   = Bplus.tilde[,,s]
-  
-  sign.restrictions.do.not.hold = TRUE
-  i=1
-  
-  while (sign.restrictions.do.not.hold){
-    X           = matrix(rnorm(N*N),N,N)
-    QR          = qr(X, tol = 1e-10)
-    Q           = qr.Q(QR,complete=TRUE)
-    R           = qr.R(QR,complete=TRUE)
-    Q           = t(Q %*% diag(sign(diag(R))))
-    B0          = Q%*%B0.tilde2
-    Bplus       = Q%*%Bplus.tilde2
-    B0.inv      = solve(B0)
-    check       = all(diag(B0)>0)
-    if (check==1){sign.restrictions.do.not.hold=FALSE}
-    i=i+1
-  }
-    i.vec <- c(i.vec, i)
-    Q.store[,,s] <- Q
-    B0.store[,,s] <- B0
-    B0.mean <- apply(B0.store,1:2,mean)
-    Bplus.store[,,s] <- Bplus
-    Bplus.mean <- apply(Bplus.store,1:2,mean)
-}
-```
 
 ### Data simulation
 
 Table 7 indicates that the mean value of the main diagonal of $B_{0}$ remains positive, exhibiting a similar behavior to that of the basic model.
 
 ```{r B0 mean for extension}
-B0_df <- as.data.frame(B0.mean)
+B0_df           <- as.data.frame(B0.mean)
 colnames(B0_df) <- c("C1", "C2")
 rownames(B0_df) <- c( "R1", "R2")
 knitr::kable(B0_df, caption = "Table7: Mean of the B0 matrix (extension model)")
@@ -937,16 +985,12 @@ knitr::kable(B0_df, caption = "Table7: Mean of the B0 matrix (extension model)")
 In Table 8, the values in the first column, which represent the constant term in the equation, are close to zero and exhibit a behavior similar to that of the basic model.
 
 ```{r Bplus mean for extension}
-Bplus_df <- as.data.frame(Bplus.mean)
+Bplus_df           <- as.data.frame(Bplus.mean)
 colnames(Bplus_df) <- c("C1","C2", "C3")
 rownames(Bplus_df) <- c( "R1", "R2")
 knitr::kable(Bplus_df, caption = "Table8: Mean of the B+ matrix (extension model)")
 ```
 
-
-```{r}
-gamma.mean <- round(mean(gamma.store), digits = 4)
-```
 
 And the mean of $\gamma$ is equal `r gamma.mean`
 
@@ -964,19 +1008,19 @@ Once we prove that the algorithm and coding can work with the simulated random w
 #| message: false
 #| warning: false
 
-p            = 5   # deal with quarterly data
-Y            = data[(1+p):nrow(data),]
-X            = matrix(1,nrow(Y),1)
-N            = ncol(Y)
-K            = 1+p*N
-h            = 20   # 20 quarters step ahead forecast (5 years)
+p            <- 5   # deal with quarterly data
+Y            <- data[(1+p):nrow(data),]
+X            <- matrix(1,nrow(Y),1)
+N            <- ncol(Y)
+K            <- 1+p*N
+h            <- 20   # 20 quarters step ahead forecast (5 years)
 
 for (i in 1:p){
-  X     = cbind(X,data[((p+1):nrow(data))-i,])
+  X          <- cbind(X,data[((p+1):nrow(data))-i,])
 }
 
-X <- as.matrix(X)  # change from data frame to matrix
-Y <- as.matrix(Y)  # change from data frame to matrix
+X            <- as.matrix(X)  # change from data frame to matrix
+Y            <- as.matrix(Y)  # change from data frame to matrix
 ```
 
 
@@ -984,8 +1028,8 @@ Y <- as.matrix(Y)  # change from data frame to matrix
 #| echo: false
 #| message: false
 #| warning: false
-A.hat        = solve(t(X)%*%X) %*%t(X) %*%Y                
-Sigma.hat    = t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y) 
+A.hat        <- solve(t(X)%*%X) %*%t(X) %*%Y                
+Sigma.hat    <- t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y) 
 ```
 
 
@@ -1058,132 +1102,81 @@ Or can be represented in the compact form as follows.
 \end{bmatrix} 
 ```
 
-
-
-
-```{r prior distribution Emperical}
-#| echo: false
-#| message: false
-#| warning: false
-
-kappa.1     = 1
-kappa.2     = 100
-A.prior     = matrix(0,nrow(A.hat),ncol(A.hat))
-A.prior[2:(N+1),] = diag(N)
-V.prior     = diag(c(kappa.2,kappa.1*((1:p)^(-2))%x%rep(1,N)))
-S.prior     = diag(diag(Sigma.hat))
-nu.prior    = N+1
-```
-
-
-```{r Normal-Inverse wishart posterior Empirical}
-#| echo: false
-#| message: false
-#| warning: false
-V.bar.inv   = t(X)%*%X + diag(1/diag(V.prior))
-V.bar       = solve(V.bar.inv)
-A.bar       = V.bar%*%(t(X)%*%Y + diag(1/diag(V.prior))%*%A.prior)
-nu.bar      = nrow(Y) + nu.prior
-S.bar       = S.prior + t(Y)%*%Y + t(A.prior)%*%diag(1/diag(V.prior))%*%A.prior - t(A.bar)%*%V.bar.inv%*%A.bar
-S.bar.inv   = solve(S.bar)
-```
-
-
-```{r posterior draws Empirical}
-#| echo: false
-#| message: false
-#| warning: false
-
-# Sampling from normal-inverse Wishart distribution
-S = 5000 # No. of draws
-Sigma.posterior   = rWishart(S, df=nu.bar, Sigma=S.bar.inv) # whole random draw of Sigma
-Sigma.posterior   = apply(Sigma.posterior,3,solve)
-Sigma.posterior   = array(Sigma.posterior,c(N,N,S))
-A.posterior       = array(rnorm(prod(c(dim(A.bar),S))),c(dim(A.bar),S)) # whole random draw of A
-B0.tilde          = array(NA,c(N,N,S))
-L                 = t(chol(V.bar))
-Bplus.tilde       = array(NA,c(N,K,S))
-
-for (s in 1:S){
-  cholSigma.s     = chol(Sigma.posterior[,,s])
-  B0.tilde[,,s]   = solve(t(cholSigma.s)) 
-  A.posterior[,,s]= A.bar + L%*%A.posterior[,,s]%*%cholSigma.s # for each random draw of A
-  Bplus.tilde[,,s]  <- B0.tilde[,,s]%*%t(A.posterior[,,s]) 
-}
-
-```
-
-
-
-```{r Sign restriction}
-#mon.shock <- c(1,-1,-1,0,0,0)
-#fis.shock <- c(0,0,0,0,0,1)
-
-#R1            = diag(mon.shock)
-```
-
-
-```{r Restriction on B0 inverse}
-#| echo: false
-#| message: false
-#| warning: false
-
- # Storage matrix
-#i.vec <- c()
-Q.store   = array(NA,c(N,N,S))
-B0.store = array(NA,c(N,N,S))
-Bplus.store = array(NA,c(N,K,S))
-B0.inv.store = array(NA,c(N,N,S))
-#Sigma.store = array(NA,c(N,N,S))
-
-for (s in 1:S) {
-  #A     <- A.posterior[,,s]
-  #Sigma <- Sigma.posterior[,,s]
-  B0.tilde1      = B0.tilde[,,s]
-  Bplus.tilde1   = Bplus.tilde[,,s]
-  
-  sign.restrictions.do.not.hold = TRUE
-  i=1
-  
-  while (sign.restrictions.do.not.hold){
-    X           = matrix(rnorm(N*N),N,N)
-    QR          = qr(X, tol = 1e-10)
-    Q           = qr.Q(QR,complete=TRUE)
-    R           = qr.R(QR,complete=TRUE)
-    Q           = t(Q %*% diag(sign(diag(R))))
-    B0          = Q%*%B0.tilde1
-    Bplus       = Q%*%Bplus.tilde1
-    B0.inv      = solve(B0)
-    check       = (B0.inv[1, 1] > 0 & B0.inv[2, 1] < 0 & B0.inv[3, 1] < 0 & B0.inv[6, 6] > 0) >0
-    #prod(R1 %*% B0.inv %*% diag(N)[,1] >= 0)
-    if (check==1){sign.restrictions.do.not.hold=FALSE}
-    i=i+1
-  }
-    #i.vec <- c(i.vec, i)
-    Q.store[,,s] <- Q
-    B0.store[,,s] <- B0
-    #B0.mean <- apply(B0.store,1:2,mean)
-    Bplus.store[,,s] <- Bplus
-    #Bplus.mean <- apply(Bplus.store,1:2,mean)
-    B0.inv.store[,,s] <- B0.inv
-    B0.inv.mean <- apply(B0.inv.store,1:2,mean)
-}
+```{r}
+kappa.1 <- 1
+kappa.2 <- 100 
 ```
 
 
 ```{r}
-#B0.inv[1,1] >0  & B0.inv[2,1] <0 & B0.inv[3,1] <0
+#| echo: true
+ImposeSignRestriction.empirical <- function (restrictions,N,p,posterior.draws){
+  
+  A.posterior    <- posterior.draws$A.posterior
+  Sigma.posterior<- posterior.draws$Sigma.posterior
+  B0.tilde       <- posterior.draws$B0.tilde
+  Bplus.tilde    <- posterior.draws$Bplus.tilde
+  S              <- dim(A.posterior)[3]
+  B0.store       <- array(NA,c(N,N,S))
+  Bplus.store    <- array(NA,c(N,K,S))
+  B0.inv.store   <- array(NA,c(N,N,S))
+  
+  i.vec = c()
 
-# prod(R1 %*% B0.inv %*% diag(N)[,1] >= 0)
+  for (s in 1:S){
+    B0.tilde1    <- B0.tilde[,,s]
+    Bplus.tilde1 <- Bplus.tilde[,,s]
+    
+    i=1
+    sign.restrictions.do.not.hold = TRUE 
+    
+    while (sign.restrictions.do.not.hold){
+    X            <- matrix(rnorm(N*N),N,N)         
+    QR           <- qr(X, tol = 1e-10)
+    Q            <- qr.Q(QR,complete=TRUE)
+    R            <- qr.R(QR,complete=TRUE)
+    Q            <- t(Q %*% diag(sign(diag(R))))
+    B0           <- Q%*%B0.tilde1                   
+    Bplus        <- Q%*%Bplus.tilde1                  
+    B0.inv       <- solve(B0)      
+    check        <- (B0.inv[1, 1] > 0 & B0.inv[2, 1] < 0 & B0.inv[3, 1] < 0 & B0.inv[6, 6] > 0) >0
+    if (check){sign.restrictions.do.not.hold=FALSE}
+    i=i+1 
+    }
+    
+    i.vec             <- c(i.vec,i) 
+    B0.store[,,s]     <- B0
+    Bplus.store[,,s]  <- Bplus
+    B0.inv.store[,,s] <- B0.inv
+  }
+  
+  return (list(B0.store     = B0.store,
+               Bplus.store  = Bplus.store,
+               B0.inv.store = B0.inv.store,
+               i            = i.vec))
+}
+
 ```
+
+```{r estimating empirical basic model}
+prior.parameters     <- Prior.Dist(N,p,Sigma.hat,kappa.1,kappa.2)
+posterior.parameters <- Post.Dist(X,Y,prior.parameters)
+posterior.draws      <- Post.Draw(N,S,p,posterior.parameters)
+B.draws.restricted   <- ImposeSignRestriction.empirical(restrictions,N,p,posterior.draws)
+B0.inv.store         <- B.draws.restricted$B0.inv.store
+Bplus.store          <- B.draws.restricted$Bplus.store
+B0.inv.mean          <- apply(B0.inv.store,1:2,mean)
+Bplus.mean           <- apply(Bplus.store,1:2,mean)
+```
+
 
 
 After imposing these restrictions on $B_{0}^{-1}$, the mean of $B_{0}^{-1}$ is displayed in Table 9, conforming to the sign restrictions (in the $1^{st} - 3^{rd}$ rows of the  $1^{st}$ column and the $6^{th}$ row of the $6^{th}$ column)
 
 
 ```{r Show B0.inv.mean}
-B0.inv_df <- as.data.frame(B0.inv.mean)
-B0.inv_df <- round(B0.inv_df, digits = 4)
+B0.inv_df           <- as.data.frame(B0.inv.mean)
+B0.inv_df           <- round(B0.inv_df, digits = 4)
 colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table9: Mean of the B0 inverse matrix")
@@ -1192,42 +1185,46 @@ knitr::kable(B0.inv_df, caption = "Table9: Mean of the B0 inverse matrix")
 ### Impulse response function
 
 
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-IRF.posterior     = array(NA,c(N,N,h+1,S))
-IRF.inf.posterior = array(NA,c(N,N,S))
-FEVD.posterior    = array(NA,c(N,N,h+1,S))
-J                 = cbind(diag(N),matrix(0,N,N*(p-1)))
-for (s in 1:S){
-  A.bold          = rbind(t(A.posterior[2:(1+N*p),,s]),cbind(diag(N*(p-1)),matrix(0,N*(p-1),N)))
-  IRF.inf.posterior[,,s]          = J %*% solve(diag(N*p)-A.bold) %*% t(J) %*% B0.inv.store[,,s]
-  A.bold.power    = A.bold
-  for (i in 1:(h+1)){
-    if (i==1){
-      IRF.posterior[,,i,s]        = B0.inv.store[,,s]
-    } else {
-      IRF.posterior[,,i,s]        = J %*% A.bold.power %*% t(J) %*% B0.inv.store[,,s]
-      A.bold.power                = A.bold.power %*% A.bold
-    }
-    for (n in 1:N){
-      for (nn in 1:N){
-        FEVD.posterior[n,nn,i,s]  = sum(IRF.posterior[n,nn,1:i,s]^2)
+```{r compute IRF function}
+#| echo: true
+compute_IRF <- function(h, S, N, p) {
+  
+  A.posterior       <- posterior.draws$A.posterior
+  B0_inv_store      <- B.draws.restricted$B0.inv.store
+  IRF.posterior     <- array(NA, c(N, N, h + 1, S))
+  IRF.inf.posterior <- array(NA, c(N, N, S))
+  J                 <- cbind(diag(N), matrix(0, N, N * (p - 1)))
+  
+  for (s in 1:S) {
+    A.bold                      <- rbind(t(A.posterior[2:(1 + N * p), , s]), 
+                                      cbind(diag(N * (p - 1)), matrix(0, N * (p - 1), N)))
+    IRF.inf.posterior[, , s]    <- J %*% solve(diag(N * p) - A.bold) %*% t(J) %*% B0_inv_store[, , s]
+    A.bold.power                <- A.bold
+    
+    for (i in 1:(h + 1)) {
+      if (i == 1) {
+        IRF.posterior[, , i, s] <- B0_inv_store[, , s]
+      } else {
+        IRF.posterior[, , i, s] <- J %*% A.bold.power %*% t(J) %*% B0_inv_store[, , s]
+        A.bold.power            <- A.bold.power %*% A.bold
       }
     }
-    FEVD.posterior[,,i,s]         = diag(1/apply(FEVD.posterior[,,i,s],1,sum))%*%FEVD.posterior[,,i,s]
   }
+  return(list(IRF.posterior = IRF.posterior, 
+              IRF.inf.posterior = IRF.inf.posterior))
 }
-FEVD.posterior    = 100*FEVD.posterior
 ```
+
+
 
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
-IRFs.k1           = apply(IRF.posterior[,1,,],1:2,median)
-rownames(IRFs.k1) = rownames(adf_matrix)
+IRF               <- compute_IRF(h, S, N, p)
+IRF.1             <- IRF[["IRF.posterior"]]
+IRFs.k1           <- apply(IRF.1[,1,,],1:2,median)
+rownames(IRFs.k1) <- rownames(adf_matrix)
 ```
 
 
@@ -1236,8 +1233,8 @@ rownames(IRFs.k1) = rownames(adf_matrix)
 #| message: false
 #| warning: false
 library(HDInterval)
-IRFs.k1.hdi    = apply(IRF.posterior[,1,,],1:2,hdi, credMass=0.68)
-hh = 1:(h+1)
+IRFs.k1.hdi       <- apply(IRF.1[,1,,],1:2,hdi, credMass=0.68)
+hh                <- 1:(h+1)
 ```
 
 
@@ -1280,94 +1277,20 @@ Regarding the cash rate itself, after rising from the shock, it tends to normali
 ## The extension model
 
 
-```{r}
-S.bar1 <- array(0, dim = c(N, N, S))
-S.bar.inv1 <- array(0, dim = c(N, N, S))
-#A.posterior_list <- list()
-gamma.store <- numeric(S)
-
-for (i in 2:S) {
-  S.bar1[,,i] <- gamma.store[i-1] * diag(N) + t(Y) %*% Y + t(A.prior) %*% diag(1/diag(V.prior)) %*% A.prior - t(A.bar) %*% V.bar.inv %*% A.bar
-  S.bar.inv1[,,i] <- solve(S.bar1[,,i])
-  
-  Sigma.posterior <- rWishart(S, df = nu.bar, Sigma = S.bar.inv1[,,i])
-  Sigma.posterior <- apply(Sigma.posterior, 3, solve)
-  Sigma.posterior <- array(Sigma.posterior, c(N, N, S))
-  
-  cholSigma.s <- chol(Sigma.posterior[,,i])
-  A.posterior[,,i] <- A.bar + L %*% A.posterior[,,i] %*% cholSigma.s
-  
-  lambda <- ((nu.prior * N) - nu.prior) / 2
-  chi <- S.prior
-  psi <- sum(diag(solve(Sigma.posterior[,,i])))
-  gamma.store[i] <- GIGrvg::rgig(n = 1, lambda, chi, psi)
-  
-  B0.tilde[,,i]   = solve(t(cholSigma.s)) 
-  Bplus.tilde[,,i]  <- B0.tilde[,,i]%*%t(A.posterior[,,i]) 
-  
-}
+```{r estimation empirical extension model}
+posterior.draws     <- Gibbsampler.Extension(Y, prior.parameters, posterior.parameters, S, N, K)
+B.draws.restricted  <- ImposeSignRestriction.empirical(restrictions,N,p,posterior.draws)
+gamma.store         <- posterior.draws$gamma.store
+B0.inv.store        <- B.draws.restricted$B0.inv.store
+Bplus.store         <- B.draws.restricted$Bplus.store
+B0.inv.mean         <- apply(B0.inv.store,1:2,mean)
+Bplus.mean          <- apply(Bplus.store,1:2,mean)
 ```
 
 
 ```{r}
-# collect sigma, A, gamma and other variables used to compute B0 and B+ (ignore first element)
-
-A.posterior = A.posterior[,,2:S]
-gamma.store = gamma.store[2:S]
-B0.tilde = B0.tilde[,,2:S]
-Bplus.tilde = Bplus.tilde[,,2:S]
-Sigma.posterior = Sigma.posterior[,,2:S]
-```
-
-
-```{r Restriction on B0 inverse_Empirical}
-#| echo: false
-#| message: false
-#| warning: false
-
- # Storage matrix
-#i.vec <- c()
-Q.store   = array(NA,c(N,N,(S-1)))
-B0.store = array(NA,c(N,N,(S-1)))
-Bplus.store = array(NA,c(N,K,(S-1)))
-B0.inv.store = array(NA,c(N,N,(S-1)))
-
-for (s in 1:(S-1)) {
-  B0.tilde2      = B0.tilde[,,s]
-  Bplus.tilde2   = Bplus.tilde[,,s]
-  
-  sign.restrictions.do.not.hold = TRUE
-  i=1
-  
-  while (sign.restrictions.do.not.hold){
-    X           = matrix(rnorm(N*N),N,N)
-    QR          = qr(X, tol = 1e-10)
-    Q           = qr.Q(QR,complete=TRUE)
-    R           = qr.R(QR,complete=TRUE)
-    Q           = t(Q %*% diag(sign(diag(R))))
-    B0          = Q%*%B0.tilde2
-    Bplus       = Q%*%Bplus.tilde2
-    B0.inv      = solve(B0)
-    check       = (B0.inv[1, 1] > 0 & B0.inv[2, 1] < 0 & B0.inv[3, 1] < 0 & B0.inv[6, 6] > 0) >0
-    if (check==1){sign.restrictions.do.not.hold=FALSE}
-    i=i+1
-  }
-    #i.vec <- c(i.vec, i)
-    Q.store[,,s] <- Q
-    B0.store[,,s] <- B0
-    B0.mean <- apply(B0.store,1:2,mean)
-    Bplus.store[,,s] <- Bplus
-    Bplus.mean <- apply(Bplus.store,1:2,mean)
-    B0.inv.store[,,s] <- B0.inv
-    B0.inv.mean <- apply(B0.inv.store,1:2,mean)
-}
-```
-
-
-
-```{r}
-B0.inv_df <- as.data.frame(B0.inv.mean)
-B0.inv_df <- round(B0.inv_df, digits = 4)
+B0.inv_df           <- as.data.frame(B0.inv.mean)
+B0.inv_df           <- round(B0.inv_df, digits = 4)
 colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table10: Mean of the B0 inverse matrix (extension model)")
@@ -1379,45 +1302,16 @@ knitr::kable(B0.inv_df, caption = "Table10: Mean of the B0 inverse matrix (exten
 
 
 ```{r}
-#| echo: false
-#| message: false
-#| warning: false
-IRF.posterior     = array(NA,c(N,N,h+1,(S-1)))
-IRF.inf.posterior = array(NA,c(N,N,(S-1)))
-FEVD.posterior    = array(NA,c(N,N,h+1,(S-1)))
-J                 = cbind(diag(N),matrix(0,N,N*(p-1)))
-for (s in 1:(S-1)){
-  A.bold          = rbind(t(A.posterior[2:(1+N*p),,s]),cbind(diag(N*(p-1)),matrix(0,N*(p-1),N)))
-  IRF.inf.posterior[,,s]          = J %*% solve(diag(N*p)-A.bold) %*% t(J) %*% B0.inv.store[,,s]
-  A.bold.power    = A.bold
-  for (i in 1:(h+1)){
-    if (i==1){
-      IRF.posterior[,,i,s]        = B0.inv.store[,,s]
-    } else {
-      IRF.posterior[,,i,s]        = J %*% A.bold.power %*% t(J) %*% B0.inv.store[,,s]
-      A.bold.power                = A.bold.power %*% A.bold
-    }
-    for (n in 1:N){
-      for (nn in 1:N){
-        FEVD.posterior[n,nn,i,s]  = sum(IRF.posterior[n,nn,1:i,s]^2)
-      }
-    }
-    FEVD.posterior[,,i,s]         = diag(1/apply(FEVD.posterior[,,i,s],1,sum))%*%FEVD.posterior[,,i,s]
-  }
-}
-FEVD.posterior    = 100*FEVD.posterior
-```
-
-
-```{r}
-IRFs.k1           = apply(IRF.posterior[,1,,],1:2,median)
-rownames(IRFs.k1) = rownames(adf_matrix)
+IRF               <- compute_IRF(h, S-1, N, p)
+IRF.1             <- IRF[["IRF.posterior"]]
+IRFs.k1           <- apply(IRF.1[,1,,],1:2,median)
+rownames(IRFs.k1) <- rownames(adf_matrix)
 ```
 
 
 ```{r}
 library(HDInterval)
-IRFs.k1.hdi    = apply(IRF.posterior[,1,,],1:2,hdi, credMass=0.68)
+IRFs.k1.hdi    = apply(IRF.1[,1,,],1:2,hdi, credMass=0.68)
 hh = 1:(h+1)
 ```
 
@@ -1453,9 +1347,6 @@ for (n in 1:N){
 However, the [Figure 7: The impulse response to the monetary shock (extension model)] displays the impulse response slightly differently from what it represents in Figure 6, the baseline model. The CPI tends to decrease after 1.5 year of the shock and continues declining even after 5 years without a chance to recover. Furthermore, real GDP is observed to decrease from half a year to around 3 years after the shock.
 
 As for the unemployment rate, stock price, and government expenditure, there isn't much different from the previous model. However, the cash rate experiences a faster decline than in the basic model, reaching negative values and normalizing after 4 years following the shock. Despite these variations, all of these variables remain not significantly different from zero.
-
-
-
 
 
 
