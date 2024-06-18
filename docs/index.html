@@ -2218,7 +2218,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 </section>
 <section id="impulse-response-function" class="level3">
 <h3 class="anchored" data-anchor-id="impulse-response-function">Impulse response function</h3>
-<p>The function for calculating</p>
+<p>The function for calculating impulse response is as follows.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>compute_IRF <span class="ot">&lt;-</span> <span class="cf">function</span>(h, S2, N, p) {</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -2260,7 +2260,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 <h5 class="anchored" data-anchor-id="figure-15-the-impulse-response-to-the-monetary-shock-baseline-model">Figure 15: The impulse response to the monetary shock (baseline model)</h5>
 </section>
 <p><br></p>
-<p>The [Figure 14: The impulse response to the monetary shock (baseline model)] displays the response to the monetary shock. The light yellow shaded area represents the 68% confidence interval. In the short run to medium run, half year to three years after the shock, real GDP experiences a slight decline. Similarly, in the medium run, three to four years after the shock, the CPI also shows a slight decrease, and both variables exhibiting a persistent trend.</p>
+<p>The <a href="#figure-15-the-impulse-response-to-the-monetary-shock-baseline-model">Figure 15: The impulse response to the monetary shock (baseline model)</a> displays the response to the monetary shock. The light yellow shaded area represents the 68% confidence interval. In the short run to medium run, half year to three years after the shock, real GDP experiences a slight decline. Similarly, in the medium run, three to four years after the shock, the CPI also shows a slight decrease, and both variables exhibiting a persistent trend.</p>
 <p>Regarding the cash rate itself, after rising from the shock, it tends to normalize after 2.5 years. The unemployment rate rises contemporaneously with the shock and persists even 5 years afterward. However, the stock price and government expenditure do not show any pronounced response. Unfortunately, for these four variables, including zero in the shaded area indicates that they are not significantly different from zero.</p>
 </section>
 </section>
@@ -2414,7 +2414,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 </table>
 </div>
 </div>
-<p>The mean value of <span class="math inline">\(\gamma\)</span> is equal 1.8238, which is close to zero. The plot and histogram shown in Figure 16 confirms that the draw oscillates around 0.0015.</p>
+<p>The mean value of <span class="math inline">\(\gamma\)</span> is equal 0.0015, which is close to zero. The plot and histogram shown in Figure 16 confirms that the draw oscillates around 0.0015.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2812,6 +2812,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 <section id="figure-22-the-trace-plot-and-histogram-of-b0-inverse-the-basic-with-stochastic-volatility-model" class="level5" style="text-align: center;">
 <h5 class="anchored" data-anchor-id="figure-22-the-trace-plot-and-histogram-of-b0-inverse-the-basic-with-stochastic-volatility-model">Figure 22: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)</h5>
 </section>
+<p><br></p>
 <p>The mean value of <span class="math inline">\(\gamma\)</span> is equal 0.0016, which is close to zero and also almost the same as before the author incorporates the stochastic volatility. The plot and histogram shown in Figure 22.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -2825,6 +2826,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 <section id="figure-23-the-plot-and-histogram-of-gamma-the-extension-with-stochastic-volatility-model" class="level5" style="text-align: center;">
 <h5 class="anchored" data-anchor-id="figure-23-the-plot-and-histogram-of-gamma-the-extension-with-stochastic-volatility-model">Figure 23: The plot and histogram of gamma (The extension with stochastic volatility model)</h5>
 </section>
+<p><br></p>
 <p>The posterior draw mean of <span class="math inline">\(\sigma^{2}\)</span> for each period is displayed in Figure 24. The <span class="math inline">\(\sigma^{2}\)</span> is significantly higher compared to the previous model.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -2840,7 +2842,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 </section>
 <section id="impulse-response-function-3" class="level3">
 <h3 class="anchored" data-anchor-id="impulse-response-function-3">Impulse response function</h3>
-<p>However, the Figure 25 The impulse response to the monetary shock (the extension with stochastic volatility model), displays the point estimate impulse response as a flat line, indicating a value actually close to zero. The 68% confidence interval is also flat. We cannot observe any significant effect on all six variables in the system. One possible explanation is that we might need more observations to capture the heteroskedasticity, which, in this case, is not sufficient.</p>
+<p>However, the <a href="#figure-25-the-impulse-response-to-the-monetary-shock-the-extension-with-stochastic-volatility-model">Figure 25: The impulse response to the monetary shock (the extension with stochastic volatility model)</a>, displays the point estimate impulse response as a flat line, indicating a value actually close to zero. The 68% confidence interval is also flat. We cannot observe any significant effect on all six variables in the system. One possible explanation is that we might need more observations to capture the heteroskedasticity, which, in this case, is not sufficient.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>

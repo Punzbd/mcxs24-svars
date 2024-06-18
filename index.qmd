@@ -1519,7 +1519,7 @@ The mean value of $\gamma$ is equal `r gamma.mean`, which is close to that of th
 
 ```{r}
 par(mfrow = c(1, 2))
-plot(gamma.store,type='l',col="steelblue",ylab=expression(gamma),xlab="no. of iterations",main=expression("Plot of " * gamma), lwd = 0.1)
+plot(gamma.store,type='l',col="slategray4",ylab=expression(gamma),xlab="no. of iterations",main=expression("Plot of " * gamma), lwd = 0.1)
 abline(h=gamma.mean,lty=3)
 hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=expression("Histogram of " * gamma))
 ```
@@ -1708,6 +1708,41 @@ ImposeSignRestriction.empirical <- function (N,p,posterior.draws, S){
 
 ```
 
+
+And the function for calculating impulse response is as follows.
+
+```{r compute IRF function}
+#| echo: true
+compute_IRF <- function(h, S2, N, p) {
+  
+  A.posterior       <- posterior.draws$A.posterior
+  B0_inv_store      <- B.draws.restricted$B0.inv.store
+  IRF.posterior     <- array(NA, c(N, N, h + 1, S2))
+  IRF.inf.posterior <- array(NA, c(N, N, S2))
+  J                 <- cbind(diag(N), matrix(0, N, N * (p - 1)))
+  
+  for (s in 1:S2) {
+    A.bold                      <- rbind(t(A.posterior[2:(1 + N * p), , s]), 
+                                      cbind(diag(N * (p - 1)), matrix(0, N * (p - 1), N)))
+    IRF.inf.posterior[, , s]    <- J %*% solve(diag(N * p) - A.bold) %*% t(J) %*% B0_inv_store[, , s]
+    A.bold.power                <- A.bold
+    
+    for (i in 1:(h + 1)) {
+      if (i == 1) {
+        IRF.posterior[, , i, s] <- B0_inv_store[, , s]
+      } else {
+        IRF.posterior[, , i, s] <- J %*% A.bold.power %*% t(J) %*% B0_inv_store[, , s]
+        A.bold.power            <- A.bold.power %*% A.bold
+      }
+    }
+  }
+  return(list(IRF.posterior     = IRF.posterior, 
+              IRF.inf.posterior = IRF.inf.posterior))
+}
+```
+
+
+
 ```{r estimating empirical basic model}
 prior.parameters     <- Prior.Dist(N,p,Sigma.hat,kappa.1,kappa.2)
 posterior.parameters <- Post.Dist(X,Y,prior.parameters)
@@ -1740,7 +1775,7 @@ colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 22: SD of the B0 inverse matrix")
 ```
-The trace plot and histogram of the restricted variable confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
+The trace plot and histogram of the restricted variable in [Figure 14: The trace plot and histogram of B0 inverse (The baseline model)] confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
 ```{r}
 par(mfrow = c(4, 2), mar = c(4, 4, 2, 1), oma = c(0, 2, 2, 2))
 plot(B0.inv.store[1,1,],type='l',col="slategray4", ylab="",xlab="", main=expression(B[11]), lwd = 0.05)
@@ -1757,39 +1792,6 @@ hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression
 </div>
 
 ### Impulse response function
-
-The function for calculating 
-
-```{r compute IRF function}
-#| echo: true
-compute_IRF <- function(h, S2, N, p) {
-  
-  A.posterior       <- posterior.draws$A.posterior
-  B0_inv_store      <- B.draws.restricted$B0.inv.store
-  IRF.posterior     <- array(NA, c(N, N, h + 1, S2))
-  IRF.inf.posterior <- array(NA, c(N, N, S2))
-  J                 <- cbind(diag(N), matrix(0, N, N * (p - 1)))
-  
-  for (s in 1:S2) {
-    A.bold                      <- rbind(t(A.posterior[2:(1 + N * p), , s]), 
-                                      cbind(diag(N * (p - 1)), matrix(0, N * (p - 1), N)))
-    IRF.inf.posterior[, , s]    <- J %*% solve(diag(N * p) - A.bold) %*% t(J) %*% B0_inv_store[, , s]
-    A.bold.power                <- A.bold
-    
-    for (i in 1:(h + 1)) {
-      if (i == 1) {
-        IRF.posterior[, , i, s] <- B0_inv_store[, , s]
-      } else {
-        IRF.posterior[, , i, s] <- J %*% A.bold.power %*% t(J) %*% B0_inv_store[, , s]
-        A.bold.power            <- A.bold.power %*% A.bold
-      }
-    }
-  }
-  return(list(IRF.posterior     = IRF.posterior, 
-              IRF.inf.posterior = IRF.inf.posterior))
-}
-```
-
 
 
 ```{r}
@@ -1840,7 +1842,7 @@ for (n in 1:N){
 
 <br>
 
-The [Figure 14: The impulse response to the monetary shock (baseline model)] displays the response to the monetary shock. The light yellow shaded area represents the 68% confidence interval. In the short run to medium run, half year to three years after the shock, real GDP experiences a slight decline. Similarly, in the medium run, three to four years after the shock, the CPI also shows a slight decrease, and both variables exhibiting a persistent trend.
+The [Figure 15: The impulse response to the monetary shock (baseline model)] displays the response to the monetary shock. The light yellow shaded area represents the 68% confidence interval. In the short run to medium run, half year to three years after the shock, real GDP experiences a slight decline. Similarly, in the medium run, three to four years after the shock, the CPI also shows a slight decrease, and both variables exhibiting a persistent trend.
 
 Regarding the cash rate itself, after rising from the shock, it tends to normalize after 2.5 years. The unemployment rate rises contemporaneously with the shock and persists even 5 years afterward. However, the stock price and government expenditure do not show any pronounced response. Unfortunately, for these four variables, including zero in the shaded area indicates that they are not significantly different from zero.
 
@@ -1852,6 +1854,7 @@ Regarding the cash rate itself, after rising from the shock, it tends to normali
 posterior.draws     <- Gibbsampler.Extension(Y, prior.parameters, posterior.parameters, S1,S2, N, K)
 B.draws.restricted  <- ImposeSignRestriction.empirical(N,p,posterior.draws,S)
 gamma.store         <- posterior.draws$gamma.store
+gamma.mean          <- round(mean(gamma.store), digits = 4)
 B0.inv.store        <- B.draws.restricted$B0.inv.store
 Bplus.store         <- B.draws.restricted$Bplus.store
 B0.inv.mean         <- apply(B0.inv.store,1:2,mean)
@@ -1877,7 +1880,7 @@ rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 24: SD of the B0 inverse matrix (extension model)")
 ```
 
-The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero. The plot and histogram shown in Figure 16 confirms that the draw oscillates around 0.0015.
+The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero. The plot and histogram shown in [Figure 16: The plot and histogram of gamma (The extension model)] confirms that the draw oscillates around 0.0015.
 
 ```{r}
 par(mfrow = c(1, 2))
@@ -1888,6 +1891,8 @@ hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=ex
 <div style="text-align: center;">  
 ##### Figure 16: The plot and histogram of gamma (The extension model)
 </div>
+
+The trace plot and histogram of the restricted variable in [Figure 17: The trace plot and histogram of B0 inverse (The extension model)] confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
 
 ```{r}
 par(mfrow = c(4, 2), mar = c(4, 4, 2, 1), oma = c(0, 2, 2, 2))
@@ -1986,6 +1991,9 @@ rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 26: SD of the B0 inverse matrix")
 ```
 
+The trace plot and histogram of the restricted variable in [Figure 19: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)] confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
+
+
 ```{r}
 par(mfrow = c(4, 2), mar = c(4, 4, 2, 1), oma = c(0, 2, 2, 2))
 plot(B0.inv.store[1,1,],type='l',col="slategray4", ylab="",xlab="", main=expression(B[11]), lwd = 0.05)
@@ -2003,7 +2011,7 @@ hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression
 </div>
 
 
-The posterior draw mean of $\sigma^{2}$ for each period is displayed in Figure 20. The $\sigma^{2}$ moves around 8000. We can also see that the $\sigma^{2}$ rises up to 60000 in some particular periods.
+The posterior draw mean of $\sigma^{2}$ for each period is displayed in [Figure 20: The posterior mean of the stochastic volatility (The baseline with stochastic volatility model)]. The $\sigma^{2}$ moves around 8000. We can also see that the $\sigma^{2}$ rises up to 60000 in some particular periods.
 
 ```{r}
 sigma2.mean <- apply(posterior.draws$H.sv,1,mean) 
@@ -2095,6 +2103,10 @@ colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 28: SD of the B0 inverse matrix")
 ```
+
+The trace plot and histogram of the restricted variable in [Figure 22: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)] confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
+
+
 ```{r}
 par(mfrow = c(4, 2), mar = c(4, 4, 2, 1), oma = c(0, 2, 2, 2))
 plot(B0.inv.store[1,1,],type='l',col="slategray4", ylab="",xlab="", main=expression(B[11]), lwd = 0.05)
@@ -2111,7 +2123,9 @@ hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression
 ##### Figure 22: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)
 </div>
 
-The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero and also almost the same as before the author incorporates the stochastic volatility. The plot and histogram shown in Figure 22.
+<br>
+
+The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero and also almost the same as before the author incorporates the stochastic volatility. The plot and histogram shown in [Figure 23: The plot and histogram of gamma (The extension with stochastic volatility model)].
 
 
 ```{r}
@@ -2125,8 +2139,9 @@ hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=ex
 ##### Figure 23: The plot and histogram of gamma (The extension with stochastic volatility model)
 </div>
 
+<br>
 
-The posterior draw mean of $\sigma^{2}$ for each period is displayed in Figure 24. The $\sigma^{2}$ is significantly higher compared to the previous model.
+The posterior draw mean of $\sigma^{2}$ for each period is displayed in [Figure 24: The posterior mean of the stochastic volatility (The extension with stochastic volatility model)]. The $\sigma^{2}$ is significantly higher compared to the previous model.
 
 
 ```{r}
@@ -2141,10 +2156,9 @@ abline(h=mean(sigma2.mean),lty=2)
 </div>
 
 
-
 ### Impulse response function
 
-However, the Figure 25 The impulse response to the monetary shock (the extension with stochastic volatility model), displays the point estimate impulse response as a flat line, indicating a value actually close to zero. The 68% confidence interval is also flat. We cannot observe any significant effect on all six variables in the system. One possible explanation is that we might need more observations to capture the heteroskedasticity, which, in this case, is not sufficient.
+However, the [Figure 25: The impulse response to the monetary shock (the extension with stochastic volatility model)], displays the point estimate impulse response as a flat line, indicating a value actually close to zero. The 68% confidence interval is also flat. We cannot observe any significant effect on all six variables in the system. One possible explanation is that we might need more observations to capture the heteroskedasticity, which, in this case, is not sufficient.
 
 ```{r}
 IRF               <- compute_IRF(h, S2, N, p)
