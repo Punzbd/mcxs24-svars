@@ -1515,7 +1515,7 @@ hist(B0.store[2,2,], breaks=500, border="steelblue",xlab="", main=expression("Hi
 
 <br>
 
-The mean value of $\gamma$ is equal `r gamma.mean`, which is close to that of the extension model without incorporating stochastic volatility heteroskedasticity. The plot and histogram shown in [Figure 12: The plot and histogram of gamma (The extension with stochastic volatility model)].
+The mean value of $\gamma$ is equal `r gamma.mean`, which is close to that of the extension model without incorporating stochastic volatility heteroskedasticity. The plot and histogram shown in [Figure 12: The trace plot and histogram of gamma (The extension with stochastic volatility model)].
 
 ```{r}
 par(mfrow = c(1, 2))
@@ -1524,7 +1524,7 @@ abline(h=gamma.mean,lty=3)
 hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=expression("Histogram of " * gamma))
 ```
 <div style="text-align: center;">  
-##### Figure 12: The plot and histogram of gamma (The extension with stochastic volatility model)
+##### Figure 12: The trace plot and histogram of gamma (The extension with stochastic volatility model)
 </div>
 
 <br>
@@ -1775,6 +1775,8 @@ colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 22: SD of the B0 inverse matrix")
 ```
+<br>
+
 The trace plot and histogram of the restricted variable in [Figure 14: The trace plot and histogram of B0 inverse (The baseline model)] confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
 ```{r}
 par(mfrow = c(4, 2), mar = c(4, 4, 2, 1), oma = c(0, 2, 2, 2))
@@ -1880,19 +1882,9 @@ rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 24: SD of the B0 inverse matrix (extension model)")
 ```
 
-The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero. The plot and histogram shown in [Figure 16: The plot and histogram of gamma (The extension model)] confirms that the draw oscillates around the mean.
+<br>
 
-```{r}
-par(mfrow = c(1, 2))
-plot(gamma.store,type='l',col="slategray4",ylab=expression(gamma),xlab="no. of iterations",main=expression("Plot of " * gamma), lwd = 0.1)
-abline(h=gamma.mean,lty=3)
-hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=expression("Histogram of " * gamma))
-```
-<div style="text-align: center;">  
-##### Figure 16: The plot and histogram of gamma (The extension model)
-</div>
-
-The trace plot and histogram of the restricted variable in [Figure 17: The trace plot and histogram of B0 inverse (The extension model)] confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
+The trace plot and histogram of the restricted variable in [Figure 16: The trace plot and histogram of B0 inverse (The extension model)] confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
 
 ```{r}
 par(mfrow = c(4, 2), mar = c(4, 4, 2, 1), oma = c(0, 2, 2, 2))
@@ -1907,9 +1899,22 @@ hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression
 ```
 
 <div style="text-align: center;">  
-##### Figure 17: The trace plot and histogram of B0 inverse (The extension model)
+##### Figure 16: The trace plot and histogram of B0 inverse (The extension model)
 </div>
 
+<br>
+
+The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero. The plot and histogram shown in [Figure 17: The trace plot and histogram of gamma (The extension model)] confirms that the draw oscillates around the mean.
+
+```{r}
+par(mfrow = c(1, 2))
+plot(gamma.store,type='l',col="slategray4",ylab=expression(gamma),xlab="no. of iterations",main=expression("Plot of " * gamma), lwd = 0.1)
+abline(h=gamma.mean,lty=3)
+hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=expression("Histogram of " * gamma))
+```
+<div style="text-align: center;">  
+##### Figure 17: The trace plot and histogram of gamma (The extension model)
+</div>
 
 ### Impulse response function
 
@@ -1991,6 +1996,8 @@ rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 26: SD of the B0 inverse matrix")
 ```
 
+<br>
+
 The trace plot and histogram of the restricted variable in [Figure 19: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)] confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
 
 
@@ -2010,6 +2017,7 @@ hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression
 ##### Figure 19: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)
 </div>
 
+<br>
 
 The posterior draw mean of $\sigma^{2}$ for each period is displayed in [Figure 20: The posterior mean of the stochastic volatility (The baseline with stochastic volatility model)]. The $\sigma^{2}$ moves around 8000. We can also see that the $\sigma^{2}$ rises up to 60000 in some particular periods.
 
@@ -2066,6 +2074,7 @@ for (n in 1:N){
 ##### Figure 21: The impulse response to the monetary shock (the baseline with stochastic volatility model) 
 </div>
 
+<br>
 
 The [Figure 21: The impulse response to the monetary shock (the baseline with stochastic volatility model)] displays the impulse response differently from how it is represented in the previous two models. We do not observe the cash rate normalizing around three years after the shock. Furthermore, the CPI decreases at the same time as the monetary shock. However, it exhibits an increasing trend, eventually recovering five years after the shock.  Additionally, we do not observe the unemployment rate increase that was seen contemporaneously in the previous two models, but it increases slightly after 2 years of the shock. Overall, the impulse response magnitude for all variables in the system of this model is lower compared to the former two models. Hence, considered together with the confidence interval, they are not significantly different from zero.
 
@@ -2102,6 +2111,8 @@ rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 28: SD of the B0 inverse matrix")
 ```
 
+<br>
+
 The trace plot and histogram of the restricted variable in [Figure 22: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)] confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
 
 
@@ -2123,7 +2134,7 @@ hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression
 
 <br>
 
-The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero. This value is also very similar to what it was before the author incorporated stochastic volatility, as shown in [Figure 23: The plot and histogram of gamma (The extension with stochastic volatility model)].
+The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero. This value is also very similar to what it was before the author incorporated stochastic volatility, as shown in [Figure 23: The trace plot and histogram of gamma (The extension with stochastic volatility model)].
 
 
 ```{r}
@@ -2134,7 +2145,7 @@ hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=ex
 ```
 
 <div style="text-align: center;">  
-##### Figure 23: The plot and histogram of gamma (The extension with stochastic volatility model)
+##### Figure 23: The trace plot and histogram of gamma (The extension with stochastic volatility model)
 </div>
 
 <br>
@@ -2156,7 +2167,7 @@ abline(h=mean(sigma2.mean),lty=2)
 
 ### Impulse response function
 
-However, the [Figure 25: The impulse response to the monetary shock (the extension with stochastic volatility model)], displays the point estimate impulse response as a flat line, indicating a value actually close to zero. The 68% confidence interval is also flat. We cannot observe any significant effect on all six variables in the system. One possible explanation is that we might need more observations to capture the heteroskedasticity, which, in this case, is not sufficient. This may be due to poor estimation of $\sigma^{2}$ since we have seen the value is incredibly high.
+[Figure 25: The impulse response to the monetary shock (the extension with stochastic volatility model)], shows the point estimate of the impulse response as a horizontal line, indicating a value very close to zero. The 68% confidence interval is also flat, suggesting no significant effects on any of the six variables in the system. One possible explanation is that we might need more observations to capture the heteroskedasticity, which, in this case, is not sufficient. This may be due to poor estimation of $\sigma^{2}$ since we have seen the value is incredibly high.
 
 ```{r}
 IRF               <- compute_IRF(h, S2, N, p)
