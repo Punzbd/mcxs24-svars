@@ -2052,6 +2052,35 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 <span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>               <span class="at">i            =</span> i.vec))</span>
 <span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>And the function for calculating impulse response is as follows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>compute_IRF <span class="ot">&lt;-</span> <span class="cf">function</span>(h, S2, N, p) {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  A.posterior       <span class="ot">&lt;-</span> posterior.draws<span class="sc">$</span>A.posterior</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  B0_inv_store      <span class="ot">&lt;-</span> B.draws.restricted<span class="sc">$</span>B0.inv.store</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  IRF.posterior     <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(N, N, h <span class="sc">+</span> <span class="dv">1</span>, S2))</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  IRF.inf.posterior <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(N, N, S2))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  J                 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">diag</span>(N), <span class="fu">matrix</span>(<span class="dv">0</span>, N, N <span class="sc">*</span> (p <span class="sc">-</span> <span class="dv">1</span>)))</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (s <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>S2) {</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    A.bold                      <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">t</span>(A.posterior[<span class="dv">2</span><span class="sc">:</span>(<span class="dv">1</span> <span class="sc">+</span> N <span class="sc">*</span> p), , s]), </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">cbind</span>(<span class="fu">diag</span>(N <span class="sc">*</span> (p <span class="sc">-</span> <span class="dv">1</span>)), <span class="fu">matrix</span>(<span class="dv">0</span>, N <span class="sc">*</span> (p <span class="sc">-</span> <span class="dv">1</span>), N)))</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    IRF.inf.posterior[, , s]    <span class="ot">&lt;-</span> J <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">diag</span>(N <span class="sc">*</span> p) <span class="sc">-</span> A.bold) <span class="sc">%*%</span> <span class="fu">t</span>(J) <span class="sc">%*%</span> B0_inv_store[, , s]</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    A.bold.power                <span class="ot">&lt;-</span> A.bold</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(h <span class="sc">+</span> <span class="dv">1</span>)) {</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (i <span class="sc">==</span> <span class="dv">1</span>) {</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        IRF.posterior[, , i, s] <span class="ot">&lt;-</span> B0_inv_store[, , s]</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        IRF.posterior[, , i, s] <span class="ot">&lt;-</span> J <span class="sc">%*%</span> A.bold.power <span class="sc">%*%</span> <span class="fu">t</span>(J) <span class="sc">%*%</span> B0_inv_store[, , s]</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        A.bold.power            <span class="ot">&lt;-</span> A.bold.power <span class="sc">%*%</span> A.bold</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">IRF.posterior     =</span> IRF.posterior, </span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>              <span class="at">IRF.inf.posterior =</span> IRF.inf.posterior))</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <section id="the-baseline-model-3" class="level2">
 <h2 class="anchored" data-anchor-id="the-baseline-model-3">The baseline model</h2>
 <p>After imposing these restrictions on <span class="math inline">\(B_{0}^{-1}\)</span>, the mean of <span class="math inline">\(B_{0}^{-1}\)</span> is displayed in Table 9, conforming to the sign restrictions in the <span class="math inline">\(1^{st} - 3^{rd}\)</span> rows of the <span class="math inline">\(1^{st}\)</span> column and the <span class="math inline">\(6^{th}\)</span> row of the <span class="math inline">\(6^{th}\)</span> column, denoted as <span class="math inline">\(B_{11},B_{21}, B_{31}\)</span>, and <span class="math inline">\(B_{66}\)</span> respectively.</p>
@@ -2203,7 +2232,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 </table>
 </div>
 </div>
-<p>The trace plot and histogram of the restricted variable confirms that <span class="math inline">\(B_{0}^{-1}\)</span> shows <span class="math inline">\(B_{11}\)</span> as positive, <span class="math inline">\(B_{21}\)</span> and <span class="math inline">\(B_{31}\)</span> as negative, and <span class="math inline">\(B_{66}\)</span> as positive, consistent with the specified restrictions.</p>
+<p>The trace plot and histogram of the restricted variable in <a href="#figure-14-the-trace-plot-and-histogram-of-b0-inverse-the-baseline-model">Figure 14: The trace plot and histogram of B0 inverse (The baseline model)</a> confirms that <span class="math inline">\(B_{0}^{-1}\)</span> shows <span class="math inline">\(B_{11}\)</span> as positive, <span class="math inline">\(B_{21}\)</span> and <span class="math inline">\(B_{31}\)</span> as negative, and <span class="math inline">\(B_{66}\)</span> as positive, consistent with the specified restrictions.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2218,35 +2247,6 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 </section>
 <section id="impulse-response-function" class="level3">
 <h3 class="anchored" data-anchor-id="impulse-response-function">Impulse response function</h3>
-<p>The function for calculating impulse response is as follows.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>compute_IRF <span class="ot">&lt;-</span> <span class="cf">function</span>(h, S2, N, p) {</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  A.posterior       <span class="ot">&lt;-</span> posterior.draws<span class="sc">$</span>A.posterior</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  B0_inv_store      <span class="ot">&lt;-</span> B.draws.restricted<span class="sc">$</span>B0.inv.store</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  IRF.posterior     <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(N, N, h <span class="sc">+</span> <span class="dv">1</span>, S2))</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  IRF.inf.posterior <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(N, N, S2))</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  J                 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">diag</span>(N), <span class="fu">matrix</span>(<span class="dv">0</span>, N, N <span class="sc">*</span> (p <span class="sc">-</span> <span class="dv">1</span>)))</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (s <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>S2) {</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    A.bold                      <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">t</span>(A.posterior[<span class="dv">2</span><span class="sc">:</span>(<span class="dv">1</span> <span class="sc">+</span> N <span class="sc">*</span> p), , s]), </span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">cbind</span>(<span class="fu">diag</span>(N <span class="sc">*</span> (p <span class="sc">-</span> <span class="dv">1</span>)), <span class="fu">matrix</span>(<span class="dv">0</span>, N <span class="sc">*</span> (p <span class="sc">-</span> <span class="dv">1</span>), N)))</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    IRF.inf.posterior[, , s]    <span class="ot">&lt;-</span> J <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">diag</span>(N <span class="sc">*</span> p) <span class="sc">-</span> A.bold) <span class="sc">%*%</span> <span class="fu">t</span>(J) <span class="sc">%*%</span> B0_inv_store[, , s]</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    A.bold.power                <span class="ot">&lt;-</span> A.bold</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(h <span class="sc">+</span> <span class="dv">1</span>)) {</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (i <span class="sc">==</span> <span class="dv">1</span>) {</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        IRF.posterior[, , i, s] <span class="ot">&lt;-</span> B0_inv_store[, , s]</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        IRF.posterior[, , i, s] <span class="ot">&lt;-</span> J <span class="sc">%*%</span> A.bold.power <span class="sc">%*%</span> <span class="fu">t</span>(J) <span class="sc">%*%</span> B0_inv_store[, , s]</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        A.bold.power            <span class="ot">&lt;-</span> A.bold.power <span class="sc">%*%</span> A.bold</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">IRF.posterior     =</span> IRF.posterior, </span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>              <span class="at">IRF.inf.posterior =</span> IRF.inf.posterior))</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2414,7 +2414,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 </table>
 </div>
 </div>
-<p>The mean value of <span class="math inline">\(\gamma\)</span> is equal 0.0015, which is close to zero. The plot and histogram shown in Figure 16 confirms that the draw oscillates around 0.0015.</p>
+<p>The mean value of <span class="math inline">\(\gamma\)</span> is equal 0.0015, which is close to zero. The plot and histogram shown in <a href="#figure-16-the-plot-and-histogram-of-gamma-the-extension-model">Figure 16: The plot and histogram of gamma (The extension model)</a> confirms that the draw oscillates around 0.0015.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2427,6 +2427,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 <section id="figure-16-the-plot-and-histogram-of-gamma-the-extension-model" class="level5" style="text-align: center;">
 <h5 class="anchored" data-anchor-id="figure-16-the-plot-and-histogram-of-gamma-the-extension-model">Figure 16: The plot and histogram of gamma (The extension model)</h5>
 </section>
+<p>The trace plot and histogram of the restricted variable in <a href="#figure-17-the-trace-plot-and-histogram-of-b0-inverse-the-extension-model">Figure 17: The trace plot and histogram of B0 inverse (The extension model)</a> confirms that <span class="math inline">\(B_{0}^{-1}\)</span> shows <span class="math inline">\(B_{11}\)</span> as positive, <span class="math inline">\(B_{21}\)</span> and <span class="math inline">\(B_{31}\)</span> as negative, and <span class="math inline">\(B_{66}\)</span> as positive, consistent with the specified restrictions.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2608,6 +2609,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 </table>
 </div>
 </div>
+<p>The trace plot and histogram of the restricted variable in <a href="#figure-19-the-trace-plot-and-histogram-of-b0-inverse-the-basic-with-stochastic-volatility-model">Figure 19: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)</a> confirms that <span class="math inline">\(B_{0}^{-1}\)</span> shows <span class="math inline">\(B_{11}\)</span> as positive, <span class="math inline">\(B_{21}\)</span> and <span class="math inline">\(B_{31}\)</span> as negative, and <span class="math inline">\(B_{66}\)</span> as positive, consistent with the specified restrictions.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2620,7 +2622,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 <section id="figure-19-the-trace-plot-and-histogram-of-b0-inverse-the-basic-with-stochastic-volatility-model" class="level5" style="text-align: center;">
 <h5 class="anchored" data-anchor-id="figure-19-the-trace-plot-and-histogram-of-b0-inverse-the-basic-with-stochastic-volatility-model">Figure 19: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)</h5>
 </section>
-<p>The posterior draw mean of <span class="math inline">\(\sigma^{2}\)</span> for each period is displayed in Figure 20. The <span class="math inline">\(\sigma^{2}\)</span> moves around 8000. We can also see that the <span class="math inline">\(\sigma^{2}\)</span> rises up to 60000 in some particular periods.</p>
+<p>The posterior draw mean of <span class="math inline">\(\sigma^{2}\)</span> for each period is displayed in <a href="#figure-20-the-posterior-mean-of-the-stochastic-volatility-the-baseline-with-stochastic-volatility-model">Figure 20: The posterior mean of the stochastic volatility (The baseline with stochastic volatility model)</a>. The <span class="math inline">\(\sigma^{2}\)</span> moves around 8000. We can also see that the <span class="math inline">\(\sigma^{2}\)</span> rises up to 60000 in some particular periods.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2800,6 +2802,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 </table>
 </div>
 </div>
+<p>The trace plot and histogram of the restricted variable in <a href="#figure-22-the-trace-plot-and-histogram-of-b0-inverse-the-basic-with-stochastic-volatility-model">Figure 22: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)</a> confirms that <span class="math inline">\(B_{0}^{-1}\)</span> shows <span class="math inline">\(B_{11}\)</span> as positive, <span class="math inline">\(B_{21}\)</span> and <span class="math inline">\(B_{31}\)</span> as negative, and <span class="math inline">\(B_{66}\)</span> as positive, consistent with the specified restrictions.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2813,7 +2816,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 <h5 class="anchored" data-anchor-id="figure-22-the-trace-plot-and-histogram-of-b0-inverse-the-basic-with-stochastic-volatility-model">Figure 22: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)</h5>
 </section>
 <p><br></p>
-<p>The mean value of <span class="math inline">\(\gamma\)</span> is equal 0.0016, which is close to zero and also almost the same as before the author incorporates the stochastic volatility. The plot and histogram shown in Figure 22.</p>
+<p>The mean value of <span class="math inline">\(\gamma\)</span> is equal 0.0016, which is close to zero and also almost the same as before the author incorporates the stochastic volatility. The plot and histogram shown in <a href="#figure-23-the-plot-and-histogram-of-gamma-the-extension-with-stochastic-volatility-model">Figure 23: The plot and histogram of gamma (The extension with stochastic volatility model)</a>.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2827,7 +2830,7 @@ y_t &amp;= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 <h5 class="anchored" data-anchor-id="figure-23-the-plot-and-histogram-of-gamma-the-extension-with-stochastic-volatility-model">Figure 23: The plot and histogram of gamma (The extension with stochastic volatility model)</h5>
 </section>
 <p><br></p>
-<p>The posterior draw mean of <span class="math inline">\(\sigma^{2}\)</span> for each period is displayed in Figure 24. The <span class="math inline">\(\sigma^{2}\)</span> is significantly higher compared to the previous model.</p>
+<p>The posterior draw mean of <span class="math inline">\(\sigma^{2}\)</span> for each period is displayed in <a href="#figure-24-the-posterior-mean-of-the-stochastic-volatility-the-extension-with-stochastic-volatility-model">Figure 24: The posterior mean of the stochastic volatility (The extension with stochastic volatility model)</a>. The <span class="math inline">\(\sigma^{2}\)</span> is significantly higher compared to the previous model.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
