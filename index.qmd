@@ -2142,10 +2142,6 @@ abline(h=mean(sigma2.mean),lty=2)
 
 
 
-
-
-
-
 ### Impulse response function
 
 However, the Figure 25 The impulse response to the monetary shock (the extension with stochastic volatility model), displays the point estimate impulse response as a flat line, indicating a value actually close to zero. The 68% confidence interval is also flat. We cannot observe any significant effect on all six variables in the system. One possible explanation is that we might need more observations to capture the heteroskedasticity, which, in this case, is not sufficient.
