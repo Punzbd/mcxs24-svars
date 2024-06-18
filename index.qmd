@@ -619,7 +619,7 @@ X            <- cbind(X,RW[2: nrow(RW)-1,])
 N            <- 2
 p            <- 1
 K            <- 1+p*N
-S            <- 9000
+S            <- 12000
 ```
 
 
@@ -814,7 +814,7 @@ The following distribution conforms to the Generalized Inverse Gaussian (GIG) di
 
 The Gibbs Sampler is used to get the posterior draws of the extended model
 
-For $S_{1} = 1,000$ and $S_{2} = 9,000$
+For $S_{1} = 1,000$ and $S_{2} = 11,000$
 
 Initialize $\gamma$ at $\gamma^{(0)}$
 
@@ -1010,7 +1010,7 @@ The full conditional posterior for the baseline model is in the form of a Normal
 
 The Gibbs Sampler is used to get the posterior draws of the stochastic volatility model.
 
-For $S_{1} = 1,000$ and $S_{2} = 9,000$
+For $S_{1} = 1,000$ and $S_{2} = 11,000$
 
 Initialize $\sigma^{2}$ at $\sigma^{2^{(0)}}$
 
@@ -1213,7 +1213,7 @@ The posterior parameters from the full conditional posterior for the extension m
 
 The Gibbs Sampler is used to get the posterior draws of the stochastic volatility model.
 
-For $S_{1} = 1,000$ and $S_{2} = 9,000$
+For $S_{1} = 1,000$ and $S_{2} = 11,000$
 
 Initialize $\sigma^{2}$ at $\sigma^{2^{(0)}}$ and $\gamma$ at $\gamma^{(0)}$
 
