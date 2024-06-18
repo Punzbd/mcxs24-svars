@@ -8,6 +8,7 @@ execute:
 bibliography: references.bib
 ---
 
+
 > **Abstract.** The purpose of this study is to investigate the relationship and impact of monetary policy on the real economy in Australia. The author uses quarterly data spanning from 1990 Q1 to 2023 Q4. The Structural Vector Autoregression (SVAR) model is used to capture the structural relationship, including analyzing the impulse responses of the variable of interest to structural shock. 
 >
 > **Keywords.** Structural VAR, SVAR, monetary policy, stock market, economic impact, impulse response function, Bayesian, cash rate
@@ -28,6 +29,7 @@ Understanding insights of these dynamic impacts within the macroeconomy, includi
 The variables in this study include the cash rate target **_(cashrate)_**, which indicates the monetary policy. GDP (in real terms), CPI, and the unemployment rate **_(unemprate)_** are included to measure the real economy. For the stock market, the author uses the All Ordinaries index (AORD) as a representative. The AORD is the market-weighted index and includes about 500 companies from the Australian Stock Exchange. Finally, total government expenditure is included to control for fiscal policy, which might also affect the economy besides monetary policy. The data is collected from the Reserve Bank of Australia (RBA), Australian Bureau of Statistics (ABS), and Yahoo Finance. The dataset spans from 1990 Q1 to 2023 Q4, comprising 136 observations. [Figure 1: time series plots (raw data)] represents the raw data time series of these 6 variables.
 
 <br>
+
 
 
 ```{r download the data}
@@ -97,7 +99,6 @@ gov_exp        <- gov[zoo::index(gov) >= "1990 Q1" & zoo::index(gov) < "2024 Q1"
 ln_gov_exp     <- log(gov_exp)
 ```
 
-
 ```{r plotting the raw data}
 
 time <- seq(as.Date("1990-01-01"), by = "quarter", length.out = 136)
@@ -111,6 +112,7 @@ plot(time, unemprate, type = "l", lwd = 2 ,col = "grey27", main = "Unemployment 
 plot(time, stockprice, type = "l", lwd = 2 , col = "grey27", main = "Stock market index (All ordinaries)")
 plot(time, gov_exp, type = "l", lwd = 2 ,col = "grey27", main = " Total government expenditure ($ billion)")
 ```
+
 <div style="text-align: center;">  
 ##### Figure 1: time series plots (raw data) 
 </div>
@@ -120,6 +122,7 @@ plot(time, gov_exp, type = "l", lwd = 2 ,col = "grey27", main = " Total governme
 The author transforms the data in manner that aligns with the purpose of study. The total government expenditure are adjusted to real terms using the GDP deflator. After that, the author transforms 4 variables which are real GDP, AORD, CPI, and real government expenditure in logarithms term, denoted by **_realgdp_**, **_stockprice_**, **_CPI_**, and **_govexp_** respectively. [Figure 2: time series plots (transformed data)] represents the transformed data, which will be analyzed further.
 
 <br>
+
 
 ```{r Plotting the transformed data}
 
@@ -138,6 +141,7 @@ plot(time, ln_gov_exp, type = "l", lwd = 2 ,col = "grey27", main = "ln total gov
 
 ```
 
+
 <div style="text-align: center;"> 
 ##### Figure 2: time series plots (transformed data) 
 </div>
@@ -146,6 +150,7 @@ plot(time, ln_gov_exp, type = "l", lwd = 2 ,col = "grey27", main = "ln total gov
 <br>
 
 The statistics summary of variables from 1990 Q1 to 2023 Q4 is shown in Table 1.
+
 
 
 ```{r statistical summary}
@@ -170,9 +175,11 @@ rownames(result_df) <- c("cashrate", "realgdp", "CPI", "unemprate", "stockprice"
 knitr::kable(result_df, caption = "Table 1: Summary statistics")
 ```
 
+
 # Preliminary Results
 ### The autocorrelation and partial autocorrelation
 In this section, the autocorrelation and partial autocorrelation analyses are used to detect patterns and check the randomness of time series. [Figure 3: ACF plots] show the autocorrelation remains in all variables, even after 5 years. This indicate the strong correlation between a time series and its lagged values.
+
 
 ```{r ACF plot}
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
@@ -182,12 +189,14 @@ for (i in 1:ncol(data)) {
   acf(data[, i], main = c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp")[i])
 }
 ```
+
 <div style="text-align: center;"> 
 ##### Figure 3: ACF plots
 </div>
 <br>
 
 For the PACF in [Figure 4: PACF plots], it is observed that there have not been any significant spikes  for all variables, except for _unemprate_. The PACF of _unemprate_ indicates significance in partial autocorrelation at first and sixteenth quarter lags; however, this might occur due to a type I error.
+
 ```{r PACF plot}
 par(mfrow = c(3, 2), oma = c(0, 0, 2, 0))
 par(mar=c(4,4,4,2))
@@ -197,6 +206,7 @@ for (i in 1:ncol(data)) {
 }
 ```
 
+
 <div style="text-align: center;"> 
 ##### Figure 4: PACF plots
 </div>
@@ -204,6 +214,7 @@ for (i in 1:ncol(data)) {
 
 ### The unit root test
 In this section, the Augmented Dickey-Fuller Test (ADF Test) is used to test for the stationarity assumption. The null hypothesis is that the time series data has a unit root (non-stationary). The results are shown in Table 2. At the 1% significance level, the null hypothesis cannot be rejected for all variables, indicating that these variables are unit root non-stationary.
+
 
 ```{r ADF test}
 #| echo: false
@@ -225,7 +236,9 @@ for (i in seq_along(data)) {
 knitr::kable(adf_matrix, caption = "Table 2: ADF test")
 ```
 
+
 Then, take the first difference and the second difference of all variables and rerun the ADF test. The results are shown in Table 3 and Table 4. For the first difference in Table 3, at the 1% significance level, the null hypothesis can be rejected for all variables, except _CPI_ and _dgovexp_. It is reasonable to conclude that _cashrate_, _realgdp_, _unemprate_, _stockprice_ are integrated of order 1. And _CPI_ and _govexp_ are integrated of order 2, as shown in the result in Table 4.
+
 
 ```{r create the first difference data}
 #| echo: false
@@ -237,7 +250,6 @@ data_diff1 <- as.data.frame(lapply(colnames(data), function(x) na.omit(diff(get(
 colnames(data_diff1) <- paste0("d", c("cashrate", "realgdp", "CPI", "unemprate", "stockprice", "govexp"))
 
 ```
-
 
 ```{r ADF test on first diff}
 #| echo: false
@@ -268,7 +280,6 @@ data_diff2 <- as.data.frame(lapply(data_diff1, function(x) diff(x)))
 colnames(data_diff2) <- paste0("d", colnames(data_diff2))
 ```
 
-
 ```{r ADF test on second diff}
 #| echo: false
 #| message: false
@@ -290,18 +301,21 @@ knitr::kable(adf_diff_matrix, caption = "Table 4: ADF test on the second differe
 ```
 
 
+
 # Methodology
 In this section, the model that this study use to capture the structural relationship between real economy variables and the stock price is introduced. 
 The author use Structural Vector Autoregression (SVAR) model which comprises of 6 variables, _cashrate_, _realgdp_, _inflation_, _unemprate_, _stockprice_, and _govexp_. Subsequently, the model will be used to analyze the impulse responses.
 
 
 The **SVAR model** can be shown as follows.
+
 ```{=tex}
 \begin{align}
 B_0y_t &= b_0 + \sum_{i=1}^{p}B_{i}y_{t-i}+u_t  \\
 u_t|Y_{t-1}&\sim iid \mathcal{N} (0_N,I_N)
 \end{align}
 ```
+
 where :
 
 $y_{t}$ is $N\times1$ vector of endogenous variables at time t
@@ -326,12 +340,14 @@ $$
 
 The **reduced form** can be shown as follows.
 
+
 ```{=tex}
 \begin{align}
 y_t &= \mu_0 + \sum_{i=1}^{p}A_{i}y_{t-i}+\epsilon_t \\
 \epsilon_t|Y_{t-1} &\sim iid \mathcal{N}(0_N,\Sigma)
 \end{align}
 ```
+
 
 
 where :
@@ -351,6 +367,7 @@ $\Sigma$ is $N\times N$ covariance matrix of the error term
 ### Estimation algorithm
  
 The reduced form above can be rewrite in the matrix form as follows:
+
 ```{=tex}
 \begin{align}
 Y &= XA + E \\
@@ -359,20 +376,24 @@ E|X &\sim \mathcal{MN}_{T \times N}(0,\Sigma,I_T)
 ```
 
 
+
 Bayes' rule is employed for deriving the posterior distribution
 
 From Bayes' rule:
+
 ```{=tex}
 \begin{align}
 P(A,\Sigma|Y,X) &\propto L(A,\Sigma|Y,X)P(A,\Sigma) \\
 \underbrace{P(A,\Sigma|Y,X)}_{\text{Posterior distribution}} &\propto \underbrace{L(A,\Sigma|Y,X)}_{\text{Likelihood}} \underbrace{P(A|\Sigma)P(\Sigma)}_{\text{Prior distribution}}
 \end{align}
 ```
+
 <br>
 
 
 #### The likelihood fuction
 The derivation of the likelihood function can be shown in matrix-variate normal distribution as follows:
+
 ```{=tex}
 \begin{align}
 L(A,\Sigma|Y,X) = (2\pi)^{-\frac{NT}{2}} det(\Sigma)^{-\frac{T}{2}}
@@ -380,15 +401,19 @@ exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-XA)'(Y-XA) \right] \right\} \\
 \end{align}
 ```
 
+
 Then, the $\hat{A}$ and $\hat{\Sigma}$ corresponding to the maximum likelihood are
+
 ```{=tex}
 \begin{align}
 \hat{A} &= (X'X)^{-1}X'Y \\
 \hat{\Sigma} &= \frac{1}{T} (Y-X \hat{A})'(Y-X \hat{A})
 \end{align}
 ```
+
   
 The likelihood function can be represented as Normal inverse Wishart distribution 
+
 ```{=tex}
 \begin{align}
 L(A,\Sigma|Y,X) &\propto det(\Sigma)^{-\frac{T}{2}} 
@@ -396,9 +421,11 @@ exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(A-\hat{A})'X'X(Y-\hat{A}) \right] 
 exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-X\hat{A})'(Y-X\hat{A}) \right] \right\} \\
 \end{align}
 ```
+
 <br>
 
 #### The prior distribution 
+
 
 ```{=tex}
 \begin{align}
@@ -407,7 +434,9 @@ A|\Sigma &\sim \mathcal{MN}_{K \times N} (\underline{A}, \Sigma , \underline{V})
 \Sigma &\sim \mathcal{IW}_{N}(\underline{S},\underline{\nu})
 \end{align}
 ```
+
 The prior which follows Normal inverse Wishart distribution:
+
 ```{=tex}
 \begin{align}
 p(A,\Sigma) &\propto det(\Sigma)^{-\frac{N+K+\underline{\nu}+1}{2}} 
@@ -418,7 +447,9 @@ exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}\underline{S} \right] \right\}
 ```
 
 
+
 The Minnesota prior used as prior of the model, the parameters are follows:
+
 ```{=tex}
 \begin{align}
 \underline{A} &= [0_{N \times 1} \quad I_N \quad 0_{N \times (p-1)N}]' \\ 
@@ -426,6 +457,7 @@ Var[vec(A)] &= \Sigma \otimes  \underline{V} \\
 \underline{V} &= \text{diag}([\kappa_2 \quad \kappa_1 (p^{-2} \otimes \imath_N)]) \\
 \end{align}
 ```
+
 where: 
 
 $p$ = [1,2,...,p]
@@ -437,6 +469,7 @@ $\kappa_1$ is overall shrinkage level for autoregressive slopes, the common valu
 $\kappa_2$ is overall shrinkage level for the constant term, the common value is $100$
 
 This can be represented in code as follows:
+
 
 ```{r}
 kappa.1 <- 0.02^2
@@ -462,11 +495,13 @@ Prior.Dist  <- function (N,p,Sigma.hat,kappa.1,kappa.2) {
 }
 ```
 
+
 <br>
 
 #### The posterior distribution 
 
 From the Bayes' rule mentioned above, the posterior distribution as follows:
+
 
 ```{=tex}
 \begin{align}
@@ -489,7 +524,9 @@ exp \left\{-\frac{1}{2} tr \left[
 \end{align}
 ```
 
+
 Which can represented in form of Normal inverse Wishart distribution
+
 ```{=tex}
 \begin{align}
 P(A,\Sigma|Y,X) &= P(A|Y,X,\Sigma) P(\Sigma|Y,X) \\
@@ -498,8 +535,10 @@ P(\Sigma|Y,X) &\sim \mathcal{IW}_{N}(\overline{S},\overline{\nu})
 \end{align}
 ```
 
+
 <br>
 And the posterior parameters are structured as follows.
+
 ```{=tex}
 \begin{align}
 
@@ -513,7 +552,9 @@ And the posterior parameters are structured as follows.
 ```
 
 
+
 This can be represented in code as follows:
+
 
 ```{r Normal-Inverse wishart posterior}
 #| echo: true
@@ -541,7 +582,9 @@ Post.Dist <- function (X,Y,prior.parameters) {
 ```
 
 
+
 The draws from the posterior distribution can be represented in code as follows:
+
 
 ```{r draw posterior}
 #| echo: true
@@ -578,11 +621,13 @@ Post.Draw <- function (N,S,p,posterior.parameters){
 }
 ```
 
+
 <br>
 
 ### Data simulation
 
 The author generates 1,000 observations from bi-variate Gaussian random walk process to prove that the algorithm works. 
+
 
 ```{r data simulation}
 set.seed(2024)
@@ -596,11 +641,13 @@ Y    <- RW[2:nrow(RW),]
 ```{r plot random walk}
 plot.ts(Y,main = "1,000 simulations of bi-variate Gaussian random walk", xlab = "Observations", col = "grey27", lwd = 2, frame.plot = FALSE)
 ```
+
 <div style="text-align: center;">  
 ##### Figure 5: The simulation data (1,000 observations) 
 </div>
 
 The target model for estimation is a Sign-Restricted Structural Vector Autoregression (SVAR).
+
 
 ```{=tex}
 \begin{align}
@@ -608,7 +655,6 @@ B_0y_t &= b_0 + \sum_{i=1}^{p}B_{1}y_{t-1}+u_t  \\
 u_t|Y_{t-1}&\sim iid \mathcal{N} (0_N,I_N)
 \end{align}
 ```
-
 
 ```{r Set up variables}
 #| echo: false
@@ -622,7 +668,6 @@ K            <- 1+p*N
 S            <- 9000
 ```
 
-
 ```{r MLE}
 #| echo: false
 #| message: false
@@ -631,7 +676,9 @@ A.hat        <- solve(t(X)%*%X)%*%t(X)%*%Y
 Sigma.hat    <- t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y) 
 ```
 
+
 The author randomly draws matrices $A$ and $\Sigma$ from the posterior distribution,  which is specified as a Normal Inverse Wishart distribution as described earlier. Following this, the sign restriction is applied to the main diagonal of matrix $B_{0}$, ensuring positive signs.
+
 
 
 
@@ -681,7 +728,6 @@ ImposeSignRestriction <- function (restrictions,N,p,posterior.draws){
 }
 ```
 
-
 ```{r Estimate the baseline model}
 prior.parameters      <- Prior.Dist(N,p,Sigma.hat,kappa.1,kappa.2)
 posterior.parameters  <- Post.Dist(X,Y,prior.parameters)
@@ -698,7 +744,9 @@ Sigma.post.mean       <- apply(Sigma.post,1:2,mean)
 ```
 
 
+
 Table 5 shows that the mean values of matrix $A$ at $A_{11}$ and $A_{22}$ are close to 1, while the constant term in the first row is nearly zero. Additionally, the variance-covariance matrix in Table 6 is approximately an identity matrix. These findings are consistent with our bi-variate Gaussian random walk process.
+
 
 
 ```{r A mean baseline}
@@ -707,6 +755,7 @@ colnames(A_df) <- c("RW1", "RW2")
 rownames(A_df) <- c( "Cons", "Lag1", "Lag2")
 knitr::kable(A_df, caption = "Table 5: Mean of the matrix A (The baseline model)")
 ```
+
 ```{r Sigma mean baseline}
 A_df           <- as.data.frame(Sigma.post.mean)
 colnames(A_df) <- c("RW1", "RW2")
@@ -714,9 +763,11 @@ rownames(A_df) <- c( "R1", "R2")
 knitr::kable(A_df, caption = "Table 6: Mean of the variance-covariance matrix (The baseline model)")
 ```
 
+
 <br>
 
 Table 7 displays that the mean values of the main diagonal elements in matrix $B_{0}$ are positive, providing evidence for the validity of the imposed restriction.
+
 
 ```{r B0 mean baseline}
 B0_df           <- as.data.frame(B0.mean)
@@ -724,7 +775,9 @@ colnames(B0_df) <- c("C1", "C2")
 rownames(B0_df) <- c( "R1", "R2")
 knitr::kable(B0_df, caption = "Table 7: Mean of the matrix B0 (The baseline model)")
 ```
+
 In Table 8 which displays the mean of matrix $B_{+}$, the values in the first column, representing the constant term in the equation, are close to zero.
+
 
 ```{r Bplus mean baseline}
 Bplus_df           <- as.data.frame(Bplus.mean)
@@ -733,9 +786,11 @@ rownames(Bplus_df) <- c( "R1", "R2")
 knitr::kable(Bplus_df, caption = "Table 8: Mean of the matrix B+ (The baseline model)")
 ```
 
+
 ## The extension model
 ### Estimation algorithm
 Suppose the author aims to enhance the flexibility of the prior distribution for gamma ($\gamma$) by modeling it in the following manner.
+
 
 ```{=tex}
 \begin{align}
@@ -746,7 +801,9 @@ Suppose the author aims to enhance the flexibility of the prior distribution for
 \end{align}
 ```
 
+
 Thus, the the posterior distribution as follows: 
+
 
 ```{=tex}
 \begin{align}
@@ -768,7 +825,9 @@ exp \left\{-\frac{1}{2} tr \left[
 \end{align}
 ```
 
+
 The distribution represented in the form of Normal Inverse Wishart is characterized by the following parameters:
+
 ```{=tex}
 \begin{align}
 
@@ -781,9 +840,11 @@ The distribution represented in the form of Normal Inverse Wishart is characteri
 \end{align}
 ```
 
+
 <br>
 
 The posterior distribution of $\gamma$ is also needed as it serves as a crucial component for the sampling procedure.
+
 
 ```{=tex}
 \begin{align}
@@ -800,7 +861,9 @@ exp\left\{{-\frac{1}{2}}[\gamma\:tr[\Sigma^{-1}]+{\frac{\underline{S}}{\gamma}}]
 \end{align}
 ```
 
+
 The following distribution conforms to the Generalized Inverse Gaussian (GIG) distribution, with the parameters as follows:
+
 
 ```{=tex}
 \begin{align}
@@ -811,6 +874,7 @@ The following distribution conforms to the Generalized Inverse Gaussian (GIG) di
 \\ \psi = tr[\Sigma^{-1}]
 \end{align}
 ```
+
 
 The Gibbs Sampler is used to get the posterior draws of the extended model
 
@@ -831,6 +895,7 @@ Discard the first $S_{1}$ iterations to allow the algorithm to converge to the s
 The author then utilizes the random draws from $\Sigma^{(s)}, A^{(s)}, \gamma^{(s)}$ to obtain the posterior draw and create the following $B_{0}$ and $B_{+}$ matrices.
 
 This can be represented in code as follows:
+
 
 ```{r}
 S1 = 1000
@@ -896,7 +961,6 @@ Gibbsampler.Extension <- function(Y, prior.parameters, posterior.parameters, S1,
 }
 ```
 
-
 ```{r}
 posterior.draws     <- Gibbsampler.Extension(Y, prior.parameters, posterior.parameters, S1, S2, N, K)
 B.draws.restricted  <- ImposeSignRestriction(restrictions,N,p,posterior.draws)
@@ -913,9 +977,11 @@ Sigma.post.mean     <- apply(Sigma.post,1:2,mean)
 ```
 
 
+
 ### Data simulation
 
 Table 9 shows that the mean values of matrix $A$ and the variance-covariance matrix in Table 10 exhibit behavior similar to that of the basic model.
+
 
 ```{r A mean extension}
 A_df           <- as.data.frame(A.post.mean)
@@ -930,9 +996,11 @@ colnames(A_df) <- c("RW1", "RW2")
 rownames(A_df) <- c( "R1", "R2")
 knitr::kable(A_df, caption = "Table 10: Mean of the variance-covariance matrix (The extension model)")
 ```
+
 <br>
 
 Table 11 indicates that the mean value of the main diagonal of $B_{0}$ remains positive, exhibiting a similar behavior to that of the basic model.
+
 
 ```{r B0 mean for extension}
 B0_df           <- as.data.frame(B0.mean)
@@ -941,7 +1009,9 @@ rownames(B0_df) <- c( "R1", "R2")
 knitr::kable(B0_df, caption = "Table 11: Mean of the matrix B0 (The extension model)")
 ```
 
+
 In Table 12 which displays the mean of matrix $B_{+}$, the values in the first column, representing the constant term in the equation, are close to zero and exhibit a behavior similar to that of the basic model.
+
 
 ```{r Bplus mean for extension}
 Bplus_df           <- as.data.frame(Bplus.mean)
@@ -950,7 +1020,9 @@ rownames(Bplus_df) <- c( "R1", "R2")
 knitr::kable(Bplus_df, caption = "Table 12: Mean of the matrix B+ (The extension model)")
 ```
 
+
 The mean of $\gamma$ is equal `r gamma.mean` and the trace plot and histogram shown in Figure 6.
+
 
 ```{r}
 par(mfrow = c(1, 2))
@@ -958,6 +1030,7 @@ plot(gamma.store,type='l',col="slategray4",ylab=expression(gamma),xlab="no. of i
 abline(h=gamma.mean,lty=3)
 hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=expression("Histogram of " * gamma))
 ```
+
 <div style="text-align: center;">  
 ##### Figure 6: The plot and histogram of gamma (The extension model)
 </div>
@@ -973,6 +1046,7 @@ Next, the author will estimate the model with stochastic volatility. This approa
 
 The reduced form above can be rewrite in the matrix form as follows:
 
+
 ```{=tex}
 \begin{align}
 Y &= XA + E \\
@@ -980,9 +1054,11 @@ E|X &\sim \mathcal{MN}_{T \times N}(0,\Sigma,diag(\sigma^{2}))
 \end{align}
 ```
 
+
 Where $\sigma^{2} = (exp\{h_{1}\},exp\{h_{2}\},\cdots, exp\{h_{T}\})$ which is a vector of conditional heteroskedasticity variables and $h_{t}$ follows a stochastic volatility process. 
 
 Thus, the likelihood can be rewrite as 
+
 
 ```{=tex}
 \begin{align}
@@ -991,9 +1067,11 @@ exp \left\{-\frac{1}{2} tr \left[ \Sigma^{-1}(Y-XA)'(diag(\sigma^{2}))^{-1}(Y-XA
 \end{align}
 ```
 
+
 #### **The baseline model**
 
 The full conditional posterior for the baseline model is in the form of a Normal Inverse Wishart distribution, with posterior parameters structured as follows.
+
 
 ```{=tex}
 \begin{align}
@@ -1006,6 +1084,7 @@ The full conditional posterior for the baseline model is in the form of a Normal
 
 \end{align}
 ```
+
 
 
 The Gibbs Sampler is used to get the posterior draws of the stochastic volatility model.
@@ -1022,6 +1101,7 @@ At each iteration s:
 Repeat step 1 and 2 for $(S_{1} + S_{2})$ times, then discard the first $S_{1}$ iterations to allow the algorithm to converge to the equilibrium state.
 
 The function for drawing $\sigma^{2^{(s)}} \sim P(\sigma^{2}|Y,X,A^{(s)},\Sigma^{(s)})$ is as follows.
+
 
 
 ```{r Function for drawing sigma square}
@@ -1103,7 +1183,9 @@ SVcommon.Gibbs.iteration = function(aux, priors){
 }
 ```
 
+
 And the function for drawing $(A,\Sigma)^{(s)} \sim P(A,\Sigma|Y,X,\sigma^{2^{(s-1)}})$ is as follows.
+
 
 
 ```{r Function for baseline and stochastic model}
@@ -1193,11 +1275,13 @@ Post.draws.stochastic <- function (Y,X,prior.parameters.stochastic,S1,S2) {
 
 ```
 
+
 <br>
 
 #### **The extension model**
 
 The posterior parameters from the full conditional posterior for the extension model structured as follows.
+
 
 ```{=tex}
 \begin{align}
@@ -1210,6 +1294,7 @@ The posterior parameters from the full conditional posterior for the extension m
 
 \end{align}
 ```
+
 
 The Gibbs Sampler is used to get the posterior draws of the stochastic volatility model.
 
@@ -1227,6 +1312,7 @@ At each iteration s:
 Repeat step 1 to 4 for $(S_{1} + S_{2})$ times, then discard the first $S_{1}$ iterations to allow the algorithm to converge to the equilibrium state.
 
 The function for drawing $\sigma^{2^{(s)}} \sim P(\sigma^{2}|Y,X,A^{(s)},\Sigma^{(s)},\gamma^{(s)})$ is the same as in the baseline model since $\gamma$ does not affect the distribution, while the function for drawing steps 1 to 3 is as follows.
+
 
 
 ```{r Function for extension and stochastic model}
@@ -1327,9 +1413,11 @@ Post.draws.stochastic.extension <- function (Y,X,prior.parameters.stochastic,S1,
 
 ```
 
+
 ### Data simulation
 
 #### **The baseline model**
+
 
 ```{r Estimate baseline and stochastic model}
 prior.parameters.stochastic <- Prior.Dist(N,p,Sigma.hat,kappa.1,kappa.2)
@@ -1345,7 +1433,9 @@ Sigma.post                  <- posterior.draws$Sigma.posterior
 Sigma.post.mean             <- apply(Sigma.post,1:2,mean)
 ```
 
+
 Table 13 demonstrates that the mean values of matrix $A$ remain consistent with those in previous models. However, in Table 14, the variance-covariance matrix has main diagonal values that are nearly zero, deviating significantly from an identity matrix. This contrasts with the model that does not incorporate stochastic volatility.
+
 
 
 ```{r A mean baseline SV}
@@ -1362,7 +1452,9 @@ rownames(A_df) <- c( "R1", "R2")
 knitr::kable(A_df, caption = "Table 14: Mean of the variance-covariance matrix (The baseline with stochastic volatility model)")
 ```
 
+
 The trace plot in Figure 7 confirms that the value of $A_{21}$ and $A_{32}$ oscillate around 1, while $\Sigma_{11}$ and $\Sigma_{22}$ oscillate around 0.002.
+
 
 ```{r}
 par(mfrow = c(2, 2))
@@ -1371,6 +1463,7 @@ plot(A.post[3,2,],type='l',col="slategray4", ylab="",xlab="", main=expression(A[
 plot(Sigma.post[1,1,],type='l',col="slategray3", ylab="",xlab="" , main=expression(Sigma[11]), lwd = 0.05)
 plot(Sigma.post[2,2,],type='l',col="slategray3" ,ylab="" ,xlab="" ,main=expression(Sigma[22]), lwd = 0.05)
 ```
+
 <div style="text-align: center;">  
 ##### Figure 7: The trace plot of A and Sigma (The baseline with stochastic volatility model)
 </div>
@@ -1378,6 +1471,7 @@ plot(Sigma.post[2,2,],type='l',col="slategray3" ,ylab="" ,xlab="" ,main=expressi
 <br>
 
 Table 15 indicates that the mean value of the main diagonal of $B_{0}$ increase to around 14-15 which is significantly higher to the previous two models.
+
 
 ```{r B0 mean for baseline and stochastic model}
 B0_df           <- as.data.frame(B0.mean)
@@ -1387,7 +1481,9 @@ knitr::kable(B0_df, caption = "Table 15: Mean of the matrix B0 (The baseline wit
 ```
 
 
+
 In Table 16 which indicate the mean of the matrix $B_{+}$, the values in the first column, representing the constant term in the equation, are noticeably different from zero compared to the previous models.
+
 
 ```{r Bplus mean for baseline and stochastic model}
 Bplus_df           <- as.data.frame(Bplus.mean)
@@ -1398,7 +1494,9 @@ knitr::kable(Bplus_df, caption = "Table 16: Mean of the matrix B+ (The baseline 
 
 
 
+
 The trace plot and histogram in Figure 8 show that the values of $B_{11}$ and $B_{22}$ are widely spread from 0 to around 25, but all of them are positive, consistent with the imposed restriction.
+
 
 ```{r}
 par(mfrow = c(2, 2))
@@ -1407,6 +1505,7 @@ hist(B0.store[1,1,], breaks=500, border="steelblue",xlab="", main=expression("Hi
 plot(B0.store[2,2,],type='l',col="slategray4", ylab="",xlab="", main=expression(B[22]), lwd = 0.05)
 hist(B0.store[2,2,], breaks=500, border="steelblue",xlab="", main=expression("Histogram of " * B[22]))
 ```
+
 <div style="text-align: center;">  
 ##### Figure 8: The trace plot and histogram of B0 matrix (The baseline with stochastic volatility model)
 </div>
@@ -1416,12 +1515,14 @@ hist(B0.store[2,2,], breaks=500, border="steelblue",xlab="", main=expression("Hi
 
 The posterior draw mean of $\sigma^{2}$ for each of period display in Figure 9. The $\sigma^{2}$ moves around 2000.
 
+
 ```{r}
 sigma2.mean <- apply(posterior.draws$H.sv,1,mean) 
 plot.ts(sigma2.mean,main=expression(paste("Posterior Mean of ",sigma^2)),
         ylab="",type='l',lwd=2,col="tomato4",xlab="T")
 abline(h=mean(sigma2.mean),lty=2)
 ```
+
 
 <div style="text-align: center;">  
 ##### Figure 9: The posterior mean of the stochastic volatility 
@@ -1432,6 +1533,7 @@ abline(h=mean(sigma2.mean),lty=2)
 Table 17 shows that the mean values of matrix $A$ for lag 1 and lag 2 are equal 1, and the constant value is close to zero. Moreover, in Table 18, the variance-covariance matrix is very closely to zero. 
 
 #### **The extension model**
+
 
 ```{r Estimate extension and stochastic model}
 
@@ -1464,7 +1566,9 @@ rownames(A_df) <- c( "R1", "R2")
 knitr::kable(A_df, digits = 10, caption = "Table 18: Mean of the variance-covariance matrix (The extension with stochastic volatility model)")
 ```
 
+
 The trace plot and histogram depicted in Figure 10 indicate that the values of $A_{21}$ and $A_{32}$ fluctuate around 1, whereas $\Sigma_{11}$ and $\Sigma_{22}$ are nearly zero.
+
 
 
 ```{r}
@@ -1475,6 +1579,7 @@ plot(Sigma.post[1,1,],type='l',col="slategray3", ylab="",xlab="" , main=expressi
 plot(Sigma.post[2,2,],type='l',col="slategray3" ,ylab="" ,xlab="" ,main=expression(Sigma[22]), lwd = 0.05)
 ```
 
+
 <div style="text-align: center;">  
 ##### Figure 10: The trace plot of A and Sigma (The extension with stochastic volatility model)
 </div>
@@ -1484,13 +1589,13 @@ plot(Sigma.post[2,2,],type='l',col="slategray3" ,ylab="" ,xlab="" ,main=expressi
 
 Table 19 indicates that the mean value of the matrix $B_{0}$ is notably elevated, which diverges markedly from all previous models. And the mean value of the matrix $B_{+}$ display in Table 20.
 
+
 ```{r B0 mean for extension SV}
 B0_df           <- as.data.frame(B0.mean)
 colnames(B0_df) <- c("C1", "C2")
 rownames(B0_df) <- c( "R1", "R2")
 knitr::kable(B0_df, caption = "Table 19: Mean of the matrix B0 (The extension with stochastic volatility model)")
 ```
-
 
 ```{r Bplus mean for extension and stochastic model}
 Bplus_df           <- as.data.frame(Bplus.mean)
@@ -1499,7 +1604,9 @@ rownames(Bplus_df) <- c( "R1", "R2")
 knitr::kable(Bplus_df, caption = "Table 20: Mean of the matrix B+ (The extension with stochastic volatility model)")
 ```
 
+
 The trace plot and histogram in Figure 11 reveal that the values of $B_{11}$ and $B_{22}$ span widely from zero to approximately million, confirming the high mean value reported in Table 19.
+
 
 
 ```{r}
@@ -1509,6 +1616,7 @@ hist(B0.store[1,1,], breaks=500, border="steelblue",xlab="", main=expression("Hi
 plot(B0.store[2,2,],type='l',col="slategray4", ylab="",xlab="", main=expression(B[22]), lwd = 0.05)
 hist(B0.store[2,2,], breaks=500, border="steelblue",xlab="", main=expression("Histogram of " * B[22]))
 ```
+
 <div style="text-align: center;">  
 ##### Figure 11: The trace plot and histogram of B0 matrix (The extension with stochastic volatility model)
 </div>
@@ -1517,12 +1625,14 @@ hist(B0.store[2,2,], breaks=500, border="steelblue",xlab="", main=expression("Hi
 
 The mean value of $\gamma$ is equal `r gamma.mean`, which is close to that of the extension model without incorporating stochastic volatility heteroskedasticity. The plot and histogram shown in Figure 12.
 
+
 ```{r}
 par(mfrow = c(1, 2))
 plot(gamma.store,type='l',col="steelblue",ylab=expression(gamma),xlab="no. of iterations",main=expression("Plot of " * gamma), lwd = 0.1)
 abline(h=gamma.mean,lty=3)
 hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=expression("Histogram of " * gamma))
 ```
+
 <div style="text-align: center;">  
 ##### Figure 12: The plot and histogram of gamma (The extension with stochastic volatility model)
 </div>
@@ -1534,12 +1644,14 @@ The posterior draw mean of $\sigma^{2}$ for each of period is displayed in Figur
 
 
 
+
 ```{r}
 sigma2.mean <- apply(posterior.draws$H.sv,1,mean) 
 plot.ts(sigma2.mean,main=expression(paste("Posterior Mean of ",sigma^2)),
         ylab="",type='l',lwd=2,col="tomato4",xlab="T")
 abline(h=mean(sigma2.mean),lty=2)
 ```
+
 <div style="text-align: center;">  
 ##### Figure 13: The posterior mean of the stochastic volatility (The extension with stochastic volatility model) 
 </div>
@@ -1551,6 +1663,7 @@ abline(h=mean(sigma2.mean),lty=2)
 Once we prove that the algorithm and coding can work with the simulated random walk data, the author will apply the same procedure to the empirical data, which contains 6 variables as indicated in the methodology section.
 
 # Empirical estimation
+
 
 ```{r Set up variables_Empirical}
 #| echo: false
@@ -1572,7 +1685,6 @@ X            <- as.matrix(X)  # change from data frame to matrix
 Y            <- as.matrix(Y)  # change from data frame to matrix
 ```
 
-
 ```{r MLE Empirical}
 #| echo: false
 #| message: false
@@ -1582,7 +1694,9 @@ Sigma.hat    <- t(Y-X%*%A.hat)%*%(Y-X%*%A.hat)/nrow(Y)
 ```
 
 
+
 The sign restriction that the author want to impose is applied to the contemporaneous shock or matrix $B_{0}^{-1}$ which is attached to the $u_{t}$ after transforming the SVAR model equation.
+
 
 ```{=tex}
 \begin{align}
@@ -1592,6 +1706,7 @@ y_t &= B_0^{-1}b_0 + \sum_{i=1}^{p}B_0^{-1}B_{i}y_{t-i} + B_0^{-1}u_t
 
 \end{align}
 ```
+
 
 However, the SVAR model can be estimated after estimating the reduced form. To obtain the matrices $A$ and $\Sigma$ from the reduced form, the author uses the same technique as when dealing with the simulation data, which involves randomly drawing both matrices from the posterior distribution.
 
@@ -1621,6 +1736,7 @@ As mentioned earlier, this study includes _govexp_ as a control variable for fis
 <br>
 
 Or can be represented in the compact form as follows.
+
 
 ```{=tex}
 \begin{bmatrix}
@@ -1656,7 +1772,9 @@ kappa.1 <- 1
 kappa.2 <- 100 
 ```
 
+
 Since the restriction on the simulated data has been changed, the new function can be represented as follows:
+
 
 ```{r}
 #| echo: true
@@ -1721,9 +1839,11 @@ B0.inv.sd            <- apply(B0.inv.store, 1:2, sd)
 ```
 
 
+
 ## The baseline model
 
 After imposing these restrictions on $B_{0}^{-1}$, the mean of $B_{0}^{-1}$ is displayed in Table 9, conforming to the sign restrictions in the $1^{st} - 3^{rd}$ rows of the  $1^{st}$ column and the $6^{th}$ row of the $6^{th}$ column, denoted as $B_{11},B_{21}, B_{31}$, and $B_{66}$ respectively.
+
 
 
 ```{r Show B0.inv.mean}
@@ -1733,6 +1853,7 @@ colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 21: Mean of the B0 inverse matrix")
 ```
+
 ```{r Show B0.inv.SD}
 B0.inv_df           <- as.data.frame(B0.inv.sd)
 B0.inv_df           <- round(B0.inv_df, digits = 4)
@@ -1740,7 +1861,9 @@ colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 22: SD of the B0 inverse matrix")
 ```
+
 The trace plot and histogram of the restricted variable confirms that $B_{0}^{-1}$ shows $B_{11}$ as positive, $B_{21}$ and $B_{31}$ as negative, and $B_{66}$ as positive, consistent with the specified restrictions.
+
 ```{r}
 par(mfrow = c(4, 2), mar = c(4, 4, 2, 1), oma = c(0, 2, 2, 2))
 plot(B0.inv.store[1,1,],type='l',col="slategray4", ylab="",xlab="", main=expression(B[11]), lwd = 0.05)
@@ -1752,6 +1875,7 @@ hist(B0.inv.store[3,1,], breaks=500, border="steelblue",xlab="", main=expression
 plot(B0.inv.store[6,6,],type='l',col="slategray4", ylab="",xlab="", main=expression(B[66]), lwd = 0.05)
 hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression("Histogram of " * B[66]))
 ```
+
 <div style="text-align: center;">  
 ##### Figure 14: The trace plot and histogram of B0 inverse (The baseline model)
 </div>
@@ -1759,6 +1883,7 @@ hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression
 ### Impulse response function
 
 The function for calculating 
+
 
 ```{r compute IRF function}
 #| echo: true
@@ -1790,8 +1915,6 @@ compute_IRF <- function(h, S2, N, p) {
 }
 ```
 
-
-
 ```{r}
 #| echo: false
 #| message: false
@@ -1802,7 +1925,6 @@ IRFs.k1           <- apply(IRF.1[,1,,],1:2,median)
 rownames(IRFs.k1) <- rownames(adf_matrix)
 ```
 
-
 ```{r}
 #| echo: false
 #| message: false
@@ -1811,7 +1933,6 @@ library(HDInterval)
 IRFs.k1.hdi       <- apply(IRF.1[,1,,],1:2,hdi, credMass=0.68)
 hh                <- 1:(h+1)
 ```
-
 
 ```{r}
 #| echo: false
@@ -1833,6 +1954,7 @@ for (n in 1:N){
   lines(hh, IRFs.k1[n,hh],lwd=2.5,col="gray26")
 }
 ```
+
 <div style="text-align: center;">  
 ##### Figure 15: The impulse response to the monetary shock (baseline model) 
 </div>
@@ -1848,6 +1970,7 @@ Regarding the cash rate itself, after rising from the shock, it tends to normali
 ## The extension model
 
 
+
 ```{r estimation empirical extension model}
 posterior.draws     <- Gibbsampler.Extension(Y, prior.parameters, posterior.parameters, S1,S2, N, K)
 B.draws.restricted  <- ImposeSignRestriction.empirical(N,p,posterior.draws,S)
@@ -1859,7 +1982,6 @@ Bplus.mean          <- apply(Bplus.store,1:2,mean)
 B0.inv.sd           <- apply(B0.inv.store,1:2,sd)
 ```
 
-
 ```{r}
 B0.inv_df           <- as.data.frame(B0.inv.mean)
 B0.inv_df           <- round(B0.inv_df, digits = 4)
@@ -1867,7 +1989,6 @@ colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 23: Mean of the B0 inverse matrix (extension model)")
 ```
-
 
 ```{r}
 B0.inv_df           <- as.data.frame(B0.inv.sd)
@@ -1877,7 +1998,9 @@ rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 24: SD of the B0 inverse matrix (extension model)")
 ```
 
+
 The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero. The plot and histogram shown in Figure 16 confirms that the draw oscillates around 0.0015.
+
 
 ```{r}
 par(mfrow = c(1, 2))
@@ -1885,9 +2008,11 @@ plot(gamma.store,type='l',col="slategray4",ylab=expression(gamma),xlab="no. of i
 abline(h=gamma.mean,lty=3)
 hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=expression("Histogram of " * gamma))
 ```
+
 <div style="text-align: center;">  
 ##### Figure 16: The plot and histogram of gamma (The extension model)
 </div>
+
 
 ```{r}
 par(mfrow = c(4, 2), mar = c(4, 4, 2, 1), oma = c(0, 2, 2, 2))
@@ -1901,12 +2026,14 @@ plot(B0.inv.store[6,6,],type='l',col="slategray4", ylab="",xlab="", main=express
 hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression("Histogram of " * B[66]))
 ```
 
+
 <div style="text-align: center;">  
 ##### Figure 17: The trace plot and histogram of B0 inverse (The extension model)
 </div>
 
 
 ### Impulse response function
+
 
 
 ```{r}
@@ -1916,15 +2043,11 @@ IRFs.k1           <- apply(IRF.1[,1,,],1:2,median)
 rownames(IRFs.k1) <- rownames(adf_matrix)
 ```
 
-
 ```{r}
 library(HDInterval)
 IRFs.k1.hdi    = apply(IRF.1[,1,,],1:2,hdi, credMass=0.68)
 hh = 1:(h+1)
 ```
-
-
-
 
 ```{r}
 par(mfrow=c(3,2), mar=c(4,4,2,2),cex.axis=1, cex.lab=1)
@@ -1945,6 +2068,7 @@ for (n in 1:N){
 
 
 ```
+
 <div style="text-align: center;">  
 ##### Figure 18: The impulse response to the monetary shock (extension model) 
 </div>
@@ -1959,6 +2083,7 @@ As for the cash rate, stock price, and government expenditure, there isn't much 
 
 
 ## The baseline with Stochastic volatillity model
+
 
 ```{r}
 prior.parameters.stochastic <- Prior.Dist(N,p,Sigma.hat,kappa.1,kappa.2)
@@ -1978,6 +2103,7 @@ colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 25: Mean of the B0 inverse matrix")
 ```
+
 ```{r Show B0.inv.sd stochastic}
 B0.inv_df <- as.data.frame(B0.inv.sd)
 B0.inv_df <- round(B0.inv_df, digits = 4)
@@ -1998,6 +2124,7 @@ plot(B0.inv.store[6,6,],type='l',col="slategray4", ylab="",xlab="", main=express
 hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression("Histogram of " * B[66]))
 ```
 
+
 <div style="text-align: center;">  
 ##### Figure 19: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)
 </div>
@@ -2005,12 +2132,14 @@ hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression
 
 The posterior draw mean of $\sigma^{2}$ for each period is displayed in Figure 20. The $\sigma^{2}$ moves around 8000. We can also see that the $\sigma^{2}$ rises up to 60000 in some particular periods.
 
+
 ```{r}
 sigma2.mean <- apply(posterior.draws$H.sv,1,mean) 
 plot.ts(sigma2.mean,main=expression(paste("Posterior Mean of ",sigma^2)),
         ylab="",type='l',lwd=2,col="tomato4",xlab="T")
 abline(h=mean(sigma2.mean),lty=2)
 ```
+
 <div style="text-align: center;">  
 ##### Figure 20: The posterior mean of the stochastic volatility (The baseline with stochastic volatility model)
 </div>
@@ -2018,13 +2147,13 @@ abline(h=mean(sigma2.mean),lty=2)
 
 ### Impulse response function
 
+
 ```{r}
 IRF <- compute_IRF(h, S2, N, p)
 IRF.1 <- IRF[["IRF.posterior"]]
 IRFs.k1           = apply(IRF.1[,1,,],1:2,median)
 rownames(IRFs.k1) = rownames(adf_matrix)
 ```
-
 
 ```{r}
 library(HDInterval)
@@ -2054,6 +2183,7 @@ for (n in 1:N){
 
 
 ```
+
 <div style="text-align: center;">  
 ##### Figure 21: The impulse response to the monetary shock (the baseline with stochastic volatility model) 
 </div>
@@ -2065,6 +2195,7 @@ The [Figure 21: The impulse response to the monetary shock (the baseline with st
 
 
 ## The extension with Stochastic volatillity model
+
 
 ```{r Estimate extension and stochastic model for empirical}
 
@@ -2095,6 +2226,7 @@ colnames(B0.inv_df) <- c("C1", "C2", "C3", "C4", "C5", "C6")
 rownames(B0.inv_df) <- c( "R1", "R2", "R3", "R4", "R5", "R6")
 knitr::kable(B0.inv_df, caption = "Table 28: SD of the B0 inverse matrix")
 ```
+
 ```{r}
 par(mfrow = c(4, 2), mar = c(4, 4, 2, 1), oma = c(0, 2, 2, 2))
 plot(B0.inv.store[1,1,],type='l',col="slategray4", ylab="",xlab="", main=expression(B[11]), lwd = 0.05)
@@ -2107,11 +2239,13 @@ plot(B0.inv.store[6,6,],type='l',col="slategray4", ylab="",xlab="", main=express
 hist(B0.inv.store[6,6,], breaks=500, border="steelblue",xlab="", main=expression("Histogram of " * B[66]))
 ```
 
+
 <div style="text-align: center;">  
 ##### Figure 22: The trace plot and histogram of B0 inverse (The basic with stochastic volatility model)
 </div>
 
 The mean value of $\gamma$ is equal `r gamma.mean`, which is close to zero and also almost the same as before the author incorporates the stochastic volatility. The plot and histogram shown in Figure 22.
+
 
 
 ```{r}
@@ -2121,12 +2255,14 @@ abline(h=gamma.mean,lty=3)
 hist(gamma.store, breaks=500, border="steelblue",xlab=expression(gamma), main=expression("Histogram of " * gamma))
 ```
 
+
 <div style="text-align: center;">  
 ##### Figure 23: The plot and histogram of gamma (The extension with stochastic volatility model)
 </div>
 
 
 The posterior draw mean of $\sigma^{2}$ for each period is displayed in Figure 24. The $\sigma^{2}$ is significantly higher compared to the previous model.
+
 
 
 ```{r}
@@ -2136,6 +2272,7 @@ plot.ts(sigma2.mean,main=expression(paste("Posterior Mean of ",sigma^2)),
         ylab="",type='l',lwd=2,col="tomato4",xlab="T")
 abline(h=mean(sigma2.mean),lty=2)
 ```
+
 <div style="text-align: center;">  
 ##### Figure 24: The posterior mean of the stochastic volatility (The extension with stochastic volatility model)
 </div>
@@ -2150,13 +2287,13 @@ abline(h=mean(sigma2.mean),lty=2)
 
 However, the Figure 25 The impulse response to the monetary shock (the extension with stochastic volatility model), displays the point estimate impulse response as a flat line, indicating a value actually close to zero. The 68% confidence interval is also flat. We cannot observe any significant effect on all six variables in the system. One possible explanation is that we might need more observations to capture the heteroskedasticity, which, in this case, is not sufficient.
 
+
 ```{r}
 IRF               <- compute_IRF(h, S2, N, p)
 IRF.1             <- IRF[["IRF.posterior"]]
 IRFs.k1           = apply(IRF.1[,1,,],1:2,median)
 rownames(IRFs.k1) = rownames(adf_matrix)
 ```
-
 
 ```{r}
 library(HDInterval)
@@ -2186,9 +2323,11 @@ for (n in 1:N){
 
 
 ```
+
 <div style="text-align: center;">  
 ##### Figure 25: The impulse response to the monetary shock (the extension with stochastic volatility model) 
 </div>
 
 
 ## References {.unnumbered}
+
